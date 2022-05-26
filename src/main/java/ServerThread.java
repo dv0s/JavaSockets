@@ -28,7 +28,7 @@ public class ServerThread extends Thread{
             //Hier moet toch iets van een protocol komen.
             while(true){
                 System.out.println("Client "+ conn_count +" connectie is actief voor: " + System.nanoTime());
-                Thread.sleep(10000);
+                Thread.sleep(100);
                 boolean done = TransferFile();
                 if(done){
                     break;
