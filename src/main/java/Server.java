@@ -14,13 +14,14 @@ public class Server {
         // Maak van de argumenten variablen waarmee je kan werken.
         int portNumber = Integer.parseInt(args[0]);
 
+        System.out.println("Socket initialized! Listening...");
         try (
                 // Probeer een socket op te zetten waar de server op luistert naar clients.
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 // En wacht tot er een verbinding binnenkomt.
                 Socket clientSocket = serverSocket.accept();
         ) {
-            System.out.println("Connection established! Listening...");
+
 
             // Open een oneindige lus voor het versturen van het bestand zodra er een client verbinding heeft gemaakt.
             while (true) {
@@ -32,7 +33,9 @@ public class Server {
                 // Maak een teller voor straks
                 int count;
                 // Definieer een buffer straks
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[16 * 1024];
+
+                int i = 0;
 
                 // Hiermee kan de grootte van het bestand worden bepaald (Hebben we voor nu niet nodig).
 //                byte[] myByteArray = new byte[(int) myFile.length()];
@@ -47,10 +50,12 @@ public class Server {
                 // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
                 // of gelijk is aan 0.
                 while((count = in.read(buffer)) >= 0){
+                    System.out.println(i + ": " + count);
                     // Schrijf het buffer stukje naar de client stream.
                     out.write(buffer, 0, count);
                     // En wel direct
                     out.flush();
+                    i++;
                 }
 
                 // Als we klaar zijn, sluiten we de connectie met de client.
