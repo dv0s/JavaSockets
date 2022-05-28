@@ -5,11 +5,14 @@ import java.nio.file.*;
 import java.util.stream.Stream;
 
 public class Client {
+
     public static void main(String[] args) throws IOException {
 
-        // Deze bekijken op een windows machine.
+        // Deze bekijken op een Windows Machine.
         String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
-                .append(File.separator).append("documents"));
+                .append(File.separator).append("documents")
+                .append(File.separator).append("avans")
+                .append(File.separator).append("filesync"));
 
         System.out.println("User home dir is: " + dir);
 
@@ -34,7 +37,7 @@ public class Client {
         ){
             // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
             // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
-            Path path = FileSystems.getDefault().getPath("D:\\Avans\\Socket\\received", "big_ass_file2.zip");
+            Path path = FileSystems.getDefault().getPath(dir + File.separator + "catch", "big_ass_file2.zip");
 
             // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
             // de andere kant toe).
@@ -109,6 +112,8 @@ public class Client {
         }
 
     }
+
+
 
     static void ScanDir(String dir)
     {

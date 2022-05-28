@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 public class ServerThread extends Thread{
     // Private socket voor de thread.
@@ -15,6 +17,12 @@ public class ServerThread extends Thread{
 
     public void run()
     {
+        // Deze bekijken op een Windows Machine.
+        String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
+                .append(File.separator).append("documents")
+                .append(File.separator).append("avans")
+                .append(File.separator).append("filesync"));
+
         try(
                 // Output stream naar client toe.
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
@@ -48,12 +56,18 @@ public class ServerThread extends Thread{
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
     public boolean TransferFile() throws IOException {
 
+        // Deze bekijken op een Windows Machine.
+        String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
+                .append(File.separator).append("documents")
+                .append(File.separator).append("avans")
+                .append(File.separator).append("filesync"));
+
         // Open een oneindige lus voor het versturen van het bestand zodra er een client verbinding heeft gemaakt.
         while (true) {
             System.out.println("Client Accepted");
 
             // Pak het bestand die je wilt versturen.
-            File myFile = new File("D:\\Avans\\Socket\\send\\BIGASSFILE.zip");
+            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "BIGASSFILE.zip");
 
             // Maak een teller voor straks
             int count;
@@ -70,7 +84,7 @@ public class ServerThread extends Thread{
 
             // Lees het bestand uit in een gebufferde stream (Input krijgt van de andere kant, in dit geval van het
             // bestand wat eerder aangemaakt is).
-            BufferedInputStream in = new BufferedInputStream(new FileInputStream(myFile));
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(String.valueOf(myFile)));
 
             // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
             // of gelijk is aan 0.
