@@ -9,9 +9,9 @@ public class Client {
 
         // Deze bekijken op een windows machine.
         String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
-                .append("/documents"));
+                .append(File.separator).append("documents"));
 
-        System.out.println("User home dir is: " + System.getProperty("user.home") + "/documents");
+        System.out.println("User home dir is: " + dir);
 
         // Bekijk alles in het mapje. Dit kan weer handig zijn voor het uitlezen en bepalen welke bestanden er
         // gesynct kan worden.
@@ -116,6 +116,8 @@ public class Client {
             paths
                     .filter(Files::isRegularFile)
                     .forEach(System.out::println);
+        } catch (AccessDeniedException e){
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
