@@ -1,14 +1,21 @@
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
 import java.nio.file.*;
+import java.util.stream.Stream;
 
 public class Client {
     public static void main(String[] args) throws IOException {
+
+        // Deze bekijken op een windows machine.
+        String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
+                .append("/documents"));
+
+        System.out.println("User home dir is: " + System.getProperty("user.home") + "/documents");
+
+        // Bekijk alles in het mapje. Dit kan weer handig zijn voor het uitlezen en bepalen welke bestanden er
+        // gesynct kan worden.
+        ScanDir(dir);
 
         // Check argumenten voor het starten van de applicatie, in dit geval hostname en poortnummer
         if(args.length != 2)
@@ -101,5 +108,16 @@ public class Client {
             System.exit(1);
         }
 
+    }
+
+    static void ScanDir(String dir)
+    {
+        try (Stream<Path> paths = Files.walk(Paths.get(dir))) {
+            paths
+                    .filter(Files::isRegularFile)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
