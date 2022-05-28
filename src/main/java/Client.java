@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 import java.util.stream.Stream;
 
 public class Client {
@@ -126,5 +127,23 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    static void CheckRootDir(String dir){
+        // For more info, look here : https://www.baeldung.com/java-nio2-file-attribute
+//        Path path = Paths.get(dir);
+//        if(!Files.exists(path))
+//        {
+//            try(
+//                    FileAttribute attr = new FileAttribute {
+//                        "Owner", "DvOs"
+//            }
+//                Files.createDirectories(Paths.get(dir));
+//            ){
+//
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
     }
 }
