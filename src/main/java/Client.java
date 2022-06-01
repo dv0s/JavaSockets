@@ -40,6 +40,13 @@ public class Client {
             // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
             Path path = FileSystems.getDefault().getPath(dir + File.separator + "catch", "big_ass_file2.zip");
 
+            // Als het pad niet bestaat..
+            if(!Files.exists(path))
+            {
+                // Maak de mappen dan aan.
+                Files.createDirectories(path.getParent());
+            }
+
             // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
             // de andere kant toe).
             FileOutputStream fos = new FileOutputStream(String.valueOf(path));
@@ -118,7 +125,9 @@ public class Client {
 
     static void ScanDir(String dir)
     {
+        // Doorzoek alle bestanden in een bepaalde map
         try (Stream<Path> paths = Files.walk(Paths.get(dir))) {
+            // Voor elk bestand, print voorlopig het pad naar console.
             paths
                     .filter(Files::isRegularFile)
                     .forEach(System.out::println);
