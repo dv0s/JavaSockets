@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ServerThread extends Thread{
     // Private socket voor de thread.
@@ -18,10 +20,10 @@ public class ServerThread extends Thread{
     public void run()
     {
         // Deze bekijken op een Windows Machine.
-        String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
-                .append(File.separator).append("documents")
-                .append(File.separator).append("avans")
-                .append(File.separator).append("filesync"));
+        String dir = String.valueOf(System.getProperty("user.home") +
+                File.separator + "documents" +
+                File.separator + "avans" +
+                File.separator + "filesync");
 
         try(
                 // Output stream naar client toe.
@@ -33,11 +35,16 @@ public class ServerThread extends Thread{
             //Variables voor het kunnen lezen en schrijven naar client toe.
             String inputLine, outputLine;
 
-            //Hier moet toch iets van een protocol komen.
+            // # Hier moet toch iets van een protocol komen.
+            // Zolang als dat er een verbinding is
             while(true){
+                // print welke client nummer actief is.
                 System.out.println("Client "+ conn_count +" connectie is actief voor: " + System.nanoTime());
+                // Zet een timer voor 100ms.
                 Thread.sleep(100);
+                // doe een file transfer.
                 boolean done = TransferFile();
+                // Klaar? Breek dan uit de lus.
                 if(done){
                     break;
                 }
@@ -48,26 +55,35 @@ public class ServerThread extends Thread{
 
         }catch(IOException e){
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
-    public boolean TransferFile() throws IOException {
+    public boolean TransferFile() throws IOException, NoSuchAlgorithmException {
 
         // Deze bekijken op een Windows Machine.
-        String dir = String.valueOf(new StringBuilder().append(System.getProperty("user.home"))
-                .append(File.separator).append("documents")
-                .append(File.separator).append("avans")
-                .append(File.separator).append("filesync"));
+        String dir = String.valueOf(System.getProperty("user.home") +
+                File.separator + "documents" +
+                File.separator + "avans" +
+                File.separator + "filesync");
 
         // Open een oneindige lus voor het versturen van het bestand zodra er een client verbinding heeft gemaakt.
         while (true) {
             System.out.println("Client Accepted");
 
             // Pak het bestand die je wilt versturen.
-            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "BIGASSFILE.zip");
+            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "avatar.png");
+
+            //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
+            // Bepaal het algoritme voor het hashen.
+            MessageDigest md5Digest = MessageDigest.getInstance("SHA-256");
+            // Genereer de checksum.
+            String checksum = Tools.getFileChecksum(md5Digest, myFile.toFile());
+            // Print de checksum uit.
+            System.out.println("SHA-256 server checksum: " + checksum);
+            //## EINDE CHECKSUM GEDEELTE
 
             // Maak een teller voor straks
             int count;
@@ -89,12 +105,10 @@ public class ServerThread extends Thread{
             // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
             // of gelijk is aan 0.
             while((count = in.read(buffer)) >= 0){
-                System.out.println(i + ": " + count);
                 // Schrijf het buffer stukje naar de client stream.
                 out.write(buffer, 0, count);
                 // En wel direct
                 out.flush();
-                i++;
             }
 
             // Als we klaar zijn, sluiten we de connectie met de client.

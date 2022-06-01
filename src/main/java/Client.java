@@ -3,6 +3,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileAttribute;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
 public class Client {
@@ -19,7 +21,7 @@ public class Client {
 
         // Bekijk alles in het mapje. Dit kan weer handig zijn voor het uitlezen en bepalen welke bestanden er
         // gesynct kan worden.
-        ScanDir(dir);
+        Tools.ScanDir(dir);
 
         // Check argumenten voor het starten van de applicatie, in dit geval hostname en poortnummer
         if(args.length != 2)
@@ -38,7 +40,16 @@ public class Client {
         ){
             // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
             // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
-            Path path = FileSystems.getDefault().getPath(dir + File.separator + "catch", "big_ass_file2.zip");
+            Path path = FileSystems.getDefault().getPath(dir + File.separator + "catch", "avatar.png");
+
+            //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
+            // Bepaal het algoritme voor het hashen.
+            MessageDigest md5Digest = MessageDigest.getInstance("SHA-256");
+            // Genereer de checksum.
+            String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
+            // Print de checksum uit.
+            System.out.println("SHA-256 client checksum: " + checksum);
+            //## EINDE CHECKSUM GEDEELTE
 
             // Als het pad niet bestaat..
             if(!Files.exists(path))
@@ -67,12 +78,10 @@ public class Client {
             // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
             System.out.println("Write first file");
             while((count = in.read(buffer)) >= 0){
-                System.out.println(i + ": " + count);
                 // Schrijf naar het bestand stream toe.
                 fos.write(buffer, 0, count);
                 // En wel direct.
                 fos.flush();
-                i++;
             }
 
             // Of... We lossen het op met de java.nio.* package (Wat dus niet gelukt was..)
@@ -117,42 +126,9 @@ public class Client {
         }catch(IOException e){
             System.err.println("Couldn't get I/O for the connection to " + hostName);
             System.exit(1);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
 
-    }
-
-
-
-    static void ScanDir(String dir)
-    {
-        // Doorzoek alle bestanden in een bepaalde map
-        try (Stream<Path> paths = Files.walk(Paths.get(dir))) {
-            // Voor elk bestand, print voorlopig het pad naar console.
-            paths
-                    .filter(Files::isRegularFile)
-                    .forEach(System.out::println);
-        } catch (AccessDeniedException e){
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    static void CheckRootDir(String dir){
-        // For more info, look here : https://www.baeldung.com/java-nio2-file-attribute
-//        Path path = Paths.get(dir);
-//        if(!Files.exists(path))
-//        {
-//            try(
-//                    FileAttribute attr = new FileAttribute {
-//                        "Owner", "DvOs"
-//            }
-//                Files.createDirectories(Paths.get(dir));
-//            ){
-//
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
     }
 }
