@@ -74,7 +74,7 @@ public class ServerThread extends Thread{
             System.out.println("Client Accepted");
 
             // Pak het bestand die je wilt versturen.
-            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "avatar.png");
+            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "BIGASSFILE.zip");
 
             //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
             // Bepaal het algoritme voor het hashen.

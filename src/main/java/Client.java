@@ -40,7 +40,30 @@ public class Client {
         ){
             // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
             // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
-            Path path = FileSystems.getDefault().getPath(dir + File.separator + "catch", "avatar.png");
+
+            String fn = "bigpackage.zip";
+            String des = dir + File.separator + "catch";
+
+            // Maak eerst tijdelijke bestanden en mappen aan, voor het geval dat ze dus niet bestaan.
+            if(Files.notExists(Paths.get(des + File.separator + fn)))
+            {
+                // Pak het pad dat je wilt hebben.
+                Path baseDir = Paths.get(des);
+
+                // Plak daar de bestandsnaam aan vast via de resolve methode. Deze werkt voor directories als er geen
+                // extensie aanwezig is. Ander is het een bestand.
+                Path fileLocation = baseDir.resolve(fn);
+                System.out.println(fileLocation);
+
+                // Maak het bestand aan op het volledige pad dat is gegeven met de resolve functie hierboven.
+                Files.createFile(fileLocation);
+
+            }
+
+            // Nu dat het bestand is aangemaakt, kunnen we het pad pakken. Dit kan dan op een slimmere manier worden gedaan.
+            Path path = FileSystems.getDefault().getPath(des, fn);
+
+
 
             //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
             // Bepaal het algoritme voor het hashen.

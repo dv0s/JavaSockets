@@ -1,5 +1,6 @@
 import java.util.Objects;
 
+// File header klasse waar de gegevens van het "te versturen" bestand in worden verzonden van punt A naar punt B.
 public class FileHeader implements Comparable<FileHeader>{
     public String name;
     public long size;

@@ -1,0 +1,35 @@
+client: 5d273df38f9af1512c77b5b49853b491
+server: 5d273df38f9af1512c77b5b49853b491
+
+SHA-256 client checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+SHA-256 server checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+
+SHA-256 server checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+SHA-256 client checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+SHA-256 client checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+SHA-256 server checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+
+// Complete_different.png 1st try
+SHA-256 client checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+SHA-256 server checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+
+// Complete_different.png 2nd try
+SHA-256 client checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+SHA-256 server checksum: 26f776e154ec5915a6858b95ad9e159b08f87a37cae36e00aa21d6dab290b690
+
+// Complete_different.zip 1st try
+SHA-256 client checksum: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+SHA-256 server checksum: ac044d19b027f8eb47a613eeff9d586672a91cbe19e476d414a290380bff8706
+
+// Complete_different.zip 2nd try
+SHA-256 server checksum: ac044d19b027f8eb47a613eeff9d586672a91cbe19e476d414a290380bff8706
+SHA-256 client checksum: ac044d19b027f8eb47a613eeff9d586672a91cbe19e476d414a290380bff8706
+
+// Het verschil in checksums komt doordat het de eerste keer een tijdelijk bestand is en 
+// er aan beide kanten gecheckt wordt direct bij het opzetten van de verbinding.
+//
+// Het proces moet worden verfijnd zodat er aan de verzendende kant eerst een checksum wordt
+// gemaakt, overgebracht naar de andere kant en dan weer een checksum gemaakt wordt van het
+// ontvangen bestand. Die checken tegen wat er in de header stond aangegeven. Is er verschil?
+// Gelijk delete en opnieuw proberen.
