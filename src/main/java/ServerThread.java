@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class ServerThread extends Thread{
-    // Private socket voor de thread.
+    // Private socket voor de thread. Deze krijgt de Thread van de Server klasse.
     private Socket socket;
     private int conn_count;
 
@@ -35,29 +35,47 @@ public class ServerThread extends Thread{
             //Variables voor het kunnen lezen en schrijven naar client toe.
             String inputLine, outputLine;
 
-            // # Hier moet toch iets van een protocol komen.
-            // Zolang als dat er een verbinding is
-            while(true){
-                // print welke client nummer actief is.
+            System.out.println("Listening...");
+
+            Protocol p = new Protocol();
+            outputLine = p.processInput(null);
+            clientOut.println(outputLine);
+
+            while((inputLine = clientIn.readLine()) != null){
                 System.out.println("Client "+ conn_count +" connectie is actief voor: " + System.nanoTime());
-                // Zet een timer voor 100ms.
-                Thread.sleep(100);
-                // doe een file transfer.
-                boolean done = TransferFile();
-                // Klaar? Breek dan uit de lus.
-                if(done){
+                outputLine = p.processInput(inputLine);
+                clientOut.println(outputLine);
+                if(outputLine.equals("Bye."))
                     break;
-                }
             }
 
-            System.out.println("File has been transferred!");
+            // # Hier moet toch iets van een protocol komen.
+            // Zolang als dat er een verbinding is
+// Zet deze code nog even uit.
+//            while(true){
+//                // print welke client nummer actief is.
+//                System.out.println("Client "+ conn_count +" connectie is actief voor: " + System.nanoTime());
+//                // Zet een timer voor 100ms.
+//                Thread.sleep(100);
+//                // doe een file transfer.
+//                boolean done = TransferFile();
+//                // Klaar? Breek dan uit de lus.
+//                if(done){
+//                    break;
+//                }
+//            }
 
+//            System.out.println("File has been transferred!");
+
+            socket.close();
 
         }catch(IOException e){
             e.printStackTrace();
-        } catch (InterruptedException | NoSuchAlgorithmException e) {
+        }/*catch (InterruptedException e){
             throw new RuntimeException(e);
-        }
+        }catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }*/
     }
 
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
