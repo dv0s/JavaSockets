@@ -43,8 +43,15 @@ public class Tools {
 
     public static void ScanDir(String dir)
     {
+        // Bestaat de map?
+        Path of = Path.of(dir);
+        if(Files.notExists(of)) {
+            System.out.println("Path of " + dir + " doesn't exists");
+            return;
+        }
+
         // Doorzoek alle bestanden in een bepaalde map
-        try (Stream<Path> paths = Files.walk(Paths.get(dir))) {
+        try (Stream<Path> paths = Files.walk(of)) {
             // Voor elk bestand, print voorlopig het pad naar console.
             paths
                     .filter(Files::isRegularFile)

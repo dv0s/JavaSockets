@@ -19,7 +19,7 @@ public class ServerThread extends Thread{
 
     public void run()
     {
-        // Deze bekijken op een Windows Machine.
+        // Initieer de begin map waar de bestanden komen te staan.
         String dir = String.valueOf(System.getProperty("user.home") +
                 File.separator + "documents" +
                 File.separator + "avans" +
