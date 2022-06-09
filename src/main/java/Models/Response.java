@@ -1,18 +1,22 @@
+package Models;
+
+import Enums.MyState;
+
 public class Response
 {
     String command = null;
     String[] args = null;
     int code = 0;
-    State state = null;
-    String message = null;
+    public MyState myState = null;
+    public String message = null;
 
-    public Response(String command, String[] args, int code, State state, String message)
+    public Response(String command, String[] args, int code, MyState myState, String message)
     {
         super();
         this.command = command;
         this.args = args;
         this.code = code;
-        this.state = state;
+        this.myState = myState;
         this.message = message;
     }
 
@@ -32,12 +36,12 @@ public class Response
         this.code = code;
     }
 
-    public State getState() {
-        return state;
+    public MyState getState() {
+        return myState;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void setState(MyState myState) {
+        this.myState = myState;
     }
 
     public String getMessage() {
@@ -48,10 +52,10 @@ public class Response
         this.message = message;
     }
 
-    public void setResponse(int code, State state, String message)
+    public void setResponse(int code, MyState myState, String message)
     {
         setCode(code);
-        setState(state);
+        setState(myState);
         setMessage(message);
     }
 
@@ -60,7 +64,7 @@ public class Response
         return "command:" + command +
                 ", args:" + args +
                 ", code:" + code +
-                ", state:" + state.toString() +
+                ", state:" + myState.toString() +
                 ", message:" + message;
     }
 }

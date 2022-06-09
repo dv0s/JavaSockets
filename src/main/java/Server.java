@@ -17,12 +17,11 @@ public class Server {
         try (
                 // Probeer een socket op te zetten waar de server op luistert naar clients.
                 ServerSocket serverSocket = new ServerSocket(portNumber);
+                ServerSocket transferSocket = new ServerSocket(42068);
         ) {
-            int conn_count = 0;
             while(listening){
-                conn_count++;
                 // Start een thread waar een client op aanhaakt.
-                new ServerThread(serverSocket.accept(), conn_count).start();
+                new ServerThread(serverSocket.accept(), transferSocket).start();
             }
 
         } catch (IOException e) {

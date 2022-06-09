@@ -1,4 +1,3 @@
-import Enums.MyState;
 import Enums.SocketMode;
 
 import java.io.*;
@@ -9,21 +8,20 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class ServerThread extends Thread{
-    // Private socket voor de thread. Deze krijgt de Thread van de Server klasse.
-    private Socket socket;
-    private ServerSocket transferSocket;
+public class TransferThread extends Thread {
+    private final Socket socket;
+    private final String dropLocation;
 
-    // Constructor voor de server thread.
-    public ServerThread(Socket socket, ServerSocket transferSocket){
+    public TransferThread(SocketMode mode, Socket socket, File file, String dropLocation) {
         super();
         this.socket = socket;
-        this.transferSocket = transferSocket;
+        this.dropLocation = dropLocation;
     }
 
+    @Override
     public void run()
     {
-        // Initieer de begin map waar de bestanden komen te staan.
+        // Deze bekijken op een Windows Machine.
         String dir = String.valueOf(System.getProperty("user.home") +
                 File.separator + "documents" +
                 File.separator + "avans" +
@@ -34,79 +32,53 @@ public class ServerThread extends Thread{
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
                 // Input stream van client.
                 BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                ){
+        ){
 
             //Variables voor het kunnen lezen en schrijven naar client toe.
             String inputLine, outputLine;
 
-            System.out.println("Listening...");
-
-            // Start een nieuwe instantie van het Protocol
-            Protocol p = new Protocol();
-            // Zet de huidige outputLine naar niks via het protocol
-            outputLine = p.processInput(null);
-            // Stuur het naar de client toe.
-            clientOut.println(outputLine);
-
-            // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
-            while((inputLine = clientIn.readLine()) != null){
-                // Zet antwoord klaar vanuit het protocol om naar client te sturen.
-                outputLine = p.processInput(inputLine);
-                // Stuur het antwoord naar de Client
-                clientOut.println(outputLine);
-
-                // TODO: 06/06/2022 Hier moet de Thread gaan kijken naar welke acties er uitgevoerd moeten worden op commando.
-                if(outputLine.startsWith("OPEN"))
-                {
-                    System.out.println("OPEN command received");
-                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), new File(""), "path").start();
-
-//                    // Zolang als dat er een verbinding is
-//                    while(true){
-//                        // print welke client nummer actief is.
-//                        System.out.println("Client "+ conn_count +" connectie is actief voor: " + System.nanoTime());
-//                        // Zet een timer voor 100ms.
-//                        Thread.sleep(100);
-//                        // doe een file transfer.
-//                        boolean done = TransferFile("string");
-//                        // Klaar? Breek dan uit de lus.
-//                        if(done){
-//                            continue;
-//                        }
-//                    }
-
-                }
-                // TODO: 06/06/2022 Hier moet logica komen die een nieuwe connectie open zet.
-                //  Zodra die beschikbaar is moet een seintje aan de client worden gegeven waar het verbinding mee moet maken.
-
-                // Als het antwoord van de server "Bye." is, dan gaan we uit de loop en sluiten we de connectie.
-                if(outputLine.equals("Bye."))
+            // # Hier moet toch iets van een protocol komen.
+            // Zolang als dat er een verbinding is
+            while(true){
+                // doe een file transfer.
+                boolean done = TransferFile();
+                // Klaar? Breek dan uit de lus.
+                if(done){
                     break;
+                }
             }
 
-            // Sluit de connectie.
-            socket.close();
-            // Probeer de thread te sluiten.
-            interrupt();
+            System.out.println("File has been transferred!");
+
 
         }catch(IOException e){
             e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                    System.out.println("Socket should be closed");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
+
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
-    public boolean TransferFile(String fileName) throws IOException, NoSuchAlgorithmException {
+    public boolean TransferFile() throws IOException, NoSuchAlgorithmException {
 
         // Deze bekijken op een Windows Machine.
         String dir = String.valueOf(System.getProperty("user.home") +
                 File.separator + "documents" +
                 File.separator + "avans" +
                 File.separator + "filesync");
-
+        boolean isAlive = false;
         // Open een oneindige lus voor het versturen van het bestand zodra er een client verbinding heeft gemaakt.
         while (true) {
-            System.out.println("Client Accepted");
-
             // Pak het bestand die je wilt versturen.
             Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "avatar.png");
 
@@ -146,6 +118,8 @@ public class ServerThread extends Thread{
             }
 
             // Als we klaar zijn, sluiten we de connectie met de client.
+            in.close();
+            out.close();
             socket.close();
 
             // Breek uit de lus.
@@ -153,5 +127,9 @@ public class ServerThread extends Thread{
         }
 
         return true;
+    }
+
+    public boolean ReceiveFile() throws IOException, NoSuchAlgorithmException{
+        return false;
     }
 }
