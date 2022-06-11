@@ -1,86 +1,51 @@
 import Enums.SocketMode;
+import Models.FileHeader;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+import org.apache.commons.io.FilenameUtils;
 
 public class TransferThread extends Thread {
+    private final SocketMode mode;
     private final Socket socket;
-    private final String dropLocation;
+    private final File file;
 
-    public TransferThread(SocketMode mode, Socket socket, File file, String dropLocation) {
+    public TransferThread(SocketMode mode, Socket socket, File file) {
         super();
+        this.mode = mode;
         this.socket = socket;
-        this.dropLocation = dropLocation;
-    }
+        this.file = file;
+   }
 
     @Override
-    public void run()
-    {
-        // Deze bekijken op een Windows Machine.
+    public void run() {
+        // Bepaal het pad waar vandaan verzonden wordt.
         String dir = String.valueOf(System.getProperty("user.home") +
                 File.separator + "documents" +
                 File.separator + "avans" +
                 File.separator + "filesync");
 
-        try(
+        // Bepaal de afbeelding.
+        String fileName = "avatar.png";
+
+        try (
                 // Output stream naar client toe.
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
                 // Input stream van client.
-                BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        ){
-
+                BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
+        ) {
             //Variables voor het kunnen lezen en schrijven naar client toe.
             String inputLine, outputLine;
 
-            // # Hier moet toch iets van een protocol komen.
-            // Zolang als dat er een verbinding is
-            while(true){
-                // doe een file transfer.
-                boolean done = TransferFile();
-                // Klaar? Breek dan uit de lus.
-                if(done){
-                    break;
-                }
-            }
-
-            System.out.println("File has been transferred!");
-
-
-        }catch(IOException e){
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                    System.out.println("Socket should be closed");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-    // De code van Server naar ServerThread verplaatst en in een methode gezet.
-    public boolean TransferFile() throws IOException, NoSuchAlgorithmException {
-
-        // Deze bekijken op een Windows Machine.
-        String dir = String.valueOf(System.getProperty("user.home") +
-                File.separator + "documents" +
-                File.separator + "avans" +
-                File.separator + "filesync");
-        boolean isAlive = false;
-        // Open een oneindige lus voor het versturen van het bestand zodra er een client verbinding heeft gemaakt.
-        while (true) {
             // Pak het bestand die je wilt versturen.
-            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", "avatar.png");
+            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", fileName);
 
             //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
             // Bepaal het algoritme voor het hashen.
@@ -91,45 +56,130 @@ public class TransferThread extends Thread {
             System.out.println("SHA-256 server checksum: " + checksum);
             //## EINDE CHECKSUM GEDEELTE
 
-            // Maak een teller voor straks
-            int count;
-            // Definieer een buffer straks
-            byte[] buffer = new byte[16 * 1024];
+            // TODO: 11/06/2022 Maak de fileHeader hier aan
+            // Nu dat we een checksum hebben kunnen we een FileHeader maken die we door kunnen sturen naar de client.
+            FileHeader fh = new FileHeader(
+                    myFile.getFileName().toString(),
+                    FilenameUtils.getExtension(myFile.getFileName().toString()),
+                    Files.size(myFile),
+                    "SHA-256",
+                    checksum
+            );
 
-            int i = 0;
+            // Geef de header door aan de client
+            System.out.println("Transfer sent to client: " + fh);
+            clientOut.println(fh);
 
-            // Hiermee kan de grootte van het bestand worden bepaald (Hebben we voor nu niet nodig).
-//                byte[] myByteArray = new byte[(int) myFile.length()];
+            while((inputLine = clientIn.readLine()) != null){
 
-            // Zet een stream op waar we naartoe kunnen schrijven (Output gaat naar de andere kant toe).
-            OutputStream out = socket.getOutputStream();
+                if(inputLine.equals("HEADER_RECEIVED")){
+                    System.out.println("Transfer sent to client: PREPARE_FOR_TRANSFER");
+                    clientOut.println("PREPARE_FOR_TRANSFER");
+                }
 
-            // Lees het bestand uit in een gebufferde stream (Input krijgt van de andere kant, in dit geval van het
-            // bestand wat eerder aangemaakt is).
-            BufferedInputStream in = new BufferedInputStream(new FileInputStream(String.valueOf(myFile)));
+                if(inputLine.equals("READY_FOR_TRANSFER")){
+                    System.out.println("Transfer sent to client: GOING TO SEND THE FILE");
 
-            // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
-            // of gelijk is aan 0.
-            while((count = in.read(buffer)) >= 0){
-                // Schrijf het buffer stukje naar de client stream.
-                out.write(buffer, 0, count);
-                // En wel direct
-                out.flush();
+                    while (true) {
+                        // doe een file transfer.
+                        boolean done = transferFile(dir, fileName);
+                        // Klaar? Breek dan uit de lus.
+                        if (done) {
+                            break;
+                        }
+                    }
+                    clientOut.println("FILE_SEND_COMPLETE");
+                }
+
+                if(inputLine.equals("RECEIVED_FILE_CORRUPTED")){
+                    while (true) {
+                        // doe een file transfer.
+                        boolean done = transferFile(dir, fileName);
+                        // Klaar? Breek dan uit de lus.
+                        if (done) {
+                            break;
+                        }
+                    }
+                    clientOut.println("FILE_SEND_COMPLETE");
+                }
+
+                if(inputLine.equals("RECEIVED_FILE_VALID")){
+                    System.out.println("Transfer sent to client: SHUTTING DOWN");
+
+                    clientOut.println("SHUTTING_DOWN");
+                    break;
+                }
+
             }
 
-            // Als we klaar zijn, sluiten we de connectie met de client.
-            in.close();
-            out.close();
-            socket.close();
+            // TODO: 11/06/2022 Pak het bestand hier al op 
 
-            // Breek uit de lus.
-            break;
+            // TODO: 11/06/2022 Als we weten dat de ontvangende partij de header heeft ontvangen, dan begint de transactie
+            // Zolang als dat er een verbinding is
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+    }
+
+
+    // De code van Server naar ServerThread verplaatst en in een methode gezet.
+    // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
+    public boolean transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
+
+        // Pak het bestand die je wilt versturen.
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
+
+        // Maak een teller voor straks
+        int count;
+        // Definieer een buffer straks
+        byte[] buffer = new byte[16 * 1024];
+
+        // Hiermee kan de grootte van het bestand worden bepaald (Hebben we voor nu niet nodig).
+        byte[] myByteArray = new byte[(int) Files.size(myFile)];
+
+        // Zet een stream op waar we naartoe kunnen schrijven (Output gaat naar de andere kant toe).
+        OutputStream out = socket.getOutputStream();
+
+        // Lees het bestand uit in een gebufferde stream (Input krijgt van de andere kant, in dit geval van het
+        // bestand wat eerder aangemaakt is).
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream(String.valueOf(myFile)));
+
+        // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
+        // of gelijk is aan 0.
+        System.out.println("Getting ready to send");
+        while ((count = in.read(buffer)) >= 0) {
+            System.out.println(Arrays.toString(buffer));
+            // Schrijf het buffer stukje naar de client stream.
+            out.write(buffer, 0, count);
+            // En wel direct
+            out.flush();
+        }
+        // Als alles geschreven is naar de andere kant, closen we out. Dit moet omdat de andere kant anders
+        // geen signaal krijgt dat alles overgestuurd is.
+        // TODO: 11/06/2022 Dit geeft dus wel een socket closed error.  
+        out.close();
+
+        // Als we klaar zijn, sluiten we de connectie met de client.
+//        in.close();
+//        socket.close();
 
         return true;
     }
 
-    public boolean ReceiveFile() throws IOException, NoSuchAlgorithmException{
+    public boolean receiveFile() throws IOException, NoSuchAlgorithmException {
         return false;
     }
 }

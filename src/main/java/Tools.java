@@ -1,6 +1,10 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,6 +65,44 @@ public class Tools {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isSocketAlive(int port)
+    {
+        boolean isAlive = false;
+        SocketAddress socketAddress = new InetSocketAddress(port);
+        Socket socket = new Socket();
+        int timeout = 2000;
+
+        try{
+            socket.connect(socketAddress, timeout);
+            socket.close();
+            isAlive = true;
+
+        } catch (IOException e) {
+            System.out.println("IOException: unable to connect to " + port + ": " + e);
+        }
+
+        return isAlive;
+    }
+
+    public static boolean isSocketAlive(String hostname, int port)
+    {
+        boolean isAlive = false;
+        SocketAddress socketAddress = new InetSocketAddress(hostname, port);
+        Socket socket = new Socket();
+        int timeout = 2000;
+
+        try{
+            socket.connect(socketAddress, timeout);
+            socket.close();
+            isAlive = true;
+
+        } catch (IOException e) {
+            System.out.println("IOException: unable to connect to " + port + ": " + e);
+        }
+
+        return isAlive;
     }
 
     public static void CheckRootDir(String dir){

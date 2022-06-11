@@ -40,7 +40,7 @@ public class Protocol {
 
         // State Starting betekend net opgestart en bijna klaar om te gaan.
         if(myState == MyState.STARTING){
-            myOutput = "Ready for your command";
+            myOutput = "Ready for your command\nEND";
             myState = MyState.LISTENING;
 
         } else if(myState == MyState.LISTENING) {
@@ -57,7 +57,7 @@ public class Protocol {
             myOutput = res.message;
 
         } else if (myState == MyState.CONNECTING) {
-            myOutput = "Awaiting at: localhost 42068";
+            myOutput = "OPEN:localhost:42068";
             myState = MyState.AWAITING;
 
         } else if (myState == MyState.AWAITING) {
@@ -90,7 +90,7 @@ public class Protocol {
                 break;
 
             case "OPEN":
-                response.setResponse(100, MyState.LISTENING, "OPEN:localhost:42068");
+                response.setResponse(100, MyState.LISTENING, "Creating transfer socket..");
                 break;
 
             case "COMPARE":
@@ -110,7 +110,7 @@ public class Protocol {
             // systeem opslaan op het pad waar de sync folder staat.
             case "GET":
                 if(args.length <= 0){
-                    response.setResponse(400, MyState.LISTENING, "Which file do you want to download?");
+                    response.setResponse(400, MyState.LISTENING, "Which file do you want to download?\nEND");
                     return response;
                 }
                 response.setResponse(100, MyState.LISTENING, "GET:" + args[0]);
