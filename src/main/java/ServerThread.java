@@ -60,7 +60,7 @@ public class ServerThread extends Thread{
                     // Splits het commando van de argumenten
                     String[] command = outputLine.split(":");
                     // Ga ervan uit dat de 2de string het bestand is wat gevraagd wordt.
-                    File file = new File(dir + File.separator + command[1]);
+                    File file = new File(dir + File.separator + "send"+ File.separator  + command[1]);
 
                     // Als de socket bestaat dan open je alleen maar een nieuwe thread. Anders creeer je de socket.
 //                    if(Tools.isSocketAlive(42068)){

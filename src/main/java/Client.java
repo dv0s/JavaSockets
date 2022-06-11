@@ -85,11 +85,6 @@ public class Client {
                                 transferOut.println("HEADER_RECEIVED");
                             }
 
-                            if (fromTransfer.equals("SHUTTING_DOWN"))
-                            {
-                                break;
-                            }
-
                             if (fromTransfer.equals("PREPARE_FOR_TRANSFER")) {
                                 // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
                                 // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
@@ -125,17 +120,19 @@ public class Client {
                                 fos = new FileOutputStream(String.valueOf(path));
                                 transferOut.println("READY_FOR_TRANSFER");
 
+                                // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
+                                // de andere kant).
+                                BufferedInputStream in = new BufferedInputStream(transferSocket.getInputStream());
+                                System.out.println("Getting the file");
+
                                 // Count variable voor de loop straks.
                                 int count;
                                 // Bepaal een buffer.
                                 byte[] buffer = new byte[16 * 1024];
 
-                                // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
-                                // de andere kant).
-                                InputStream in = transferSocket.getInputStream();
-                                System.out.println("Getting the file");
                                 // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
                                 // TODO: 11/06/2022 Transactie gaat goed, maar de buffer schijnt niet leeg te worden.
+                                    // De laatste 20 bits blijven over en daarna blijft de loop hangen.
                                 while ((count = in.read(buffer)) >= 0) {
                                     System.out.println(count);
                                     // Schrijf naar het bestand stream toe.
@@ -143,6 +140,8 @@ public class Client {
                                     // En wel direct.
                                     fos.flush();
                                 }
+
+                                fos.close();
 
                                 System.out.println("Generating the checksum");
                                 //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
@@ -155,21 +154,20 @@ public class Client {
                                 //## EINDE CHECKSUM GEDEELTE
 
                                 transferOut.println("RECEIVED_FILE_VALID");
+                                System.out.println("RECEIVED_FILE_VALID sent to transferStream");
                                 // TODO: 11/06/2022 maak eigen fileHeader 
                                 // TODO: 11/06/2022 vergelijk met de received file header 
                                 // TODO: 11/06/2022 Handel vergelijking af door gelijk opnieuw te proberen of dankjewel te zeggen.
                             }
-                        }
 
+                            if (fromTransfer.equals("SHUTTING_DOWN"))
+                            {
+                                transferSocket.close();
+                                break;
+                            }
+                        }
 //                        _transferSocket.close();
                     }
-                }
-
-                if (fromServer.startsWith("FileHeader")) {
-                    System.out.println("Read File header");
-//                    FileHeader rfh = new FileHeader().createFromString(fromServer);
-//                    System.out.println(rfh);
-
                 }
 
                 // Zodra de server "Bye." zegt, dan sluiten we de connectie en de loop.

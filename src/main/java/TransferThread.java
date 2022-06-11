@@ -71,6 +71,7 @@ public class TransferThread extends Thread {
             clientOut.println(fh);
 
             while((inputLine = clientIn.readLine()) != null){
+                System.out.println("Client: " + inputLine);
 
                 if(inputLine.equals("HEADER_RECEIVED")){
                     System.out.println("Transfer sent to client: PREPARE_FOR_TRANSFER");
@@ -79,15 +80,9 @@ public class TransferThread extends Thread {
 
                 if(inputLine.equals("READY_FOR_TRANSFER")){
                     System.out.println("Transfer sent to client: GOING TO SEND THE FILE");
+                    transferFile(dir, fileName);
 
-                    while (true) {
-                        // doe een file transfer.
-                        boolean done = transferFile(dir, fileName);
-                        // Klaar? Breek dan uit de lus.
-                        if (done) {
-                            break;
-                        }
-                    }
+                    System.out.println("File sent to client");
                     clientOut.println("FILE_SEND_COMPLETE");
                 }
 
@@ -100,7 +95,10 @@ public class TransferThread extends Thread {
                             break;
                         }
                     }
+                    System.out.println("TransferThread: Bytes are sent");
                     clientOut.println("FILE_SEND_COMPLETE");
+                    System.out.println("TransferThread: FILE_SEND_COMPLETE sent to client");
+
                 }
 
                 if(inputLine.equals("RECEIVED_FILE_VALID")){
@@ -138,7 +136,6 @@ public class TransferThread extends Thread {
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
     // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
     public boolean transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
-
         // Pak het bestand die je wilt versturen.
         Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
 
@@ -151,7 +148,7 @@ public class TransferThread extends Thread {
         byte[] myByteArray = new byte[(int) Files.size(myFile)];
 
         // Zet een stream op waar we naartoe kunnen schrijven (Output gaat naar de andere kant toe).
-        OutputStream out = socket.getOutputStream();
+        BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
 
         // Lees het bestand uit in een gebufferde stream (Input krijgt van de andere kant, in dit geval van het
         // bestand wat eerder aangemaakt is).
@@ -159,9 +156,8 @@ public class TransferThread extends Thread {
 
         // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
         // of gelijk is aan 0.
-        System.out.println("Getting ready to send");
+        System.out.println("TransferThread.transferFile: Getting ready to send");
         while ((count = in.read(buffer)) >= 0) {
-            System.out.println(Arrays.toString(buffer));
             // Schrijf het buffer stukje naar de client stream.
             out.write(buffer, 0, count);
             // En wel direct
@@ -169,8 +165,11 @@ public class TransferThread extends Thread {
         }
         // Als alles geschreven is naar de andere kant, closen we out. Dit moet omdat de andere kant anders
         // geen signaal krijgt dat alles overgestuurd is.
-        // TODO: 11/06/2022 Dit geeft dus wel een socket closed error.  
+        // TODO: 11/06/2022 Dit geeft dus wel een socket closed error.
+        in.close();
         out.close();
+
+        System.out.println("TransferThread.transferFile: Bytes are sent. Closing File input stream");
 
         // Als we klaar zijn, sluiten we de connectie met de client.
 //        in.close();
