@@ -96,6 +96,135 @@ public class Client {
 
             // TODO: 11/06/2022 Start the transaction and check if the file received is valid.
 
+            if (fromServer.startsWith("GET")){
+                FileHeader rfh = new FileHeader();
+                FileOutputStream fos = null;
+                String nextLine;
+                while((nextLine = serverIn.readLine()) != null){
+
+                    if (nextLine.startsWith("FileHeader")) {
+                        rfh.createFromString(nextLine);
+                        serverOut.println("HEADER_RECEIVED");
+                    }
+
+                    if (nextLine.equals("PREPARE_FOR_TRANSFER")) {
+                        // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
+                        // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
+                        String fn = "avatar.png";
+                        String des = baseDir + File.separator + "catch";
+
+                        // Maak eerst tijdelijke bestanden en mappen aan, voor het geval dat ze dus niet bestaan.
+                        if (Files.notExists(Paths.get(des + File.separator + fn))) {
+                            // Pak het pad dat je wilt hebben.
+                            Path baseDir = Paths.get(des);
+
+                            // Plak daar de bestandsnaam aan vast via de resolve methode. Deze werkt voor directories als er geen
+                            // extensie aanwezig is. Ander is het een bestand.
+                            Path fileLocation = baseDir.resolve(fn);
+
+                            // Maak het bestand aan op het volledige pad dat is gegeven met de resolve functie hierboven.
+                            Files.createFile(fileLocation);
+
+                        }
+
+                        // Nu dat het bestand is aangemaakt, kunnen we het pad pakken. Dit kan dan op een slimmere manier worden gedaan.
+                        Path path = FileSystems.getDefault().getPath(des, fn);
+
+
+                        // Als het pad niet bestaat..
+                        if (!Files.exists(path)) {
+                            // Maak de mappen dan aan.
+                            Files.createDirectories(path.getParent());
+                        }
+
+                        // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
+                        // de andere kant toe).
+                        fos = new FileOutputStream(String.valueOf(path));
+                        serverOut.println("READY_FOR_TRANSFER");
+
+                        // Probeer als client de connectie op te zetten naar de server.
+                        // Blijf het proberen totdat je een verbinding hebt.
+                        boolean transferConnected = false;
+                        Socket transferSocket = null;
+                        while (!transferConnected) {
+                            try {
+                                // Deze socket is voor het doorsturen en ontvangen van commando's
+                                // Maak een socketAddress klasse aan.
+                                SocketAddress transferSocketAddress = new InetSocketAddress(hostName, 42068);
+
+                                // Initieer een socket instantie
+                                transferSocket = new Socket();
+
+                                // En probeer verbinding te maken.
+                                transferSocket.connect(transferSocketAddress);
+
+                                // En als er een connectie is, breek uit de loop.
+                                transferConnected = true;
+
+                            } catch (IOException ex) {
+                                // Mocht de verbinding niet tot stand mogen komen, probeer dan opnieuw.
+                                try {
+                                        System.out.println("Attempting to connect to transfer socket.. please wait.");
+                                        Thread.sleep(2000);
+                                } catch (InterruptedException exc) {
+                                    throw new RuntimeException(exc);
+                                }
+                            }
+                        }
+
+                        // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
+                        // de andere kant).
+                        BufferedInputStream in = new BufferedInputStream(transferSocket.getInputStream());
+                        System.out.println("Getting the file");
+
+                        // Count variable voor de loop straks.
+                        int count;
+                        // Bepaal een buffer.
+                        byte[] buffer = new byte[16 * 1024];
+
+                        // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
+                        // TODO: 11/06/2022 Transactie gaat goed, maar de buffer schijnt niet leeg te worden.
+                        // De laatste 20 bits blijven over en daarna blijft de loop hangen.
+                        while ((count = in.read(buffer)) >= 0) {
+                            System.out.println(count);
+                            // Schrijf naar het bestand stream toe.
+                            fos.write(buffer, 0, count);
+                            // En wel direct.
+                            fos.flush();
+                        }
+
+                        fos.close();
+                        transferSocket.close();
+
+                        System.out.println("Generating the checksum");
+                        //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
+                        // Bepaal het algoritme voor het hashen.
+                        MessageDigest md5Digest = null;
+                        try {
+                            md5Digest = MessageDigest.getInstance("SHA-256");
+                        } catch (NoSuchAlgorithmException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        // Genereer de checksum.
+                        String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
+                        // Print de checksum uit.
+                        System.out.println("SHA-256 client checksum: " + checksum);
+                        //## EINDE CHECKSUM GEDEELTE
+                        // TODO: 11/06/2022 vergelijk met de received file header
+                        serverOut.println("RECEIVED_FILE_VALID");
+                        System.out.println("RECEIVED_FILE_VALID sent to transferStream");
+                        // TODO: 11/06/2022 Handel vergelijking af door gelijk opnieuw te proberen of dankjewel te zeggen.
+                    }
+
+                    if (nextLine.equals("SHUTTING_DOWN")) {
+                        break;
+                    }
+
+                }
+
+            }
+
             if (fromServer.startsWith("OPEN")) {
 
                 String[] a = fromServer.split(":");
@@ -111,98 +240,13 @@ public class Client {
                     String fromTransfer;
 
                     while ((fromTransfer = transferIn.readLine()) != null) {
-                        System.out.println("Transfer: " + fromTransfer);
+                        System.out.println("ServerThread: " + fromTransfer);
                         FileHeader rfh = new FileHeader();
                         FileOutputStream fos = null;
 
-                        if (fromTransfer.startsWith("FileHeader")) {
-                            rfh.createFromString(fromTransfer);
-                            transferOut.println("HEADER_RECEIVED");
-                        }
 
-                        if (fromTransfer.equals("PREPARE_FOR_TRANSFER")) {
-                            // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
-                            // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
-                            String fn = "avatar.png";
-                            String des = baseDir + File.separator + "catch";
-
-                            // Maak eerst tijdelijke bestanden en mappen aan, voor het geval dat ze dus niet bestaan.
-                            if (Files.notExists(Paths.get(des + File.separator + fn))) {
-                                // Pak het pad dat je wilt hebben.
-                                Path baseDir = Paths.get(des);
-
-                                // Plak daar de bestandsnaam aan vast via de resolve methode. Deze werkt voor directories als er geen
-                                // extensie aanwezig is. Ander is het een bestand.
-                                Path fileLocation = baseDir.resolve(fn);
-
-                                // Maak het bestand aan op het volledige pad dat is gegeven met de resolve functie hierboven.
-                                Files.createFile(fileLocation);
-
-                            }
-
-                            // Nu dat het bestand is aangemaakt, kunnen we het pad pakken. Dit kan dan op een slimmere manier worden gedaan.
-                            Path path = FileSystems.getDefault().getPath(des, fn);
-
-
-                            // Als het pad niet bestaat..
-                            if (!Files.exists(path)) {
-                                // Maak de mappen dan aan.
-                                Files.createDirectories(path.getParent());
-                            }
-
-                            // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
-                            // de andere kant toe).
-                            fos = new FileOutputStream(String.valueOf(path));
-                            transferOut.println("READY_FOR_TRANSFER");
-
-                            // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
-                            // de andere kant).
-                            BufferedInputStream in = new BufferedInputStream(transferSocket.getInputStream());
-                            System.out.println("Getting the file");
-
-                            // Count variable voor de loop straks.
-                            int count;
-                            // Bepaal een buffer.
-                            byte[] buffer = new byte[16 * 1024];
-
-                            // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
-                            // TODO: 11/06/2022 Transactie gaat goed, maar de buffer schijnt niet leeg te worden.
-                            // De laatste 20 bits blijven over en daarna blijft de loop hangen.
-                            while ((count = in.read(buffer)) >= 0) {
-                                System.out.println(count);
-                                // Schrijf naar het bestand stream toe.
-                                fos.write(buffer, 0, count);
-                                // En wel direct.
-                                fos.flush();
-                            }
-
-                            fos.close();
-
-                            System.out.println("Generating the checksum");
-                            //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
-                            // Bepaal het algoritme voor het hashen.
-                            MessageDigest md5Digest = MessageDigest.getInstance("SHA-256");
-                            // Genereer de checksum.
-                            String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
-                            // Print de checksum uit.
-                            System.out.println("SHA-256 client checksum: " + checksum);
-                            //## EINDE CHECKSUM GEDEELTE
-
-                            transferOut.println("RECEIVED_FILE_VALID");
-                            System.out.println("RECEIVED_FILE_VALID sent to transferStream");
-                            // TODO: 11/06/2022 maak eigen fileHeader
-                            // TODO: 11/06/2022 vergelijk met de received file header
-                            // TODO: 11/06/2022 Handel vergelijking af door gelijk opnieuw te proberen of dankjewel te zeggen.
-                        }
-
-                        if (fromTransfer.equals("SHUTTING_DOWN")) {
-                            transferSocket.close();
-                            break;
-                        }
                     }
 //                        _transferSocket.close();
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
                 }
             }
 

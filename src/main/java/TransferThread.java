@@ -47,89 +47,20 @@ public class TransferThread extends Thread {
             // Pak het bestand die je wilt versturen.
             Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", fileName);
 
-            //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
-            // Bepaal het algoritme voor het hashen.
-            MessageDigest md5Digest = MessageDigest.getInstance("SHA-256");
-            // Genereer de checksum.
-            String checksum = Tools.getFileChecksum(md5Digest, myFile.toFile());
-            // Print de checksum uit.
-            System.out.println("SHA-256 server checksum: " + checksum);
-            //## EINDE CHECKSUM GEDEELTE
+            transferFile(dir, fileName);
 
-            // Nu dat we een checksum hebben kunnen we een FileHeader maken die we door kunnen sturen naar de client.
-            FileHeader fh = new FileHeader(
-                    myFile.getFileName().toString(),
-                    FilenameUtils.getExtension(myFile.getFileName().toString()),
-                    Files.size(myFile),
-                    "SHA-256",
-                    checksum
-            );
-
-            // Geef de header door aan de client
-            System.out.println("Transfer sent to client: " + fh);
-            clientOut.println(fh);
-
-            while((inputLine = clientIn.readLine()) != null){
-                System.out.println("Client: " + inputLine);
-
-                if(inputLine.equals("HEADER_RECEIVED")){
-                    System.out.println("Transfer sent to client: PREPARE_FOR_TRANSFER");
-                    clientOut.println("PREPARE_FOR_TRANSFER");
-                }
-
-                if(inputLine.equals("READY_FOR_TRANSFER")){
-                    System.out.println("Transfer sent to client: GOING TO SEND THE FILE");
-                    transferFile(dir, fileName);
-
-                    System.out.println("File sent to client");
-                    clientOut.println("FILE_SEND_COMPLETE");
-                }
-
-                if(inputLine.equals("RECEIVED_FILE_CORRUPTED")){
-                    while (true) {
-                        // doe een file transfer.
-                        boolean done = transferFile(dir, fileName);
-                        // Klaar? Breek dan uit de lus.
-                        if (done) {
-                            break;
-                        }
-                    }
-                    System.out.println("TransferThread: Bytes are sent");
-                    clientOut.println("FILE_SEND_COMPLETE");
-                    System.out.println("TransferThread: FILE_SEND_COMPLETE sent to client");
-
-                }
-
-                if(inputLine.equals("RECEIVED_FILE_VALID")){
-                    System.out.println("Transfer sent to client: SHUTTING DOWN");
-
-                    clientOut.println("SHUTTING_DOWN");
-                    clientIn.close();
-
-                    break;
-                }
-
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
 
     // De code van Server naar ServerThread verplaatst en in een methode gezet.
     // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
-    public boolean transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
+    public void transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
         // Pak het bestand die je wilt versturen.
         Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
 
@@ -161,10 +92,8 @@ public class TransferThread extends Thread {
         System.out.println("TransferThread.transferFile: Bytes are sent. Closing File input stream");
 
         // Als we klaar zijn, sluiten we de connectie met de client.
-//        in.close();
-//        socket.close();
-
-        return true;
+        in.close();
+        socket.close();
     }
 
     public boolean receiveFile() throws IOException, NoSuchAlgorithmException {
