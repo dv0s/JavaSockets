@@ -57,9 +57,7 @@ public class Tools {
         // Doorzoek alle bestanden in een bepaalde map
         try (Stream<Path> paths = Files.walk(of)) {
             // Voor elk bestand, print voorlopig het pad naar console.
-            paths
-                    .filter(Files::isRegularFile)
-                    .forEach(System.out::println);
+            paths.filter(Files::isRegularFile).forEach(System.out::println);
         } catch (AccessDeniedException e){
             e.printStackTrace();
         } catch (IOException e) {
@@ -103,23 +101,5 @@ public class Tools {
         }
 
         return isAlive;
-    }
-
-    public static void CheckRootDir(String dir){
-        // For more info, look here : https://www.baeldung.com/java-nio2-file-attribute
-//        Path path = Paths.get(dir);
-//        if(!Files.exists(path))
-//        {
-//            try(
-//                    FileAttribute attr = new FileAttribute {
-//                        "Owner", "DvOs"
-//            }
-//                Files.createDirectories(Paths.get(dir));
-//            ){
-//
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
     }
 }

@@ -56,7 +56,6 @@ public class TransferThread extends Thread {
             System.out.println("SHA-256 server checksum: " + checksum);
             //## EINDE CHECKSUM GEDEELTE
 
-            // TODO: 11/06/2022 Maak de fileHeader hier aan
             // Nu dat we een checksum hebben kunnen we een FileHeader maken die we door kunnen sturen naar de client.
             FileHeader fh = new FileHeader(
                     myFile.getFileName().toString(),
@@ -105,17 +104,12 @@ public class TransferThread extends Thread {
                     System.out.println("Transfer sent to client: SHUTTING DOWN");
 
                     clientOut.println("SHUTTING_DOWN");
+                    clientIn.close();
+
                     break;
                 }
 
             }
-
-            // TODO: 11/06/2022 Pak het bestand hier al op 
-
-            // TODO: 11/06/2022 Als we weten dat de ontvangende partij de header heeft ontvangen, dan begint de transactie
-            // Zolang als dat er een verbinding is
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -163,11 +157,6 @@ public class TransferThread extends Thread {
             // En wel direct
             out.flush();
         }
-        // Als alles geschreven is naar de andere kant, closen we out. Dit moet omdat de andere kant anders
-        // geen signaal krijgt dat alles overgestuurd is.
-        // TODO: 11/06/2022 Dit geeft dus wel een socket closed error.
-        in.close();
-        out.close();
 
         System.out.println("TransferThread.transferFile: Bytes are sent. Closing File input stream");
 
