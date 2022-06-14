@@ -1,6 +1,10 @@
-import Enums.MyState;
+package Threads;
+
 import Enums.SocketMode;
 import Models.FileHeader;
+import Threads.TransferThread;
+import Utils.Protocol;
+import Utils.Tools;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
@@ -42,7 +46,7 @@ public class ServerThread extends Thread {
 
             System.out.println("Listening...");
 
-            // Start een nieuwe instantie van het Protocol
+            // Start een nieuwe instantie van het Utils.Protocol
             Protocol p = new Protocol();
             // Zet de huidige outputLine naar niks via het protocol
             outputLine = p.processInput(null);
@@ -64,7 +68,7 @@ public class ServerThread extends Thread {
                     // Splits het commando van de argumenten
                     String[] command = outputLine.split(":");
                     // Ga ervan uit dat de 2de string het bestand is wat gevraagd wordt.
-                    File file = null;
+                    File file;
                     try {
                         file = new File(dir + File.separator + "send" + File.separator + command[1]);
                     }catch (NullPointerException e){
@@ -111,7 +115,7 @@ public class ServerThread extends Thread {
                                 // Geef door dat de socket open staat met hostname en port nummer
                                 clientOut.println("OPEN:localhost:42068");
                                 // Open een nieuwe transferThread en luister naar een verbinding
-                                new TransferThread(SocketMode.SENDING, transferSocket.accept(), file).start();
+                                new TransferThread(SocketMode.SENDING, transferSocket.accept(), command[1]).start();
 
                             } catch (IOException e) {
                                 // Anders melden we dat het niet gemaakt kan worden.
@@ -140,7 +144,7 @@ public class ServerThread extends Thread {
                 }
 
                 if (outputLine.startsWith("OPEN")) {
-                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), new File("")).start();
+                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), "not_used.jpg").start();
                     clientOut.println("END");
                 }
 

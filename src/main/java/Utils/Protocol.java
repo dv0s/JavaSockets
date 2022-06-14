@@ -1,3 +1,5 @@
+package Utils;
+
 import Enums.MyState;
 import Models.Response;
 
@@ -86,30 +88,30 @@ public class Protocol {
         switch (command){
             // Connect: zou een nieuwe verbinding op moeten zetten om iets te kunnen doen?
             case "CONNECT":
-                response.setResponse(100, myState, "Connecting...");
+                response.setResponse(100, myState, "Connecting...\nEND");
                 break;
 
             case "OPEN":
-                response.setResponse(100, MyState.LISTENING, "Creating transfer socket..");
+                response.setResponse(100, MyState.LISTENING, "Creating transfer socket..\nEND");
                 break;
 
             case "COMPARE":
-                response.setResponse(100, myState, "Comparing...");
+                response.setResponse(100, myState, "Comparing...\nEND");
                 break;
 
             case "SYNC":
-                response.setResponse(100, myState, "Syncing...");
+                response.setResponse(100, myState, "Syncing...\nEND");
                 break;
 
             // ls: zou een lijst van bestanden in de map moeten weergeven.
             case "LS":
-                response.setResponse(100, myState, "Listing directory");
+                response.setResponse(100, myState, "Listing directory\nEND");
                 break;
 
             // GET: Moet het bestand ophalen die is meegegeven. Krijgt een pad van het bestand en moet het in eigen
             // systeem opslaan op het pad waar de sync folder staat.
             case "GET":
-                if(args != null && args.length <= 0){
+                if(args == null){
                     response.setResponse(400, MyState.LISTENING, "Which file do you want to download?\nEND");
                     return response;
                 }
@@ -117,8 +119,8 @@ public class Protocol {
                 break;
 
             case "PUT":
-                if(args.length <= 0){
-                    response.setResponse(400, MyState.LISTENING, "Which file do you want to upload?");
+                if(args == null){
+                    response.setResponse(400, MyState.LISTENING, "Which file do you want to upload?\nEND");
                     return response;
                 }
                 response.setResponse(100, MyState.LISTENING, "PUT:" + args[0]);

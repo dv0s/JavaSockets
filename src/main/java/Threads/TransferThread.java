@@ -1,23 +1,20 @@
+package Threads;
+
 import Enums.SocketMode;
-import Models.FileHeader;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
-import org.apache.commons.io.FilenameUtils;
 
 public class TransferThread extends Thread {
     private final SocketMode mode;
     private final Socket socket;
-    private final File file;
+    private final String file;
 
-    public TransferThread(SocketMode mode, Socket socket, File file) {
+    public TransferThread(SocketMode mode, Socket socket, String file) {
         super();
         this.mode = mode;
         this.socket = socket;
@@ -27,10 +24,10 @@ public class TransferThread extends Thread {
     @Override
     public void run() {
         // Bepaal het pad waar vandaan verzonden wordt.
-        String dir = String.valueOf(System.getProperty("user.home") +
+        String dir = System.getProperty("user.home") +
                 File.separator + "documents" +
                 File.separator + "avans" +
-                File.separator + "filesync");
+                File.separator + "filesync";
 
         // Bepaal de afbeelding.
         String fileName = "avatar.png";
@@ -38,11 +35,11 @@ public class TransferThread extends Thread {
         String inputLine, outputLine;
 
         // Pak het bestand die je wilt versturen.
-        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", fileName);
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
 
         // Probeer de transferFile methode uit te voeren. Daarna is dit proces afgerond.
         try {
-            transferFile(dir, fileName);
+            transferFile(dir, file);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -51,7 +48,7 @@ public class TransferThread extends Thread {
     }
 
 
-    // De code van Server naar ServerThread verplaatst en in een methode gezet.
+    // De code van Server naar Threads.ServerThread verplaatst en in een methode gezet.
     // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
     public void transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
         // Pak het bestand die je wilt versturen.
@@ -63,7 +60,7 @@ public class TransferThread extends Thread {
         byte[] buffer = new byte[16 * 1024];
 
         // Hiermee kan de grootte van het bestand worden bepaald (Hebben we voor nu niet nodig).
-        byte[] myByteArray = new byte[(int) Files.size(myFile)];
+//        byte[] myByteArray = new byte[(int) Files.size(myFile)];
 
         // Zet een stream op waar we naartoe kunnen schrijven (Output gaat naar de andere kant toe).
         BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
