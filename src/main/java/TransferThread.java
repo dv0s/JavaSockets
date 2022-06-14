@@ -34,22 +34,15 @@ public class TransferThread extends Thread {
 
         // Bepaal de afbeelding.
         String fileName = "avatar.png";
+        //Variables voor het kunnen lezen en schrijven naar client toe.
+        String inputLine, outputLine;
 
-        try (
-                // Output stream naar client toe.
-                PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
-                // Input stream van client.
-                BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        ) {
-            //Variables voor het kunnen lezen en schrijven naar client toe.
-            String inputLine, outputLine;
+        // Pak het bestand die je wilt versturen.
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", fileName);
 
-            // Pak het bestand die je wilt versturen.
-            Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", fileName);
-
+        // Probeer de transferFile methode uit te voeren. Daarna is dit proces afgerond.
+        try {
             transferFile(dir, fileName);
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -81,15 +74,12 @@ public class TransferThread extends Thread {
 
         // Hier wordt het interessant, we gaan lussen zolang dat wat we krijgen van het bestand niet groter
         // of gelijk is aan 0.
-        System.out.println("TransferThread.transferFile: Getting ready to send");
         while ((count = in.read(buffer)) >= 0) {
             // Schrijf het buffer stukje naar de client stream.
             out.write(buffer, 0, count);
             // En wel direct
             out.flush();
         }
-
-        System.out.println("TransferThread.transferFile: Bytes are sent. Closing File input stream");
 
         // Als we klaar zijn, sluiten we de connectie met de client.
         in.close();

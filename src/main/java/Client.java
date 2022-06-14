@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 public class Client {
 
-    private static String baseDir = String.valueOf(System.getProperty("user.home") +
+    private static String baseDir = System.getProperty("user.home") +
             File.separator + "documents" +
             File.separator + "avans" +
-            File.separator + "filesync");
+            File.separator + "filesync";
 
 
     public static void main(String[] args) throws IOException {
@@ -90,23 +90,25 @@ public class Client {
         while ((fromServer = serverIn.readLine()) != null) {
             System.out.println("Server: " + fromServer);
 
-            // TODO: 11/06/2022 First open te connection
-
-            // TODO: 11/06/2022 Next receive the header and store it for later
-
-            // TODO: 11/06/2022 Start the transaction and check if the file received is valid.
-
             if (fromServer.startsWith("GET")){
-                FileHeader rfh = new FileHeader();
-                FileOutputStream fos = null;
+                // TODO: 14/06/2022 Methode hiervan maken die eventueel statisch gebruikt kan worden.
+                //  Socket, BaseDir(Path), File(name),
+
+                FileHeader rfh = null;
+                FileOutputStream fos;
                 String nextLine;
                 while((nextLine = serverIn.readLine()) != null){
 
+                    // Als de server output begint met "FileHeader", dan moeten we die opslaan en aangeven dat we
+                    // de header hebben ontvangen.
                     if (nextLine.startsWith("FileHeader")) {
-                        rfh.createFromString(nextLine);
+                        // Sla de header op.
+                        rfh = new FileHeader().createFromString(nextLine);
+                        // Geef antwoord.
                         serverOut.println("HEADER_RECEIVED");
                     }
 
+                    // Server geeft aan dat we ons klaar moeten maken voor bestand overdracht.
                     if (nextLine.equals("PREPARE_FOR_TRANSFER")) {
                         // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
                         // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
@@ -130,7 +132,7 @@ public class Client {
                         // Nu dat het bestand is aangemaakt, kunnen we het pad pakken. Dit kan dan op een slimmere manier worden gedaan.
                         Path path = FileSystems.getDefault().getPath(des, fn);
 
-
+                        // TODO: 14/06/2022 FIX ME Duplicate code
                         // Als het pad niet bestaat..
                         if (!Files.exists(path)) {
                             // Maak de mappen dan aan.
@@ -140,6 +142,8 @@ public class Client {
                         // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
                         // de andere kant toe).
                         fos = new FileOutputStream(String.valueOf(path));
+
+                        // Geef aan de server door dat we klaar staan voor het overbrengen.
                         serverOut.println("READY_FOR_TRANSFER");
 
                         // Probeer als client de connectie op te zetten naar de server.
@@ -175,28 +179,25 @@ public class Client {
                         // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
                         // de andere kant).
                         BufferedInputStream in = new BufferedInputStream(transferSocket.getInputStream());
-                        System.out.println("Getting the file");
 
-                        // Count variable voor de loop straks.
+                        // Count variabele voor de loop straks.
                         int count;
+
                         // Bepaal een buffer.
                         byte[] buffer = new byte[16 * 1024];
 
                         // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
-                        // TODO: 11/06/2022 Transactie gaat goed, maar de buffer schijnt niet leeg te worden.
-                        // De laatste 20 bits blijven over en daarna blijft de loop hangen.
                         while ((count = in.read(buffer)) >= 0) {
-                            System.out.println(count);
                             // Schrijf naar het bestand stream toe.
                             fos.write(buffer, 0, count);
                             // En wel direct.
                             fos.flush();
                         }
 
+                        // Na het lezen en wegschrijven van de bytes sluiten we de streams.
                         fos.close();
                         transferSocket.close();
 
-                        System.out.println("Generating the checksum");
                         //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
                         // Bepaal het algoritme voor het hashen.
                         MessageDigest md5Digest = null;
@@ -208,13 +209,15 @@ public class Client {
 
                         // Genereer de checksum.
                         String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
-                        // Print de checksum uit.
-                        System.out.println("SHA-256 client checksum: " + checksum);
+
                         //## EINDE CHECKSUM GEDEELTE
-                        // TODO: 11/06/2022 vergelijk met de received file header
-                        serverOut.println("RECEIVED_FILE_VALID");
-                        System.out.println("RECEIVED_FILE_VALID sent to transferStream");
-                        // TODO: 11/06/2022 Handel vergelijking af door gelijk opnieuw te proberen of dankjewel te zeggen.
+                        // TODO: 14/06/2022 Check is nu alleen nog op checksum. Dit moet uiteindelijk op header. 
+                        if(checksum.equals(rfh != null ? rfh.getChecksum() : null)) {
+                            serverOut.println("RECEIVED_FILE_VALID");
+                        }else{
+                            System.err.println("Received file is not identical");
+                            serverOut.println("RECEIVED_FILE_CORRUPT");
+                        }
                     }
 
                     if (nextLine.equals("SHUTTING_DOWN")) {
@@ -261,6 +264,7 @@ public class Client {
             if (fromServer.equals("END")) {
                 // Pak wat er is ingevoerd in de command line
                 System.out.print("Command: ");
+                // TODO: 14/06/2022 Command not implemented set state correctly 
                 fromUser = stdIn.readLine();
                 if (fromUser != null) {
                     System.out.println("Client: " + fromUser);

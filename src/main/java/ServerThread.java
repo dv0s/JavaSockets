@@ -57,15 +57,6 @@ public class ServerThread extends Thread {
                 // Stuur het antwoord naar de Client
                 clientOut.println(outputLine);
 
-                // TODO: 13/06/2022 Ontvang de get command.
-                //  Zoek naar het bestand of je die hebt.
-                //  Als je die gevonden hebt, stuur via de server thread de header door naar de client
-                //  Als de client aangeeft de header te hebben ontvangen, spin dan een nieuwe transfer thread op
-                //  TransferThread doet alleen maar het versturen (voor nu nog naar een richting)
-                //  Client checkt of het bestand niet corrupt is, zo ja, geef door aan server.
-                //  Als server hoort dat het corrupt is, start het proces opnieuw op.
-                //  Zo niet, ga terug naar luister status en wacht op nieuw commando.
-
                 // Commando GET
                 if (outputLine.startsWith("GET")) {
                     String nextLine;
@@ -103,67 +94,55 @@ public class ServerThread extends Thread {
                     );
 
                     // Geef de header door aan de client
-                    System.out.println("ServerThread sent to client: " + fh);
                     clientOut.println(fh);
 
-                    // TODO: 13/06/2022 COMMENTS PLAATSEN HIER!!! en de code verder opruimen
                     // Lees de volgende input van de gebruiker
                     while ((nextLine = clientIn.readLine()) != null){
-
+                        // Als we van de client de melding krijgen dat de header ontvangen is.
                         if(nextLine.equals("HEADER_RECEIVED")){
-                            System.out.println("Transfer sent to client: PREPARE_FOR_TRANSFER");
+                            // Geeft get signaal dat het zich moet voorbereiden op de transfer.
                             clientOut.println("PREPARE_FOR_TRANSFER");
                         }
 
+                        // Als we van de client de melding krijgen dat het klaar is om een bestand te ontvangen.
                         if(nextLine.equals("READY_FOR_TRANSFER")){
-                            System.out.println("Transfer sent to client: GOING TO SEND THE FILE");
                             // Als de socket bestaat dan open je alleen maar een nieuwe thread. Anders creeer je de socket.
-                            // Open een nieuwe transferThread
                             try (ServerSocket transferSocket = new ServerSocket(42068)) {
+                                // Geef door dat de socket open staat met hostname en port nummer
                                 clientOut.println("OPEN:localhost:42068");
+                                // Open een nieuwe transferThread en luister naar een verbinding
                                 new TransferThread(SocketMode.SENDING, transferSocket.accept(), file).start();
 
                             } catch (IOException e) {
+                                // Anders melden we dat het niet gemaakt kan worden.
                                 System.err.println("Could not create ServerSocket on port 42068: " + e.getMessage());
                             }
 
-                            System.out.println("File sent to client");
+                            // Als de transfer thread zijn ding heeft gedaan, geven we aan dat het verzenden klaar is
                             clientOut.println("FILE_SEND_COMPLETE");
                         }
 
-                        if(nextLine.equals("RECEIVED_FILE_CORRUPTED")){
-                            System.out.println("Transfer sent to client: RETRY_GOING TO SEND THE FILE");
-                            // Als de socket bestaat dan open je alleen maar een nieuwe thread. Anders creeer je de socket.
-                            // Open een nieuwe transferThread
-                            try (ServerSocket transferSocket = new ServerSocket(42068)) {
-                                clientOut.println("OPEN:localhost:42068");
-                                new TransferThread(SocketMode.SENDING, transferSocket.accept(), file).start();
-
-                            } catch (IOException e) {
-                                System.err.println("Could not create ServerSocket on port 42068: " + e.getMessage());
-                            }
-
-                            System.out.println("TransferThread: Bytes are sent");
-                            clientOut.println("FILE_SEND_COMPLETE");
-                            System.out.println("TransferThread: FILE_SEND_COMPLETE sent to client");
-
+                        // Als we van de client de melding krijgen dat het bestand corrupt is.
+                        if(nextLine.equals("RECEIVED_FILE_CORRUPT")){
+                            // Geeft get signaal dat het zich moet voorbereiden op de transfer die we opnieuw versturen.
+                            clientOut.println("PREPARE_FOR_TRANSFER");
                         }
 
+                        // Als we van de client de melding krijgen dat het bestand goed is.
                         if(nextLine.equals("RECEIVED_FILE_VALID")){
+                            // Geef aan af te sluiten.
                             clientOut.println("SHUTTING_DOWN");
+                            // Geef stop woord door zodat de client weer een commando uit kan voeren.
                             clientOut.println("END");
                             break;
                         }
                     }
                 }
 
-                // TODO: 06/06/2022 Hier moet de Thread gaan kijken naar welke acties er uitgevoerd moeten worden op commando.
                 if (outputLine.startsWith("OPEN")) {
                     new TransferThread(SocketMode.SENDING, transferSocket.accept(), new File("")).start();
                     clientOut.println("END");
                 }
-                // TODO: 06/06/2022 Hier moet logica komen die een nieuwe connectie open zet.
-                //  Zodra die beschikbaar is moet een seintje aan de client worden gegeven waar het verbinding mee moet maken.
 
                 // Als het antwoord van de server "Bye." is, dan gaan we uit de loop en sluiten we de connectie.
                 if (outputLine.equals("Bye."))

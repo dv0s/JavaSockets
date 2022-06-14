@@ -109,7 +109,7 @@ public class Protocol {
             // GET: Moet het bestand ophalen die is meegegeven. Krijgt een pad van het bestand en moet het in eigen
             // systeem opslaan op het pad waar de sync folder staat.
             case "GET":
-                if(args.length <= 0){
+                if(args != null && args.length <= 0){
                     response.setResponse(400, MyState.LISTENING, "Which file do you want to download?\nEND");
                     return response;
                 }
@@ -135,7 +135,7 @@ public class Protocol {
                 break;
 
             default:
-                response.setResponse(502, MyState.LISTENING, "Command not implemented.");
+                response.setResponse(502, MyState.LISTENING, "Command not implemented.\nEND");
                 break;
         }
 
