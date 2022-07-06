@@ -24,6 +24,8 @@ public class Tools {
         byte[] byteArray = new byte[1024];
         int bytesCount = 0;
 
+        System.out.println("Calculating checksum. Please wait.");
+
         //Read file data and update in message digest
         while ((bytesCount = fis.read(byteArray)) != -1) {
             digest.update(byteArray, 0, bytesCount);

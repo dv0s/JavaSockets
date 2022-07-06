@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -58,8 +59,6 @@ public class ServerThread extends Thread {
                 System.out.println("Client: " + inputLine);
                 // Zet antwoord klaar vanuit het protocol om naar client te sturen.
                 outputLine = p.processInput(inputLine);
-                // Stuur het antwoord naar de Client
-                clientOut.println(outputLine);
 
                 // Commando GET
                 if (outputLine.startsWith("GET")) {
@@ -82,8 +81,20 @@ public class ServerThread extends Thread {
                     //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
                     // Bepaal het algoritme voor het hashen.
                     MessageDigest md5Digest = MessageDigest.getInstance("SHA-256");
-                    // Genereer de checksum.
-                    String checksum = Tools.getFileChecksum(md5Digest, myFile.toFile());
+
+                    // Genereer de checksum. In een try catch block om errors te kunnen afvangen.
+                    String checksum;
+                    try {
+                        checksum = Tools.getFileChecksum(md5Digest, myFile.toFile());
+                    }catch(FileNotFoundException | NoSuchFileException e){
+                        clientOut.println("ERR: File \"" + file.getName() + "\" not found. Try a different file\nEND");
+                        System.out.println(e);
+                        continue;
+                    }
+
+                    // Nadat de checks zijn geweest, stuur het antwoord naar de Client
+                    clientOut.println(outputLine);
+
                     // Print de checksum uit.
                     System.out.println("SHA-256 server checksum: " + checksum);
                     //## EINDE CHECKSUM GEDEELTE
@@ -144,8 +155,16 @@ public class ServerThread extends Thread {
                 }
 
                 if (outputLine.startsWith("OPEN")) {
+
+                    // Nadat de checks zijn geweest, stuur het antwoord naar de Client
+                    clientOut.println(outputLine);
+
                     new TransferThread(SocketMode.SENDING, transferSocket.accept(), "not_used.jpg").start();
                     clientOut.println("END");
+                }
+
+                if (outputLine.startsWith("ERR")) {
+                    clientOut.println(outputLine);
                 }
 
                 // Als het antwoord van de server "Bye." is, dan gaan we uit de loop en sluiten we de connectie.

@@ -115,6 +115,7 @@ public class Protocol {
                     response.setResponse(400, MyState.LISTENING, "Which file do you want to download?\nEND");
                     return response;
                 }
+
                 response.setResponse(100, MyState.LISTENING, "GET:" + args[0]);
                 break;
 
@@ -137,7 +138,7 @@ public class Protocol {
                 break;
 
             default:
-                response.setResponse(502, MyState.LISTENING, "Command not implemented.\nEND");
+                response.setResponse(502, MyState.LISTENING, "ERR: Command not implemented.\nEND");
                 break;
         }
 

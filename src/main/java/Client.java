@@ -145,6 +145,12 @@ public class Client {
                     serverOut.println(fromUser);
                 }
             }
+
+            // Als de server aangeeft dat er een error is, kunnen we een nieuwe commando doorgeven.
+            if(fromServer.startsWith("ERR")){
+                // Doe niets. Mochten we later wat willen doen hiermee, dan is hier de opening.
+                continue;
+            }
         }
     }
 
@@ -263,7 +269,7 @@ public class Client {
                 // Genereer de checksum.
                 String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
                 // Print de checksum uit.
-                System.out.println("SHA-256 server checksum: " + checksum);
+                System.out.println("SHA-256 client checksum: " + checksum);
 
                 //## EINDE CHECKSUM GEDEELTE
                 // TODO: 14/06/2022 Check is nu alleen nog op checksum. Dit moet uiteindelijk op header.
