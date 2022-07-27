@@ -154,6 +154,11 @@ public class ServerThread extends Thread {
                     }
                 }
 
+                // Commando PUT
+                if (outputLine.startsWith("PUT")) {
+
+                }
+
                 if (outputLine.startsWith("OPEN")) {
 
                     // Nadat de checks zijn geweest, stuur het antwoord naar de Client

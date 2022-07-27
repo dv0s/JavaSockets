@@ -80,7 +80,7 @@ public class Client {
             }
         }
 
-        // Zet een BufferdReader op voor de console waar wij onze commando's daadwerkelijk in typen.
+        // Zet een BufferedReader op voor de console waar wij onze commando's daadwerkelijk in typen.
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         // Definieer twee strings
         String fromServer, fromUser;
@@ -88,16 +88,41 @@ public class Client {
         while ((fromServer = serverIn.readLine()) != null) {
             System.out.println("Server: " + fromServer);
 
+            // Bestand opvragen aan de server.
             if (fromServer.startsWith("GET")) {
+                // Split de input.
                 String[] input = fromServer.split(":", 2);
+                // Eerste onderdeel is het commando.
                 String command = input[0];
+                // initieer arguments.
                 String[] arguments = null;
+                // Als er meer onderdelen van de string is gevonden, dan zijn dat de argumenten.
                 if (input.length > 1) {
+                    // splits de string op whitespace om meerdere argumenten te kunnen afvangen.
                     arguments = input[1].split(" ");
                 }
                 // TODO: 14/06/2022 Methode hiervan maken die eventueel statisch gebruikt kan worden.
                 //  Socket, BaseDir(Path), File(name)
+                // Voer getFile uit.
                 getFile(serverOut, serverIn, serverSocket, baseDir, arguments[0]);
+            }
+
+            // Bestand versturen naar de server.
+            if(fromServer.startsWith("PUT")){
+                // Split de input.
+                String[] input = fromServer.split(":", 2);
+                // Eerste onderdeel is het commando.
+                String command = input[0];
+                // initieer arguments.
+                String[] arguments = null;
+                // Als er meer onderdelen van de string is gevonden, dan zijn dat de argumenten.
+                if (input.length > 1) {
+                    // splits de string op whitespace om meerdere argumenten te kunnen afvangen.
+                    arguments = input[1].split(" ");
+                }
+
+                // Voer putFile uit.
+                putFile(serverOut, serverIn, serverSocket, baseDir, arguments[0]);
             }
 
             if (fromServer.startsWith("OPEN")) {
@@ -159,6 +184,146 @@ public class Client {
         FileOutputStream fos;
         String nextLine;
         while ((nextLine = serverIn.readLine()) != null) {
+
+            // Als de server output begint met "FileHeader", dan moeten we die opslaan en aangeven dat we
+            // de header hebben ontvangen.
+            if (nextLine.startsWith("FileHeader")) {
+                // Sla de header op.
+                rfh = new FileHeader().createFromString(nextLine);
+                // Geef antwoord.
+                serverOut.println("HEADER_RECEIVED");
+            }
+
+            // Server geeft aan dat we ons klaar moeten maken voor bestand overdracht.
+            if (nextLine.equals("PREPARE_FOR_TRANSFER")) {
+                // Maak een nieuw bestand object aan. Dit doen we omdat we dan meer gegevens uit kunnen lezen van wat
+                // we precies gaan versturen. Dit wordt gedaan via de java.nio.files package.
+                String des = baseDir + File.separator + "catch";
+
+                // Maak eerst tijdelijke bestanden en mappen aan, voor het geval dat ze dus niet bestaan.
+                if (Files.notExists(Paths.get(des + File.separator + file))) {
+                    // Plak daar de bestandsnaam aan vast via de resolve methode. Deze werkt voor directories als er geen
+                    // extensie aanwezig is. Ander is het een bestand.
+                    Path fileLocation = Paths.get(des + File.separator).resolve(file);
+
+                    // Maak het bestand aan op het volledige pad dat is gegeven met de resolve functie hierboven.
+                    Files.createFile(fileLocation);
+
+                }
+
+                // Nu dat het bestand is aangemaakt, kunnen we het pad pakken. Dit kan dan op een slimmere manier worden gedaan.
+                Path path = FileSystems.getDefault().getPath(des, file);
+
+                // TODO: 14/06/2022 FIX ME Duplicate code
+                // Als het pad niet bestaat..
+                if (!Files.exists(path)) {
+                    // Maak de mappen dan aan.
+                    Files.createDirectories(path.getParent());
+                }
+
+                // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
+                // de andere kant toe).
+                fos = new FileOutputStream(String.valueOf(path));
+
+                // Geef aan de server door dat we klaar staan voor het overbrengen.
+                serverOut.println("READY_FOR_TRANSFER");
+
+                // Probeer als client de connectie op te zetten naar de server.
+                // Blijf het proberen totdat je een verbinding hebt.
+                boolean transferConnected = false;
+                Socket transferSocket = null;
+                while (!transferConnected) {
+                    try {
+                        // Deze socket is voor het doorsturen en ontvangen van commando's
+                        // Maak een socketAddress klasse aan.
+                        SocketAddress transferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), 42068);
+
+                        // Initieer een socket instantie
+                        transferSocket = new Socket();
+
+                        // En probeer verbinding te maken.
+                        transferSocket.connect(transferSocketAddress);
+
+                        // En als er een connectie is, breek uit de loop.
+                        transferConnected = true;
+
+                    } catch (IOException ex) {
+                        // Mocht de verbinding niet tot stand mogen komen, probeer dan opnieuw.
+                        try {
+                            System.out.println("Attempting to connect to transfer socket.. please wait.");
+                            Thread.sleep(2000);
+                        } catch (InterruptedException exc) {
+                            throw new RuntimeException(exc);
+                        }
+                    }
+                }
+
+                // Open de stream van de server waar de bytes van het bestand daalijk op binnen komen (Input krijgt van
+                // de andere kant).
+                BufferedInputStream in = new BufferedInputStream(transferSocket.getInputStream());
+
+                // Count variabele voor de loop straks.
+                int count;
+
+                // Bepaal een buffer.
+                byte[] buffer = new byte[16 * 1024];
+
+                System.out.print("Processing.");
+                // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
+                while ((count = in.read(buffer)) >= 0) {
+                    System.out.print(".");
+                    // Schrijf naar het bestand stream toe.
+                    fos.write(buffer, 0, count);
+                    // En wel direct.
+                    fos.flush();
+                }
+
+                // Na het lezen en wegschrijven van de bytes sluiten we de streams.
+                fos.close();
+                transferSocket.close();
+
+                //## BEGIN CHECKSUM GEDEELTE https://howtodoinjava.com/java/java-security/sha-md5-file-checksum-hash/
+                // Bepaal het algoritme voor het hashen.
+                MessageDigest md5Digest = null;
+                try {
+                    md5Digest = MessageDigest.getInstance("SHA-256");
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                }
+
+                // Genereer de checksum.
+                String checksum = Tools.getFileChecksum(md5Digest, path.toFile());
+                // Print de checksum uit.
+                System.out.println("SHA-256 client checksum: " + checksum);
+
+                //## EINDE CHECKSUM GEDEELTE
+                // TODO: 14/06/2022 Check is nu alleen nog op checksum. Dit moet uiteindelijk op header.
+                if (checksum.equals(rfh != null ? rfh.getChecksum() : null)) {
+                    serverOut.println("RECEIVED_FILE_VALID");
+                } else {
+                    System.err.println("Received file is not identical");
+                    serverOut.println("RECEIVED_FILE_CORRUPT");
+                }
+            }
+
+            if (nextLine.equals("SHUTTING_DOWN")) {
+                break;
+            }
+
+        }
+        return true;
+    }
+
+    public static boolean putFile(PrintWriter serverOut, BufferedReader serverIn, Socket socket, String baseDir, String file) throws IOException {
+        FileHeader rfh = null;
+        FileOutputStream fos;
+        String nextLine;
+        while ((nextLine = serverIn.readLine()) != null) {
+
+            // maak een fileheader string aan
+            if(nextLine.startsWith("REQUEST_FILEHEADER")){
+
+            }
 
             // Als de server output begint met "FileHeader", dan moeten we die opslaan en aangeven dat we
             // de header hebben ontvangen.

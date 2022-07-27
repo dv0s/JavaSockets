@@ -112,7 +112,12 @@ public class Protocol {
             // systeem opslaan op het pad waar de sync folder staat.
             case "GET":
                 if(args == null){
-                    response.setResponse(400, MyState.LISTENING, "Which file do you want to download?\nEND");
+                    response.setResponse(400, MyState.LISTENING, "ERR: Which file do you want to download?\nEND");
+                    return response;
+                }
+
+                if(args.length <= 0){
+                    response.setResponse(400, MyState.LISTENING, "ERR: Which file do you want to download?\nEND");
                     return response;
                 }
 
@@ -121,7 +126,7 @@ public class Protocol {
 
             case "PUT":
                 if(args == null){
-                    response.setResponse(400, MyState.LISTENING, "Which file do you want to upload?\nEND");
+                    response.setResponse(400, MyState.LISTENING, "ERR: Which file do you want to upload?\nEND");
                     return response;
                 }
                 response.setResponse(100, MyState.LISTENING, "PUT:" + args[0]);
