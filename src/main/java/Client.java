@@ -101,6 +101,13 @@ public class Client {
                     // splits de string op whitespace om meerdere argumenten te kunnen afvangen.
                     arguments = input[1].split(" ");
                 }
+
+                // Als er geen argumenten zijn, dan moet je stoppen.
+                // TODO: Maak deze check af.
+                if(arguments.length == 0){
+                    // Stop hier.
+                }
+
                 // TODO: 14/06/2022 Methode hiervan maken die eventueel statisch gebruikt kan worden.
                 //  Socket, BaseDir(Path), File(name)
                 // Voer getFile uit.
@@ -119,6 +126,12 @@ public class Client {
                 if (input.length > 1) {
                     // splits de string op whitespace om meerdere argumenten te kunnen afvangen.
                     arguments = input[1].split(" ");
+                }
+
+                // Als er geen argumenten zijn, dan moet je stoppen.
+                // TODO: Maak deze check af.
+                if(arguments.length == 0){
+                    // Stop hier.
                 }
 
                 // Voer putFile uit.
