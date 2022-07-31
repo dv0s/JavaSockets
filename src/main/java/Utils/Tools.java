@@ -15,6 +15,14 @@ import java.security.MessageDigest;
 import java.util.stream.Stream;
 
 public class Tools {
+    /**
+     * Returns a checksum of given file and digest.
+     *
+     * @param digest
+     * @param file
+     * @return String
+     * @throws IOException
+     */
     public static String getFileChecksum(MessageDigest digest, File file) throws IOException
     {
         //Get file input stream for reading the file content
@@ -49,6 +57,11 @@ public class Tools {
         return sb.toString();
     }
 
+    /**
+     * Scans directory for files and directories.
+     *
+     * @param dir
+     */
     public static void ScanDir(String dir)
     {
         // Bestaat de map?
@@ -69,6 +82,12 @@ public class Tools {
         }
     }
 
+    /**
+     * Checks if socket is alive.
+     *
+     * @param port
+     * @return boolean
+     */
     public static boolean isSocketAlive(int port)
     {
         boolean isAlive = false;

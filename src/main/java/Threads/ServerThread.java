@@ -66,6 +66,13 @@ public class ServerThread extends Thread {
 
                     // Splits het commando van de argumenten
                     String[] command = outputLine.split(":");
+
+                    // Als blijkt dat er geen bestandsnaam is meegegeven, geeft een melding terug naar de client
+                    if(command.length == 1){
+                        clientOut.println("ERR: No file given. Please provide a file name\nEND");
+                        continue;
+                    }
+
                     // Ga ervan uit dat de 2de string het bestand is wat gevraagd wordt.
                     File file;
                     try {
