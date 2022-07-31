@@ -12,12 +12,14 @@ import java.security.NoSuchAlgorithmException;
 public class TransferThread extends Thread {
     private final SocketMode mode;
     private final Socket socket;
+    private final String path;
     private final String file;
 
-    public TransferThread(SocketMode mode, Socket socket, String file) {
+    public TransferThread(SocketMode mode, Socket socket, String path, String file) {
         super();
         this.mode = mode;
         this.socket = socket;
+        this.path = path;
         this.file = file;
    }
 
@@ -35,7 +37,7 @@ public class TransferThread extends Thread {
         String inputLine, outputLine;
 
         // Pak het bestand die je wilt versturen.
-        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + path, file);
 
         // Probeer de transferFile methode uit te voeren. Daarna is dit proces afgerond.
         try {
@@ -52,8 +54,7 @@ public class TransferThread extends Thread {
     // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
     public void transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
         // Pak het bestand die je wilt versturen.
-        // TODO: TransferThread moet een stukje pad krijgen.
-        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "catch", file);
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + path, file);
 
         // Maak een teller voor straks
         int count;

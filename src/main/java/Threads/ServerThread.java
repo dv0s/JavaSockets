@@ -133,7 +133,7 @@ public class ServerThread extends Thread {
                                 // Geef door dat de socket open staat met hostname en port nummer
                                 clientOut.println("OPEN:localhost:42068");
                                 // Open een nieuwe transferThread en luister naar een verbinding
-                                new TransferThread(SocketMode.SENDING, transferSocket.accept(), command[1]).start();
+                                new TransferThread(SocketMode.SENDING, transferSocket.accept(), "send", command[1]).start();
 
                             } catch (IOException e) {
                                 // Anders melden we dat het niet gemaakt kan worden.
@@ -321,7 +321,7 @@ public class ServerThread extends Thread {
                     // Nadat de checks zijn geweest, stuur het antwoord naar de Client
                     clientOut.println(outputLine);
 
-                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), "not_used.jpg").start();
+                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), "send", "not_used.jpg").start();
                     clientOut.println("END");
                 }
 

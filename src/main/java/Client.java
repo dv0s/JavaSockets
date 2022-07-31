@@ -392,7 +392,7 @@ public class Client {
                     // Geef door dat de socket open staat met hostname en port nummer
                     serverOut.println("OPEN:localhost:42068");
                     // Open een nieuwe transferThread en luister naar een verbinding
-                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), fileName).start();
+                    new TransferThread(SocketMode.SENDING, transferSocket.accept(), "catch", fileName).start();
 
                 } catch (IOException e) {
                     // Anders melden we dat het niet gemaakt kan worden.
