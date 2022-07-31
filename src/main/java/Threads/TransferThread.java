@@ -52,7 +52,8 @@ public class TransferThread extends Thread {
     // TODO: 11/06/2022 Geef TransferFile variable voor het versturen van het bestand
     public void transferFile(String dir, String file) throws IOException, NoSuchAlgorithmException {
         // Pak het bestand die je wilt versturen.
-        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "send", file);
+        // TODO: TransferThread moet een stukje pad krijgen.
+        Path myFile = FileSystems.getDefault().getPath(dir + File.separator + "catch", file);
 
         // Maak een teller voor straks
         int count;

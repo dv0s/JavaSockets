@@ -120,10 +120,11 @@ public class Protocol {
                 break;
 
             case "PUT":
-                if(args == null){
+                if(args == null || args.length == 0){
                     response.setResponse(400, MyState.LISTENING, "ERR: Which file do you want to upload?\nEND");
                     return response;
                 }
+
                 response.setResponse(100, MyState.LISTENING, "PUT:" + args[0]);
                 break;
 
