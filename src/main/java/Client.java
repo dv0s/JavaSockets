@@ -150,6 +150,16 @@ public class Client {
                 }
             }
 
+            if(fromServer.startsWith("SYNC")){
+                // Als het commando voor Sync wordt gegeven, dan moeten er een aantal dingen gebeuren.
+                // De client moet een lijst opstellen van alle bestanden die het heeft, en de server ook.
+                // Die twee lijsten moeten met elkaar vergeleken worden en daar vandaan moeten de bestanden
+                // naar de juiste kant worden gestuurd.
+                //
+                // Wat ook een optie is, is om eerst alles naar de server op te sturen, en daarna de verschillen met
+                // de client te bekijken en daarvan de missende bestanden opsturen.
+            }
+
             if (fromServer.startsWith("OPEN")) {
 
                 String[] a = fromServer.split(":");
