@@ -107,8 +107,9 @@ public class Client {
 
                 // Als er geen argumenten zijn, dan moet je stoppen.
                 // TODO: Maak deze check af.
-                if (arguments.length == 0) {
-                    // Stop hier.
+                if (arguments == null || arguments.length == 0) {
+                    serverOut.println("END");
+                    continue;
                 }
 
                 // TODO: 14/06/2022 Methode hiervan maken die eventueel statisch gebruikt kan worden.
@@ -133,13 +134,20 @@ public class Client {
                 }
 
                 // Als er geen argumenten zijn, dan moet je stoppen.
-                // TODO: Maak deze check af.
-                if (arguments.length == 0) {
-                    // Stop hier.
+                if (arguments == null || arguments.length == 0) {
+                    serverOut.println("END");
+                    continue;
                 }
 
-                // Voer putFile uit.
-                putFile(serverOut, serverIn, serverSocket, baseDir, arguments[0]);
+                // Check of het bestand bestaat
+                File sendFile = new File(baseDir + File.separator + "catch" + File.separator + arguments[0]);
+                if(!sendFile.exists()){
+                    serverOut.println("END");
+                    continue;
+                }else {
+                    // Voer putFile uit.
+                    putFile(serverOut, serverIn, serverSocket, baseDir, arguments[0]);
+                }
             }
 
             if (fromServer.startsWith("OPEN")) {
@@ -359,9 +367,8 @@ public class Client {
                 try {
                     checksum = Tools.getFileChecksum(md5Digest, myFile.toFile());
                 } catch (FileNotFoundException | NoSuchFileException e) {
-                    serverOut.println("ERR: File \"" + file.getName() + "\" not found. Try a different file\nEND");
-                    System.out.println(e);
-                    continue;
+                    serverOut.println("END: File \"" + file.getName() + "\" not found. Try a different file.");
+                    break;
                 }
 
                 // Print de checksum uit. (debugging)

@@ -186,6 +186,13 @@ public class ServerThread extends Thread {
                     // Then, start a new loop for the commands coming.
                     while((nextLine = clientIn.readLine()) != null){
                         System.out.println("Client: " + nextLine);
+
+                        // Als de client aangeeft om te stoppen, stop dan direct.
+                        if(nextLine.startsWith("END")){
+                            clientOut.println("END");
+                            break;
+                        }
+
                         // If the client is sending the file header, save it for later.
                         if(nextLine.startsWith("FileHeader")){
                             rfh = new FileHeader().createFromString(nextLine);
@@ -327,6 +334,11 @@ public class ServerThread extends Thread {
 
                 if (outputLine.startsWith("ERR")) {
                     clientOut.println(outputLine);
+                }
+
+                if (outputLine.startsWith("END"))
+                {
+                    clientOut.println("END");
                 }
 
                 // Als het antwoord van de server "Bye." is, dan gaan we uit de loop en sluiten we de connectie.

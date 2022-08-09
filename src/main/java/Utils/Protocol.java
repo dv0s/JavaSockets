@@ -132,6 +132,10 @@ public class Protocol {
                 response.setResponse(100, myState, myState.toString());
                 break;
 
+            case "END":
+                response.setResponse(100, MyState.LISTENING, "END");
+                break;
+
             case "EXIT":
             case "QUIT":
             case "CLOSE":
