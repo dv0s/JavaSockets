@@ -100,7 +100,7 @@ public class Protocol {
                 break;
 
             case "SYNC":
-                response.setResponse(100, myState, "Syncing...\nEND");
+                response.setResponse(100, MyState.LISTENING, "SYNC");
                 break;
 
             // ls: zou een lijst van bestanden in de map moeten weergeven.

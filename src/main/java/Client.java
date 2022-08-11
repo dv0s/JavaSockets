@@ -7,16 +7,18 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributeView;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Client {
 
-    private static String baseDir = System.getProperty("user.home") +
+    private final static String baseDir = System.getProperty("user.home") +
             File.separator + "documents" +
             File.separator + "avans" +
             File.separator + "filesync";
-
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 
@@ -106,14 +108,11 @@ public class Client {
                 }
 
                 // Als er geen argumenten zijn, dan moet je stoppen.
-                // TODO: Maak deze check af.
                 if (arguments == null || arguments.length == 0) {
                     serverOut.println("END");
                     continue;
                 }
 
-                // TODO: 14/06/2022 Methode hiervan maken die eventueel statisch gebruikt kan worden.
-                //  Socket, BaseDir(Path), File(name)
                 // Voer getFile uit.
                 getFile(serverOut, serverIn, serverSocket, baseDir, arguments[0]);
             }
@@ -151,6 +150,22 @@ public class Client {
             }
 
             if(fromServer.startsWith("SYNC")){
+                System.out.println("Going for the sync route.");
+                // Maak van de directory een File object
+                File dir = new File(baseDir + File.separator + "catch");
+
+                // Voor elk bestand in de directory...
+                for (File file: Objects.requireNonNull(dir.listFiles())
+                     ) {
+                    // Maak er een path object van
+                    Path path = FileSystems.getDefault().getPath(file.getPath());
+                    // Lees de basic file attributen uit
+                    BasicFileAttributeView basicView = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+                    // print de lastAccessTime
+                    System.out.println(basicView.readAttributes().lastAccessTime().toMillis());
+                }
+
+                // Tools.ScanDir(baseDir + File.separator + "catch");
                 // Als het commando voor Sync wordt gegeven, dan moeten er een aantal dingen gebeuren.
                 // De client moet een lijst opstellen van alle bestanden die het heeft, en de server ook.
                 // Die twee lijsten moeten met elkaar vergeleken worden en daar vandaan moeten de bestanden

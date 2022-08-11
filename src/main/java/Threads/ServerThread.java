@@ -323,6 +323,14 @@ public class ServerThread extends Thread {
                 }
                 //endregion
 
+                // region CLIENT COMMAND SYNC
+                if (outputLine.startsWith("SYNC")){
+                    System.out.println("Caught SYNC");
+                    clientOut.println(outputLine);
+                }
+                // endregion
+
+                // region CLIENT COMMAND OPEN
                 if (outputLine.startsWith("OPEN")) {
 
                     // Nadat de checks zijn geweest, stuur het antwoord naar de Client
@@ -331,10 +339,13 @@ public class ServerThread extends Thread {
                     new TransferThread(SocketMode.SENDING, transferSocket.accept(), "send", "not_used.jpg").start();
                     clientOut.println("END");
                 }
+                // endregion
 
+                // region CLIENT COMMAND ERR
                 if (outputLine.startsWith("ERR")) {
                     clientOut.println(outputLine);
                 }
+                // endregion
 
                 if (outputLine.startsWith("END"))
                 {
