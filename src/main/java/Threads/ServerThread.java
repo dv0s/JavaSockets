@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class ServerThread extends Thread {
+
     // Private socket voor de thread. Deze krijgt de Thread van de Server klasse.
     private Socket socket;
     private ServerSocket transferSocket;
@@ -326,7 +327,10 @@ public class ServerThread extends Thread {
                 // region CLIENT COMMAND SYNC
                 if (outputLine.startsWith("SYNC")){
                     System.out.println("Caught SYNC");
+                    // TODO: Kijk naar de objectInputStream
+                    ObjectInputStream clientObjIn = new ObjectInputStream(socket.getInputStream());
                     clientOut.println(outputLine);
+
                 }
                 // endregion
 

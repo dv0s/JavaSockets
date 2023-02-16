@@ -154,6 +154,10 @@ public class Client {
                 // Maak van de directory een File object
                 File dir = new File(baseDir + File.separator + "catch");
 
+                System.out.println(Objects.requireNonNull(dir.listFiles()));
+
+                ObjectOutputStream serverObjOut = new ObjectOutputStream(serverSocket.getOutputStream());
+                serverObjOut.writeObject(Objects.requireNonNull(dir.listFiles()));
                 // Voor elk bestand in de directory...
                 for (File file: Objects.requireNonNull(dir.listFiles())
                      ) {
@@ -162,7 +166,7 @@ public class Client {
                     // Lees de basic file attributen uit
                     BasicFileAttributeView basicView = Files.getFileAttributeView(path, BasicFileAttributeView.class);
                     // print de lastAccessTime
-                    System.out.println(basicView.readAttributes().lastAccessTime().toMillis());
+                    System.out.println(basicView.readAttributes());
                 }
 
                 // Tools.ScanDir(baseDir + File.separator + "catch");
