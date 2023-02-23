@@ -1,10 +1,12 @@
+import Protocol.Protocol;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         // Check argumenten voor het starten van de applicatie, in dit geval hostname en poortnummer
         if(args.length != 2)
@@ -19,7 +21,7 @@ public class Client {
 
         try(
                 // Probeer een socket op te zetten naar de server die open zou moeten staan.
-                Socket serverSocket = new Socket(hostName, portNumber);
+                Socket serverSocket = new Socket(hostName, portNumber)
         ){
             // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
             // de andere kant toe).
