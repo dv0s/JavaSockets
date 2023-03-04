@@ -42,14 +42,14 @@ public class Client {
 
             // Hier wordt het interessant, we gaan op buffergrootte lussen zolang als dat er bytes binnen komen.
             System.out.println("Write to file");
-            while((count = in.read(buffer)) >= 0){
-                System.out.println(i + ": " + count);
-                // Schrijf naar het bestand stream toe.
-                fos.write(buffer, 0, count);
-                // En wel direct.
-                fos.flush();
-                i++;
-            }
+//            while((count = in.read(buffer)) >= 0){
+//                System.out.println(i + ": " + count);
+//                // Schrijf naar het bestand stream toe.
+//                fos.write(buffer, 0, count);
+//                // En wel direct.
+//                fos.flush();
+//                i++;
+//            }
 
             // Als alles klaar is, dan sluiten we het bestand stream.
             fos.close();
