@@ -3,7 +3,7 @@ package protocol;
 public class Protocol {
 
     public String processInput(String input){
-        String output = null;
+        String output = "Hello";
 
         return input;
     }
