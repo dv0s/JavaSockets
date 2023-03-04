@@ -28,7 +28,7 @@ public class CommunicationThread extends Thread {
             System.out.println("Listening...");
 
             Protocol protocol = new Protocol();
-            outputLine = protocol.processInput(null);
+            outputLine = protocol.processInput("Hello");
 
             clientOut.println(outputLine);
 
