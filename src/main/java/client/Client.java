@@ -1,5 +1,7 @@
 package client;
 
+import client.handlers.Connection;
+
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -18,22 +20,14 @@ public class Client {
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
 
-        boolean connected = false;
+        Connection connection = null;
         int attempts = 0;
-        Socket serverSocket = null;
-        PrintWriter serverOut = null;
-        BufferedReader serverIn = null;
+
+        boolean connected = false;
 
         while (!connected) {
             try {
-                SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
-                serverSocket = new Socket();
-
-                serverSocket.connect(socketAddress);
-
-                serverOut = new PrintWriter(serverSocket.getOutputStream(), true);
-                serverIn = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-
+                connection = new Connection(hostName,portNumber).establish();
                 connected = true;
 
             } catch (IOException ex) {
@@ -55,12 +49,12 @@ public class Client {
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
-        while((fromServer = serverIn.readLine()) != null){
+        while((fromServer = connection.serverIn.readLine()) != null){
             System.out.println("Server: " + fromServer);
 
             if(fromServer.startsWith("END")){ // Moet later iets van \r\n zijn.
-                serverOut.println("Bye.");
-                serverSocket.close();
+                connection.serverOut.println("Bye.");
+                connection.close();
                 break;
             }
 
@@ -72,7 +66,7 @@ public class Client {
                 System.out.println("Client: " + fromUser);
 
                 // Stuur de input door naar de Server.
-                serverOut.println(fromUser);
+                connection.serverOut.println(fromUser);
             }
         }
 
