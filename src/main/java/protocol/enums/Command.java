@@ -1,5 +1,7 @@
 package protocol.enums;
 
+import server.handlers.*;
+
 public enum Command {
     OPEN{
         @Override
@@ -36,6 +38,10 @@ public enum Command {
     CLOSE{
         @Override
         public String toString() { return "CLOSE"; }
+    },
+    UNKNOWN{
+        @Override
+        public String toString() { return "COMMAND UNKNOWN"; }
     };
 
     public static Command fromInt(int x){
@@ -49,7 +55,7 @@ public enum Command {
             case 6 -> SIZE;
             case 7 -> PORT;
             case 8 -> CLOSE;
-            default -> null;
+            default -> UNKNOWN;
         };
     }
     public static Command fromString(String command){
@@ -65,7 +71,8 @@ public enum Command {
             case "SIZE" -> SIZE;
             case "PORT" -> PORT;
             case "CLOSE" -> CLOSE;
-            default -> null;
+            default -> UNKNOWN;
         };
     }
+
 }

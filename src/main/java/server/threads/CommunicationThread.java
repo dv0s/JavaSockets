@@ -1,6 +1,8 @@
 package server.threads;
 
 import protocol.Protocol;
+import protocol.enums.Command;
+import server.handlers.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class CommunicationThread extends Thread {
             System.out.println("Listening...");
 
             Protocol protocol = new Protocol();
-            outputLine = protocol.processInput("Hello");
+            outputLine = "Hello";
 
             clientOut.println(outputLine);
 
@@ -36,7 +38,15 @@ public class CommunicationThread extends Thread {
             while ((inputLine = clientIn.readLine()) != null) {
                 System.out.println(Thread.currentThread().getId() + " Client: " + inputLine);
 
-                outputLine = protocol.processInput(inputLine);
+                Command command = protocol.processInput(inputLine);
+
+                // Handle the commands
+                switch (command){
+                    case GET -> new Get().handle();
+                    case CLOSE -> new Close().handle();
+                }
+
+                outputLine = protocol.ouput(protocol.processInput(inputLine));
                 clientOut.println(outputLine);
             }
         } catch (IOException e) {
