@@ -43,8 +43,8 @@ public class CommunicationThread extends Thread {
 
                 // Handle the commands
                 switch (command){
-                    case GET -> new Get().handle();
-                    case CLOSE -> new Close().handle();
+                    case GET -> new Get(clientIn, clientOut).handle();
+                    case CLOSE -> new Close(clientIn, clientOut).handle();
                 }
 
                 outputLine = protocol.ouput(protocol.processInput(inputLine));

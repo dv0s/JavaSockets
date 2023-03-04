@@ -20,6 +20,8 @@ public class Server {
             ServerSocket serverSocket = new ServerSocket(portNumber);
         ){
 
+            System.out.println("SocketSoldiers file sync server started. v0.0.1");
+
             while(listening){
                 new CommunicationThread(serverSocket.accept()).start();
             }

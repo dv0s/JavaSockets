@@ -2,10 +2,22 @@ package server.handlers;
 
 import server.interfaces.CommandHandler;
 
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+
 public class Get implements CommandHandler {
+    public final BufferedReader clientIn;
+    public final PrintWriter clientOut;
+
+    public Get(BufferedReader clientIn, PrintWriter clientOut){
+        this.clientIn = clientIn;
+        this.clientOut = clientOut;
+    }
+
     @Override
     public void handle(){
         System.out.println(output());
+        clientOut.println(output());
     }
 
     @Override
