@@ -1,21 +1,18 @@
-import Protocol.Protocol;
+package client;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
     public static void main(String[] args) {
 
-        // Check argumenten voor het starten van de applicatie, in dit geval hostname en poortnummer
         if(args.length != 2)
         {
-            System.err.println("Usage: java Server <hostname> <port number>");
+            System.err.println("Usage: java client.Client <hostname> <port number>");
             System.exit(1);
         }
 
-        // Maak van de argumenten variablen waarmee je kan werken.
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
 
@@ -23,8 +20,6 @@ public class Client {
                 // Probeer een socket op te zetten naar de server die open zou moeten staan.
                 Socket serverSocket = new Socket(hostName, portNumber)
         ){
-            // Open een stream voor het te ontvangen bestand waar we naartoe gaan schrijven (Output gaat naar
-            // de andere kant toe).
             FileOutputStream fos = new FileOutputStream("D:\\Avans\\Socket\\received\\big_ass_file.zip");
 
             // Open een gebufferde stream voor het te ontvangen bestand (Welke we overigens weg kunnen laten).

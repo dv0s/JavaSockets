@@ -1,6 +1,6 @@
-package Server.Threads;
+package server.threads;
 
-import Protocol.Protocol;
+import protocol.Protocol;
 
 import java.io.BufferedReader;
 import java.io.IOException;

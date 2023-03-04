@@ -1,4 +1,4 @@
-package Protocol.Enums;
+package protocol.enums;
 
 public enum State {
     IDLE{

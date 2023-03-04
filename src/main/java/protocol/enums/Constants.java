@@ -1,4 +1,4 @@
-package Protocol.Enums;
+package protocol.enums;
 
 // Constants for this application
 public enum Constants {

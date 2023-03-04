@@ -1,8 +1,7 @@
-package Protocol.ReturnObjects;
+package protocol.returnobjects;
 
-import Protocol.Data.ResponseBody;
-import Protocol.Data.ResponseHeader;
-import Protocol.Enums.ResponseType;
+import protocol.data.ResponseBody;
+import protocol.data.ResponseHeader;
 
 public class Response {
     public ResponseHeader responseHeader;

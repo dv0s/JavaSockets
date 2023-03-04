@@ -1,4 +1,4 @@
-package Server.Interfaces;
+package server.interfaces;
 
 public interface CommandHandler {
     public void handle();

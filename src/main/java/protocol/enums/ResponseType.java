@@ -1,6 +1,4 @@
-package Protocol.Enums;
-
-import Protocol.ReturnObjects.Response;
+package protocol.enums;
 
 public enum ResponseType {
 

@@ -1,6 +1,6 @@
-package Server;
+package server;
 
-import Server.Threads.CommunicationThread;
+import server.threads.CommunicationThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;

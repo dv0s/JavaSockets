@@ -1,4 +1,4 @@
-package Protocol.Enums;
+package protocol.enums;
 
 public enum Command {
     OPEN{

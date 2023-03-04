@@ -1,6 +1,6 @@
-package Server.Handlers;
+package server.handlers;
 
-import Server.Interfaces.CommandHandler;
+import server.interfaces.CommandHandler;
 
 // Get Handler for handling the get command
 public class Get implements CommandHandler {
