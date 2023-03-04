@@ -10,6 +10,6 @@ public class Get implements CommandHandler {
     }
 
     public String output(){
-        return "GET CALLED";
+        return "COMMAND 'GET' CALLED";
     }
 }

@@ -34,8 +34,10 @@ public class CommunicationThread extends Thread {
 
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
             while ((inputLine = clientIn.readLine()) != null) {
-                System.out.println("Client: " + inputLine);
+                System.out.println(Thread.currentThread().getId() + " Client: " + inputLine);
 
+                outputLine = protocol.processInput(inputLine);
+                clientOut.println(outputLine);
             }
         } catch (IOException e) {
             e.printStackTrace();

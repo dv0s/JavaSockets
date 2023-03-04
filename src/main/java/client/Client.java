@@ -63,6 +63,17 @@ public class Client {
                 serverSocket.close();
                 break;
             }
+
+            System.out.print("Command: ");
+            // Onze blokkende command afwacht ding
+            fromUser = stdIn.readLine();
+
+            if (fromUser != null) {
+                System.out.println("Client: " + fromUser);
+
+                // Stuur de input door naar de Server.
+                serverOut.println(fromUser);
+            }
         }
 
         //try(

@@ -3,9 +3,9 @@ package protocol;
 public class Protocol {
 
     public String processInput(String input){
-        String output = "Hello";
+        String output = input;
 
-        return input;
+        return output;
     }
 
     private void Stop(){}
