@@ -6,12 +6,10 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 
 public class Close implements CommandHandler {
-
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
     public Close(BufferedReader clientIn, PrintWriter clientOut) {
-        super();
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }

@@ -4,14 +4,17 @@ import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 public class List implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
+    public final ArrayList<String> params;
 
-    public List(BufferedReader clientIn, PrintWriter clientOut) {
+    public List(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
+        this.params = params;
     }
 
     @Override

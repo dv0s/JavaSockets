@@ -13,18 +13,20 @@ public class Protocol {
     public void processInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
         ArrayList<String> params = getParameters(input);
 
+        // Get command enum, then remove command from the ArrayList
         Command command = Command.fromString(params.get(0));
+        params.remove(0);
 
         // Handle the commands
         switch (command) {
-            case OPEN -> new Open(clientIn, clientOut).handle();
-            case LS -> new List(clientIn, clientOut).handle();
-            case DIR -> new Dir(clientIn, clientOut).handle();
-            case GET -> new Get(clientIn, clientOut).handle();
-            case PUT -> new Put(clientIn, clientOut).handle();
-            case DELETE -> new Delete(clientIn, clientOut).handle();
-            case SIZE -> new Size(clientIn, clientOut).handle();
-            case PORT -> new Port(clientIn, clientOut).handle();
+            case OPEN -> new Open(clientIn, clientOut, params).handle();
+            case LS -> new List(clientIn, clientOut, params).handle();
+            case DIR -> new Dir(clientIn, clientOut, params).handle();
+            case GET -> new Get(clientIn, clientOut, params).handle();
+            case PUT -> new Put(clientIn, clientOut, params).handle();
+            case DELETE -> new Delete(clientIn, clientOut, params).handle();
+            case SIZE -> new Size(clientIn, clientOut, params).handle();
+            case PORT -> new Port(clientIn, clientOut, params).handle();
             case CLOSE -> new Close(clientIn, clientOut).handle();
             default -> {
                 System.out.println("COMMAND UNKNOWN");
