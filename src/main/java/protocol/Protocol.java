@@ -1,16 +1,16 @@
 package protocol;
 
 import protocol.enums.Command;
+import protocol.returnobjects.Message;
 import server.handlers.*;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Protocol {
 
-    public void processInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
+    public void processInput(String input, ObjectInputStream clientIn, ObjectOutputStream clientOut) throws IOException {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -30,7 +30,7 @@ public class Protocol {
             case CLOSE -> new Close(clientIn, clientOut).handle();
             default -> {
                 System.out.println("COMMAND UNKNOWN");
-                clientOut.println("COMMAND UNKNOWN");
+                clientOut.writeObject(new Message("COMMAND UNKNOWN", true));
             }
         }
     }

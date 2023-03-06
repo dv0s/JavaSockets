@@ -1,26 +1,29 @@
 package server.handlers;
 
+import protocol.returnobjects.Message;
 import server.interfaces.CommandHandler;
 
-import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Get implements CommandHandler {
-    public final BufferedReader clientIn;
-    public final PrintWriter clientOut;
+    public final ObjectInputStream clientIn;
+    public final ObjectOutputStream clientOut;
     public final ArrayList<String> params;
 
-    public Get(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
+    public Get(ObjectInputStream clientIn, ObjectOutputStream clientOut, ArrayList<String> params) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
         this.params = params;
     }
 
     @Override
-    public void handle() {
+    public void handle() throws IOException {
         System.out.println(output());
-        clientOut.println(output());
+        clientOut.writeObject(new Message(output(), true));
     }
 
     @Override

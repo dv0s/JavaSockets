@@ -7,9 +7,9 @@ public class Response {
     public ResponseHeader responseHeader;
     public ResponseBody responseBody;
 
-    public Response(){
+    public Response(ResponseHeader responseHeader, ResponseBody responseBody){
         super();
-        this.responseHeader = null;
-        this.responseBody = null;
+        this.responseHeader = responseHeader;
+        this.responseBody = responseBody;
     }
 }

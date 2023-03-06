@@ -1,22 +1,22 @@
 package server.handlers;
 
+import protocol.returnobjects.Message;
 import server.interfaces.CommandHandler;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.*;
 
 public class Close implements CommandHandler {
-    public final BufferedReader clientIn;
-    public final PrintWriter clientOut;
+    public final ObjectInputStream clientIn;
+    public final ObjectOutputStream clientOut;
 
-    public Close(BufferedReader clientIn, PrintWriter clientOut) {
+    public Close(ObjectInputStream clientIn, ObjectOutputStream clientOut) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
 
     @Override
-    public void handle() {
-        this.clientOut.println("END");
+    public void handle() throws IOException {
+        this.clientOut.writeObject(new Message("END", true));
     }
 
     @Override

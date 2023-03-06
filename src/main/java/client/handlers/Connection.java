@@ -1,9 +1,6 @@
 package client.handlers;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -14,8 +11,8 @@ public class Connection {
     public int portNumber;
 
     public Socket serverSocket = null;
-    public PrintWriter serverOut = null;
-    public BufferedReader serverIn = null;
+    public ObjectOutputStream serverOut = null;
+    public ObjectInputStream serverIn = null;
 
     public Connection(String hostName, int portNumber){
         super();
@@ -29,8 +26,8 @@ public class Connection {
 
         serverSocket.connect(socketAddress);
 
-        serverOut = new PrintWriter(serverSocket.getOutputStream(), true);
-        serverIn = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+        serverOut = new ObjectOutputStream(serverSocket.getOutputStream());
+        serverIn = new ObjectInputStream(serverSocket.getInputStream());
 
         return this;
     }

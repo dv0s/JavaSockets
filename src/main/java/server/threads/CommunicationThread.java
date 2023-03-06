@@ -1,9 +1,11 @@
 package server.threads;
 import protocol.Protocol;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import protocol.data.ResponseBody;
+import protocol.data.ResponseHeader;
+import protocol.returnobjects.Message;
+import protocol.returnobjects.Response;
+
+import java.io.*;
 import java.net.Socket;
 
 public class CommunicationThread extends Thread {
@@ -16,26 +18,28 @@ public class CommunicationThread extends Thread {
 
     public void run() {
         try (
-                PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
+                ObjectOutputStream clientOut = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream clientIn = new ObjectInputStream(socket.getInputStream())
         ) {
-            String inputLine, outputLine;
+            Message inputObject, outputObject;
             long clientId = Thread.currentThread().getId();
 
             System.out.println("Connection established with Client: " + clientId);
 
             Protocol protocol = new Protocol();
-            outputLine = "Hello";
+            outputObject = new Message("Hello", true);
 
-            clientOut.println(outputLine);
+            clientOut.writeObject(outputObject);
 
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
-            while ((inputLine = clientIn.readLine()) != null) {
-                System.out.println(clientId + " Client: " + inputLine);
-                protocol.processInput(inputLine, clientIn, clientOut);
+            while ((inputObject = (Message) clientIn.readObject()) != null) {
+                System.out.println(clientId + " Client: " + inputObject);
+                protocol.processInput(inputObject.message, clientIn, clientOut);
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

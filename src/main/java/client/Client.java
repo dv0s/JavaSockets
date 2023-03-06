@@ -1,11 +1,12 @@
 package client;
 
 import client.handlers.Connection;
+import protocol.returnobjects.Message;
 
 import java.io.*;
 
 public class Client {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         if(args.length != 2)
         {
@@ -43,31 +44,32 @@ public class Client {
         }
 
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
-        String fromServer, fromUser;
+        Message fromUser, fromServer;
 
-        while((fromServer = connection.serverIn.readLine()) != null){
-            System.out.println("Server: " + fromServer);
+        while((fromServer = (Message)connection.serverIn.readObject()) != null){
+            System.out.println("Server: " + fromServer.message);
 
-            if(fromServer.startsWith("END")){ // Moet later iets van \r\n zijn.
-                connection.serverOut.println("Bye.");
+            if(fromServer.message.equals("END")){ // Moet later iets van \r\n zijn.
+                fromUser = new Message("Bye.", true);
+                connection.serverOut.writeObject(fromUser);
                 connection.close();
                 break;
             }
 
             // Er moet een manier worden gevonden om te weten wanneer de client mag praten.
-            // if(fromServer.equals("") && previous != null){
+            if(fromServer.messageEnd){
 
                 System.out.print("Command: ");
                 // Onze blokkende command afwacht ding
-                fromUser = stdIn.readLine();
+                String command = stdIn.readLine();
 
-                if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
-
+                if (command != null) {
+                    System.out.println("Client: " + command);
+                    fromUser = new Message(command, true);
                     // Stuur de input door naar de Server.
-                    connection.serverOut.println(fromUser);
+                    connection.serverOut.writeObject(fromUser);
                 }
-            //}
+            }
         }
 
     }
