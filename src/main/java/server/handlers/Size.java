@@ -9,7 +9,7 @@ public class Size implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Size(BufferedReader clientIn, PrintWriter clientOut){
+    public Size(BufferedReader clientIn, PrintWriter clientOut) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
@@ -17,6 +17,7 @@ public class Size implements CommandHandler {
     @Override
     public void handle() {
         System.out.println(output());
+        clientOut.println(output());
     }
 
     @Override

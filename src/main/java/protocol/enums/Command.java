@@ -1,50 +1,68 @@
 package protocol.enums;
 
-import server.handlers.*;
-
 public enum Command {
-    OPEN{
+    OPEN {
         @Override
-        public String toString() { return "OPEN"; }
+        public String toString() {
+            return "OPEN";
+        }
     },
-    LS{
+    LS {
         @Override
-        public String toString() { return "LIST"; }
+        public String toString() {
+            return "LIST";
+        }
     },
-    DIR{
+    DIR {
         @Override
-        public String toString() { return "LIST"; }
+        public String toString() {
+            return "LIST";
+        }
     },
-    GET{
+    GET {
         @Override
-        public String toString() { return "GET"; }
+        public String toString() {
+            return "GET";
+        }
     },
-    PUT{
+    PUT {
         @Override
-        public String toString() { return "PUT"; }
+        public String toString() {
+            return "PUT";
+        }
     },
-    DELETE{
+    DELETE {
         @Override
-        public String toString() { return "DELETE"; }
+        public String toString() {
+            return "DELETE";
+        }
     },
-    SIZE{
+    SIZE {
         @Override
-        public String toString() { return "SIZE"; }
+        public String toString() {
+            return "SIZE";
+        }
     },
-    PORT{
+    PORT {
         @Override
-        public String toString() { return "PORT"; }
+        public String toString() {
+            return "PORT";
+        }
     },
-    CLOSE{
+    CLOSE {
         @Override
-        public String toString() { return "CLOSE"; }
+        public String toString() {
+            return "CLOSE";
+        }
     },
-    UNKNOWN{
+    UNKNOWN {
         @Override
-        public String toString() { return "COMMAND UNKNOWN"; }
+        public String toString() {
+            return "COMMAND UNKNOWN";
+        }
     };
 
-    public static Command fromInt(int x){
+    public static Command fromInt(int x) {
         return switch (x) {
             case 0 -> OPEN;
             case 1 -> LS;
@@ -58,7 +76,8 @@ public enum Command {
             default -> UNKNOWN;
         };
     }
-    public static Command fromString(String command){
+
+    public static Command fromString(String command) {
         String str = command.trim().toUpperCase();
 
         return switch (str) {

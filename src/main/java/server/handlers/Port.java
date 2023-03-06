@@ -5,11 +5,13 @@ import server.interfaces.CommandHandler;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 
-public class Get implements CommandHandler {
+public class Port implements CommandHandler {
+
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Get(BufferedReader clientIn, PrintWriter clientOut) {
+    public Port(BufferedReader clientIn, PrintWriter clientOut) {
+        super();
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
@@ -22,6 +24,6 @@ public class Get implements CommandHandler {
 
     @Override
     public String output() {
-        return "Command 'GET' called";
+        return "Command 'PORT' called";
     }
 }

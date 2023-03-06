@@ -10,7 +10,7 @@ public class Delete implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Delete(BufferedReader clientIn, PrintWriter clientOut){
+    public Delete(BufferedReader clientIn, PrintWriter clientOut) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
@@ -18,6 +18,7 @@ public class Delete implements CommandHandler {
     @Override
     public void handle() {
         System.out.println(output());
+        clientOut.println(output());
     }
 
     @Override

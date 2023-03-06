@@ -9,7 +9,7 @@ public class List implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public List(BufferedReader clientIn, PrintWriter clientOut){
+    public List(BufferedReader clientIn, PrintWriter clientOut) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
@@ -17,6 +17,7 @@ public class List implements CommandHandler {
     @Override
     public void handle() {
         System.out.println(output());
+        clientOut.println(output());
     }
 
     @Override

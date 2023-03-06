@@ -10,13 +10,15 @@ public class Put implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Put(BufferedReader clientIn, PrintWriter clientOut){
+    public Put(BufferedReader clientIn, PrintWriter clientOut) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
     }
+
     @Override
     public void handle() {
         System.out.println(output());
+        clientOut.println(output());
     }
 
     @Override

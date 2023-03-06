@@ -10,7 +10,7 @@ public class Close implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Close(BufferedReader clientIn, PrintWriter clientOut){
+    public Close(BufferedReader clientIn, PrintWriter clientOut) {
         super();
         this.clientIn = clientIn;
         this.clientOut = clientOut;
@@ -19,11 +19,10 @@ public class Close implements CommandHandler {
     @Override
     public void handle() {
         this.clientOut.println("END");
-        System.out.println(output());
     }
 
     @Override
     public String output() {
-        return "Command 'CLOSE' called";
+        return "Disconnecting from server...";
     }
 }
