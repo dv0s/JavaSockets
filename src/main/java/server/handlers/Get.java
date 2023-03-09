@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Get implements CommandHandler {
+public class Get extends BaseHandler implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -25,10 +25,13 @@ public class Get implements CommandHandler {
 
     @Override
     public String output() {
+        String output = "";
         if (this.params.isEmpty()) {
-            return "Command 'GET' called";
+            output =  "Command 'GET' called";
         }
 
-        return "Command 'GET' called with parameters: " + this.params;
+        output = "Command 'GET' called with parameters: " + this.params;
+
+        return output + endOfText();
     }
 }

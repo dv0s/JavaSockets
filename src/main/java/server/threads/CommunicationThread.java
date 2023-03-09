@@ -25,7 +25,7 @@ public class CommunicationThread extends Thread {
             System.out.println("Connection established with Client: " + clientId);
 
             Protocol protocol = new Protocol();
-            outputLine = "Hello";
+            outputLine = "Hello\u0003";
 
             clientOut.println(outputLine);
 

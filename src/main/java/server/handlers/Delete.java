@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Delete implements CommandHandler {
+public class Delete extends BaseHandler implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -19,12 +19,13 @@ public class Delete implements CommandHandler {
 
     @Override
     public void handle() {
-        System.out.println(output());
         clientOut.println(output());
     }
 
     @Override
     public String output() {
-        return "Command 'DELETE' called";
+        String output = "Command 'DELETE' called";
+
+        return output + endOfText();
     }
 }

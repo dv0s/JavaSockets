@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Size implements CommandHandler {
+public class Size extends BaseHandler implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -19,12 +19,12 @@ public class Size implements CommandHandler {
 
     @Override
     public void handle() {
-        System.out.println(output());
         clientOut.println(output());
     }
 
     @Override
     public String output() {
-        return "Command 'SIZE' called";
+        String output = "Command 'SIZE' called";
+        return output + endOfText();
     }
 }

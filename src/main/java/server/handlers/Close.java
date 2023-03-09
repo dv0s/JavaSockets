@@ -5,7 +5,7 @@ import server.interfaces.CommandHandler;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 
-public class Close implements CommandHandler {
+public class Close extends BaseHandler implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
@@ -16,11 +16,11 @@ public class Close implements CommandHandler {
 
     @Override
     public void handle() {
-        this.clientOut.println("END");
+        this.clientOut.println(output());
     }
 
     @Override
     public String output() {
-        return "Disconnecting from server...";
+        return "Disconnecting from server..." + endOfTransmission();
     }
 }

@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Put implements CommandHandler {
+public class Put extends BaseHandler implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -18,12 +18,12 @@ public class Put implements CommandHandler {
     }
     @Override
     public void handle() {
-        System.out.println(output());
         clientOut.println(output());
     }
 
     @Override
     public String output() {
-        return "Command 'PUT' called";
+        String output = "Command 'PUT' called";
+        return output + endOfText();
     }
 }
