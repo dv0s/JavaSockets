@@ -1,64 +1,19 @@
 package protocol.enums;
 
 public enum Command {
-    OPEN {
-        @Override
-        public String toString() {
-            return "OPEN";
-        }
-    },
-    LS {
-        @Override
-        public String toString() {
-            return "LIST";
-        }
-    },
-    DIR {
-        @Override
-        public String toString() {
-            return "LIST";
-        }
-    },
-    GET {
-        @Override
-        public String toString() {
-            return "GET";
-        }
-    },
-    PUT {
-        @Override
-        public String toString() {
-            return "PUT";
-        }
-    },
-    DELETE {
-        @Override
-        public String toString() {
-            return "DELETE";
-        }
-    },
-    SIZE {
-        @Override
-        public String toString() {
-            return "SIZE";
-        }
-    },
-    PORT {
-        @Override
-        public String toString() {
-            return "PORT";
-        }
-    },
-    CLOSE {
-        @Override
-        public String toString() {
-            return "CLOSE";
-        }
-    },
+    OPEN,
+    LS,
+    DIR,
+    GET,
+    PUT,
+    DELETE,
+    SIZE,
+    PORT,
+    CLOSE,
     UNKNOWN {
         @Override
         public String toString() {
-            return "COMMAND UNKNOWN";
+            return "COMMAND UNKNOWN\u0003";
         }
     };
 

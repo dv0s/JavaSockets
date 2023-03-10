@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static protocol.enums.Command.UNKNOWN;
+
 public class Protocol {
 
     public void processInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
@@ -29,8 +31,8 @@ public class Protocol {
             case PORT -> new Port(clientIn, clientOut, params).handle();
             case CLOSE -> new Close(clientIn, clientOut).handle();
             default -> {
-                System.out.println("COMMAND UNKNOWN");
-                clientOut.println("COMMAND UNKNOWN");
+                System.out.println(UNKNOWN);
+                clientOut.println(UNKNOWN);
             }
         }
     }
