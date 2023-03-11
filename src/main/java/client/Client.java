@@ -7,8 +7,7 @@ import java.io.*;
 public class Client {
     public static void main(String[] args) throws IOException {
 
-        if(args.length != 2)
-        {
+        if (args.length != 2) {
             System.err.println("Usage: java client.Client <hostname> <port number>");
             System.exit(1);
         }
@@ -23,7 +22,7 @@ public class Client {
 
         while (!connected) {
             try {
-                connection = new Connection(hostName,portNumber).establish();
+                connection = new Connection(hostName, portNumber).establish();
                 connected = true;
 
             } catch (IOException ex) {
@@ -45,19 +44,19 @@ public class Client {
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
-        while((fromServer = connection.serverIn.readLine()) != null){
+        while ((fromServer = connection.serverIn.readLine()) != null) {
             System.out.println("Server: " + fromServer);
 
-            if(fromServer.contains("\u0004")){ // Moet later iets van \r\n zijn.
+            if (fromServer.contains("\u0004")) { // Moet later iets van \r\n zijn.
                 connection.serverOut.println("Bye.");
                 connection.close();
                 break;
             }
 
             // Er moet een manier worden gevonden om te weten wanneer de client mag praten.
-            if(fromServer.contains("\u0003")) {
+            if (fromServer.contains("\u0003")) {
 
-            System.out.print("Command: ");
+                System.out.print("Command: ");
                 // Onze blokkende command afwacht ding
                 fromUser = stdIn.readLine();
 
