@@ -1,11 +1,12 @@
 package server.threads;
 
-import server.events.FileEvent;
+import server.handlers.Delete;
+import server.handlers.Get;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.nio.file.*;
+import java.util.ArrayList;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -20,47 +21,45 @@ public class FileWatcherThread extends Thread {
     @Override
     public void run() {
         try (
-                WatchService watchService = FileSystems.getDefault().newWatchService()
+                WatchService watchService = FileSystems.getDefault().newWatchService();
+                PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            Path path = Paths.get("E:\\IdeaProjects\\AvansELU33ServerFiles");
-            path.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+            // Server folder is defined here
+            Path directory = Paths.get("E:\\IdeaProjects\\AvansELU33ServerFiles");
+            directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
 
             System.out.println("FileWatcher enabled");
 
             boolean poll = true;
             while (poll) {
-                poll = pollEvents(watchService);
+                WatchKey key = watchService.take();
+                Path path = (Path) key.watchable();
+
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    File file = path.resolve((Path) event.context()).toFile();
+
+                    ArrayList<String> params = new ArrayList<>();
+                    params.add(file.getName());
+
+                    // Send the file to the client
+                    if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
+                        new Get(clientIn, clientOut, params);
+                        System.out.println("ENTRY_CREATE - File : " + file.getName());
+                    }
+
+                    // Delete file from the cliend
+                    if (event.kind() == ENTRY_DELETE) {
+                        new Delete(clientIn, clientOut, params);
+                        System.out.println("ENTRY_DELETE - File : " + file.getName());
+                    }
+                }
+
+                poll = key.reset();
             }
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private boolean pollEvents(WatchService watchService) throws InterruptedException {
-        WatchKey key = watchService.take();
-        Path path = (Path) key.watchable();
-
-        for (WatchEvent<?> event : key.pollEvents()) {
-            notifyListeners(event.kind(), path.resolve((Path) event.context()).toFile());
-        }
-
-        return key.reset();
-    }
-
-    private void notifyListeners(WatchEvent.Kind<?> kind, File file) {
-        FileEvent event = new FileEvent(file);
-
-        if (kind == ENTRY_CREATE) {
-            System.out.println("ENTRY_CREATE - File : " + event.getFile());
-        }
-
-        if (kind == ENTRY_MODIFY) {
-            System.out.println("ENTRY_MODIFY - File : " + event.getFile());
-        }
-
-        if (kind == ENTRY_DELETE) {
-            System.out.println("ENTRY_DELETE - File : " + event.getFile());
         }
     }
 }
