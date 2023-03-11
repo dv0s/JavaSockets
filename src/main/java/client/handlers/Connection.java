@@ -18,7 +18,7 @@ public class Connection {
     public PrintWriter serverOut = null;
     public BufferedReader serverIn = null;
 
-    public Connection(String hostName, int portNumber){
+    public Connection(String hostName, int portNumber) {
         super();
         this.hostName = hostName;
         this.portNumber = portNumber;
@@ -45,10 +45,12 @@ public class Connection {
     public void close() throws IOException {
         this.serverIn.close();
         this.serverOut.close();
+        this.fileWatcherSocket.close();
         this.serverSocket.close();
 
         this.serverOut = null;
         this.serverIn = null;
+        this.fileWatcherSocket = null;
         this.serverSocket = null;
     }
 }
