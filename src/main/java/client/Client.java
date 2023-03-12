@@ -7,6 +7,9 @@ import protocol.enums.Constants;
 import protocol.utils.Tools;
 
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -108,6 +111,12 @@ public class Client {
                 while((nextLine = connection.serverIn.readLine()) != null){
                     if(nextLine.contains("OPEN")){
                         System.out.println("Probeer verbinding te maken.");
+                        String[] command = nextLine.split(" ");
+
+                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(connection.serverSocket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
+                        Socket fileTransferSocket = new Socket();
+
+                        fileTransferSocket.connect(fileTransferSocketAddress);
                     }
                 }
 

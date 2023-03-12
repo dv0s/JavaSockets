@@ -78,25 +78,26 @@ public class Get implements CommandHandler {
 
         clientOut.println(fileHeader);
 
-//        String clientInput;
-//        try{
-//            while((clientInput = clientIn.readLine()) != null){
-//                if(clientInput.equals("OK")){
-//
-//                    ServerSocket fileTransferSocket = new ServerSocket(42068);
-//
-//                    FileTransferThread fileTransferThread = new FileTransferThread(Command.GET, fileHeader);
-//                    fileTransferThread.setSocket(fileTransferSocket.accept()); // block je hier?
-//                    fileTransferThread.start(); // of hier?
-//                }
-//            }
-//        }catch (IOException e){
-//            // doe iets met de IO
-//        }
-//
-//        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
-//        // Eerst moeten we het bestand opzoeken die gevraagd wordt.
-//
+        String clientInput;
+        try{
+            while((clientInput = clientIn.readLine()) != null){
+                if(clientInput.equals("OK")){
+                    System.out.println("OK Sign received");
+                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)){
+                        Path serverFilePath = Paths.get(Constants.BASE_DIR + File.separator + "server");
+                        clientOut.println("OPEN localhost 42068");
+
+                        new FileTransferThread(Command.GET, fileHeader, serverFilePath, fileTransferSocket.accept()).start();
+                    }
+                }
+            }
+        }catch (IOException e){
+            System.err.println(e.getMessage());
+        }
+
+        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+        // Eerst moeten we het bestand opzoeken die gevraagd wordt.
+
         clientOut.println(output());
     }
 

@@ -5,10 +5,7 @@ import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,20 +17,22 @@ import java.security.NoSuchAlgorithmException;
 public class FileTransferThread extends Thread{
     public Command command;
     public FileHeader fileHeader;
+    public Path path;
 
-    public Socket socket = null;
+    public Socket socket;
     public PrintWriter socketOut = null;
     public BufferedReader socketIn = null;
 
-    public FileTransferThread(Command command, FileHeader fileHeader){
+    public FileTransferThread(Command command, FileHeader fileHeader, Path path, Socket socket) throws IOException {
         super();
 
         this.command = command;
         this.fileHeader = fileHeader;
-    }
-
-    public void setSocket(Socket socket){
+        this.path = path;
         this.socket = socket;
+
+        setSocketIn(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+        setSocketOut(new PrintWriter(socket.getOutputStream(), true));
     }
 
     public void setSocketOut(PrintWriter socketOut){
@@ -45,6 +44,7 @@ public class FileTransferThread extends Thread{
     }
 
     public void run(){
+        System.out.println("FileTransferThread has been started!");
         // Check if the request is a GET or PUT
         if(command == Command.GET){
             // Prepare to receive a stream.
