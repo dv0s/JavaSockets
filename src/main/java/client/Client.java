@@ -1,17 +1,29 @@
 package client;
 
 import client.handlers.Connection;
+import protocol.Protocol;
+import protocol.utils.Tools;
 
 import java.io.*;
 
 public class Client {
     public static void main(String[] args) throws IOException {
+        System.out.println("" +
+                " _____            _        _     _____       _     _ _               \n" +
+                "/  ___|          | |      | |   /  ___|     | |   | (_)              \n" +
+                "\\ `--.  ___   ___| | _____| |_  \\ `--.  ___ | | __| |_  ___ _ __ ___ \n" +
+                " `--. \\/ _ \\ / __| |/ / _ \\ __|  `--. \\/ _ \\| |/ _` | |/ _ \\ '__/ __|\n" +
+                "/\\__/ / (_) | (__|   <  __/ |_  /\\__/ / (_) | | (_| | |  __/ |  \\__ \\\n" +
+                "\\____/ \\___/ \\___|_|\\_\\___|\\__| \\____/ \\___/|_|\\__,_|_|\\___|_|  |___/\n" +
+                "                                                                     \n");
 
         if(args.length != 2)
         {
             System.err.println("Usage: java client.Client <hostname> <port number>");
             System.exit(1);
         }
+
+        System.out.println("File sync client started. v0.0.1");
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
