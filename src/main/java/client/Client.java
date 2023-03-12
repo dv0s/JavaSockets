@@ -10,6 +10,9 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -112,11 +115,28 @@ public class Client {
                     if(nextLine.contains("OPEN")){
                         System.out.println("Probeer verbinding te maken.");
                         String[] command = nextLine.split(" ");
+                        Path path = Paths.get(Constants.BASE_DIR + File.separator + "client");
 
                         SocketAddress fileTransferSocketAddress = new InetSocketAddress(connection.serverSocket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
                         Socket fileTransferSocket = new Socket();
 
                         fileTransferSocket.connect(fileTransferSocketAddress);
+
+                        BufferedInputStream fileTransferIn = new BufferedInputStream(fileTransferSocket.getInputStream());
+
+                        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.getFileName());
+
+                        int count;
+                        byte[] buffer = new byte[16 * 1024];
+
+                        FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(file));
+
+                        while ((count = fileTransferIn.read(buffer)) >= 0) {
+                            fileOutputStream.write(buffer, 0, count);
+                            fileOutputStream.flush();
+                        }
+
+                        fileOutputStream.close();
                     }
                 }
 

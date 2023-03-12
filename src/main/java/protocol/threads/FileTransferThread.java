@@ -1,12 +1,12 @@
 package protocol.threads;
 
 import protocol.data.FileHeader;
-import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,38 +15,43 @@ import java.security.NoSuchAlgorithmException;
 
 // This Thread will only be created after the header has been received through the communication channel.
 public class FileTransferThread extends Thread{
-    public Command command;
     public FileHeader fileHeader;
     public Path path;
 
     public Socket socket;
-    public PrintWriter socketOut = null;
-    public BufferedReader socketIn = null;
+    public BufferedOutputStream socketOut = null;
+    public BufferedInputStream socketIn = null;
 
-    public FileTransferThread(Command command, FileHeader fileHeader, Path path, Socket socket) throws IOException {
+    public FileTransferThread(FileHeader fileHeader, Path path, Socket socket) throws IOException {
         super();
 
-        this.command = command;
         this.fileHeader = fileHeader;
         this.path = path;
         this.socket = socket;
 
-        setSocketIn(new BufferedReader(new InputStreamReader(socket.getInputStream())));
-        setSocketOut(new PrintWriter(socket.getOutputStream(), true));
+        setSocketIn(new BufferedInputStream(socket.getInputStream()));
+        setSocketOut(new BufferedOutputStream(socket.getOutputStream()));
     }
 
-    public void setSocketOut(PrintWriter socketOut){
+    public void setSocketOut(BufferedOutputStream socketOut){
         this.socketOut = socketOut;
     }
 
-    public void setSocketIn(BufferedReader socketIn){
+    public void setSocketIn(BufferedInputStream socketIn){
         this.socketIn = socketIn;
     }
 
     public void run(){
         System.out.println("FileTransferThread has been started!");
+
+        try {
+            transfer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
         // Check if the request is a GET or PUT
-        if(command == Command.GET){
             // Prepare to receive a stream.
                 // Check the directory where the file needs to go
                 // Read the file header
@@ -55,15 +60,12 @@ public class FileTransferThread extends Thread{
                 // If not
                     // Send Incomplete message
 
-                //
-        }else if(command == Command.PUT){
             // Prepare to send a stream.
                 // Check the directory where the file resides
                 // Prepare the file header
                 // Send over the header to the other side
             // When we get an OK sign for receiving the header, start sending the file
             // Then we listen for another OK sign that everything is has been received correctly
-        }
 
         // If it has been successful, send end of transmission
         // If not, restart te process
@@ -95,8 +97,36 @@ public class FileTransferThread extends Thread{
     }
 
     // This will be the buffered sending
-    public void startTransfer(){
+    public void transfer() throws IOException {
+        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.fileName);
 
+        int count;
+        byte[] buffer = new byte[16 * 1024];
+
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream(String.valueOf(file)));
+
+        while ((count = in.read(buffer)) >= 0) {
+            socketOut.write(buffer, 0, count);
+            socketOut.flush();
+        }
+
+        in.close();
     }
 
+    // Dit is wat er gedaan moet worden aan de kant van de ontvanger
+    public void receive() throws IOException {
+        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.fileName);
+
+        int count;
+        byte[] buffer = new byte[16 * 1024];
+
+        FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(file));
+
+        while ((count = socketIn.read(buffer)) >= 0) {
+            fileOutputStream.write(buffer, 0, count);
+            fileOutputStream.flush();
+        }
+
+        fileOutputStream.close();
+    }
 }

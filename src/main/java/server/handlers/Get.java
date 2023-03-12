@@ -3,6 +3,7 @@ package server.handlers;
 import protocol.data.FileHeader;
 import protocol.enums.Command;
 import protocol.enums.Constants;
+import protocol.enums.SocketMode;
 import protocol.threads.FileTransferThread;
 import protocol.utils.Tools;
 import server.interfaces.CommandHandler;
@@ -85,9 +86,9 @@ public class Get implements CommandHandler {
                     System.out.println("OK Sign received");
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)){
                         Path serverFilePath = Paths.get(Constants.BASE_DIR + File.separator + "server");
-                        clientOut.println("OPEN localhost 42068");
+                        clientOut.println("OPEN PORT 42068");
 
-                        new FileTransferThread(Command.GET, fileHeader, serverFilePath, fileTransferSocket.accept()).start();
+                        new FileTransferThread(fileHeader, serverFilePath, fileTransferSocket.accept()).start();
                     }
                 }
             }
