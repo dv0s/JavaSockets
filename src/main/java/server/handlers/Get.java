@@ -1,5 +1,6 @@
 package server.handlers;
 
+import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -25,13 +26,13 @@ public class Get extends BaseHandler implements CommandHandler {
 
     @Override
     public String output() {
-        String output = "";
+        String output;
         if (this.params.isEmpty()) {
             output =  "Command 'GET' called";
         }
 
         output = "Command 'GET' called with parameters: " + this.params;
 
-        return output + endOfText();
+        return output + Constants.END_OF_TEXT;
     }
 }

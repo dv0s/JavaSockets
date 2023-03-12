@@ -1,5 +1,6 @@
 package server.handlers;
 
+import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -24,6 +25,6 @@ public class Open extends BaseHandler implements CommandHandler {
     @Override
     public String output() {
         String output = "Command 'OPEN' called";
-        return output + endOfText();
+        return output + Constants.END_OF_TEXT;
     }
 }

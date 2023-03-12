@@ -1,5 +1,6 @@
 package server.handlers;
 
+import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -21,6 +22,6 @@ public class Close extends BaseHandler implements CommandHandler {
 
     @Override
     public String output() {
-        return "Disconnecting from server..." + endOfTransmission();
+        return "Disconnecting from server..." + Constants.END_OF_TRANSMISSION;
     }
 }

@@ -1,5 +1,7 @@
 package server.threads;
 import protocol.Protocol;
+import protocol.enums.Constants;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,7 +27,7 @@ public class CommunicationThread extends Thread {
             System.out.println("Connection established with Client: " + clientId);
 
             Protocol protocol = new Protocol();
-            outputLine = "Hello\u0003";
+            outputLine = "Hello" + Constants.END_OF_TEXT;
 
             clientOut.println(outputLine);
 

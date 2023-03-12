@@ -1,5 +1,6 @@
 package server.handlers;
 
+import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -25,6 +26,6 @@ public class Dir extends BaseHandler implements CommandHandler {
     @Override
     public String output() {
         String output = "Command 'DIR' called";
-        return output + endOfText();
+        return output + Constants.END_OF_TEXT;
     }
 }
