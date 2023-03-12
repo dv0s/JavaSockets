@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -27,6 +30,18 @@ public class FileTransferThread extends Thread{
 
         this.command = command;
         this.fileHeader = fileHeader;
+    }
+
+    public void setSocket(Socket socket){
+        this.socket = socket;
+    }
+
+    public void setSocketOut(PrintWriter socketOut){
+        this.socketOut = socketOut;
+    }
+
+    public void setSocketIn(BufferedReader socketIn){
+        this.socketIn = socketIn;
     }
 
     public void run(){
@@ -63,15 +78,18 @@ public class FileTransferThread extends Thread{
     }
 
     public FileHeader constructHeader(File file) throws NoSuchAlgorithmException, IOException {
+        Path sendFile = Paths.get(Constants.BASE_DIR + File.separator + "server", file.getName());
+
         FileHeader fileHeader = new FileHeader();
 
-        fileHeader.fileName = file.getName();
-        fileHeader.fileType = "TYPE";
-        fileHeader.hashAlgo = Constants.HASHING_ALGORITHM.toString();
+        fileHeader.setFileName(file.getName());
+        fileHeader.setFileType(Tools.getExtensionByStringHandling(file.getName()).toString());
+        fileHeader.setFileSize(Files.size(sendFile));
+        fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
 
         MessageDigest md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
 
-        fileHeader.fileSize = Tools.getFileChecksum(md5Digest, file);
+        fileHeader.setCheckSum(Tools.getFileChecksum(md5Digest, file));
 
         return fileHeader;
     }

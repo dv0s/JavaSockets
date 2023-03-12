@@ -1,17 +1,19 @@
 package protocol.data;
 
+import protocol.enums.Constants;
+
 import java.util.Objects;
 
 public class FileHeader implements Comparable<FileHeader>{
     public String fileName;
     public String fileType;
-    public String fileSize;
+    public long fileSize;
     public String hashAlgo;
     public String checkSum;
 
     public FileHeader(){}
 
-    public FileHeader(String fileName, String fileType, String fileSize, String hashAlgo, String checkSum){
+    public FileHeader(String fileName, String fileType, long fileSize, String hashAlgo, String checkSum){
         super();
 
         this.fileName = fileName;
@@ -38,11 +40,11 @@ public class FileHeader implements Comparable<FileHeader>{
         this.fileType = fileType;
     }
 
-    public String getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(String fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
@@ -78,7 +80,8 @@ public class FileHeader implements Comparable<FileHeader>{
 
     @Override
     public String toString() {
-        return "Filename: " + fileName + "\n" +
+        return "Fileheader\n" +
+                "Filename: " + fileName + "\n" +
                 "Filetype: " + fileType + "\n" +
                 "Filesize: " + fileSize + "\n" +
                 "HashAlgo: " + hashAlgo + "\n" +

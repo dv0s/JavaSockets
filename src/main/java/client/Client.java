@@ -2,6 +2,8 @@ package client;
 
 import client.handlers.Connection;
 import protocol.Protocol;
+import protocol.data.FileHeader;
+import protocol.enums.Constants;
 import protocol.utils.Tools;
 
 import java.io.*;
@@ -53,27 +55,63 @@ public class Client {
         while((fromServer = connection.serverIn.readLine()) != null){
             System.out.println("Server: " + fromServer);
 
-            if(fromServer.contains("\u0004")){
+            if(fromServer.contains(Constants.END_OF_TRANSMISSION.toString())){
                 connection.close();
                 break;
             }
 
             // Er moet een manier worden gevonden om te weten wanneer de client mag praten.
-            if(fromServer.contains("\u0003")) {
+            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
                 System.out.print("Command: ");
 
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
-
                     // Stuur de input door naar de Server.
                     connection.serverOut.println(fromUser);
                 }
             }
 
-            // Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
+            // TODO: Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
 
+            // Zodra we een Fileheader antwoord hebben ontvangen
+            if(fromServer.contains("Fileheader")){
+                String nextLine;
+                String[] header;
+                FileHeader fileHeader = new FileHeader();
+
+                // Lees de regels van server om de header op te stellen
+                while((nextLine = connection.serverIn.readLine()) != null){
+                    System.out.println("Server: " + nextLine);
+                    if(nextLine.equals("")){
+                        break;
+                    }
+
+                    header = nextLine.split(":");
+
+                    switch (header[0].trim()) {
+                        case "Filename" -> fileHeader.setFileName(header[1].trim());
+                        case "Filetype" -> fileHeader.setFileType(header[1].trim());
+                        case "Filesize" -> fileHeader.setFileSize(Long.parseLong(header[1].trim()));
+                        case "HashAlgo" -> fileHeader.setHashAlgo(header[1].trim());
+                        case "CheckSum" -> fileHeader.setCheckSum(header[1].trim());
+                    }
+
+                }
+
+                // TODO: 12/03/2023 Error handling voordat de bestandsoverdracht begint.
+
+                System.out.print("File header received: \n" + fileHeader);
+                connection.serverOut.println("OK");
+
+                // Nog een loop voor het opzetten van de overdracht.
+                while((nextLine = connection.serverIn.readLine()) != null){
+                    if(nextLine.contains("OPEN")){
+                        System.out.println("Probeer verbinding te maken.");
+                    }
+                }
+
+            }
         }
 
     }

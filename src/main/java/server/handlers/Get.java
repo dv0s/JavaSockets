@@ -1,14 +1,24 @@
 package server.handlers;
 
+import protocol.data.FileHeader;
+import protocol.enums.Command;
 import protocol.enums.Constants;
+import protocol.threads.FileTransferThread;
+import protocol.utils.Tools;
 import server.interfaces.CommandHandler;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Get implements CommandHandler {
@@ -25,17 +35,68 @@ public class Get implements CommandHandler {
 
     @Override
     public void handle() {
-        System.out.println(Constants.BASE_DIR);
-        System.out.println(params.get(0));
-        Path check = Paths.get(Constants.BASE_DIR.toString() + File.separator + params.get(0));
-        System.out.println(Files.exists(check));
+        if(params.isEmpty()){
+            System.out.println("No arguments found.");
+            clientOut.println("No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            return;
+        }
 
+        String fileName = params.get(0);
+        Path path = Paths.get(Constants.BASE_DIR + File.separator + "server" + File.separator + fileName);
 
-        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+        if(Files.notExists(path)){
+            System.out.println("Requested file '" + params.get(0) + "' not found.");
+            clientOut.println("Requested file '" + params.get(0) + "' not found." + Constants.END_OF_TEXT);
+            return;
+        }
 
-        // Eerst moeten we het bestand opzoeken die gevraagd wordt.
+        // Bestand klaar maken voor overdracht
+        File file;
+        MessageDigest md5Digest;
+        String checkSum;
+        Path sendFile;
+        FileHeader fileHeader = new FileHeader();
+        try{
+            file = new File(path.toString());
+            md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
+            checkSum = Tools.getFileChecksum(md5Digest, file);
+            sendFile = Paths.get(Constants.BASE_DIR + File.separator + "server", file.getName());
 
+            fileHeader = new FileHeader(
+                    sendFile.getFileName().toString(),
+                    Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString(),
+                    Files.size(sendFile),
+                    Constants.HASHING_ALGORITHM.toString(),
+                    checkSum
+            );
 
+        }catch (NullPointerException e){
+            System.err.print(e.getMessage());
+        }catch(NoSuchAlgorithmException | IOException e){
+            System.err.println(e.getMessage());
+        }
+
+        clientOut.println(fileHeader);
+
+//        String clientInput;
+//        try{
+//            while((clientInput = clientIn.readLine()) != null){
+//                if(clientInput.equals("OK")){
+//
+//                    ServerSocket fileTransferSocket = new ServerSocket(42068);
+//
+//                    FileTransferThread fileTransferThread = new FileTransferThread(Command.GET, fileHeader);
+//                    fileTransferThread.setSocket(fileTransferSocket.accept()); // block je hier?
+//                    fileTransferThread.start(); // of hier?
+//                }
+//            }
+//        }catch (IOException e){
+//            // doe iets met de IO
+//        }
+//
+//        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+//        // Eerst moeten we het bestand opzoeken die gevraagd wordt.
+//
         clientOut.println(output());
     }
 
