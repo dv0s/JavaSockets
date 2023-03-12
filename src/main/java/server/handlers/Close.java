@@ -4,9 +4,10 @@ import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 
-public class Close extends BaseHandler implements CommandHandler {
+public class Close implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
@@ -17,7 +18,15 @@ public class Close extends BaseHandler implements CommandHandler {
 
     @Override
     public void handle() {
-        this.clientOut.println(output());
+        clientOut.println(output());
+
+        try {
+            clientIn.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        clientOut.close();
     }
 
     @Override

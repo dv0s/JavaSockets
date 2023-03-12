@@ -1,5 +1,7 @@
 package protocol.enums;
 
+import java.io.File;
+
 // Constants for this application
 public enum Constants {
     // Values
@@ -26,5 +28,14 @@ public enum Constants {
         public String toString() {
             return "\u0004";
         }
+    },
+    BASE_DIR{
+        @Override
+        public String toString(){
+            return System.getProperty("user.home") +
+                    File.separator + "documents" +
+                    File.separator + "filesync";
+        }
+
     };
 }

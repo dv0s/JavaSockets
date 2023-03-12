@@ -7,7 +7,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Put extends BaseHandler implements CommandHandler {
+public class Put implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -19,6 +19,8 @@ public class Put extends BaseHandler implements CommandHandler {
     }
     @Override
     public void handle() {
+
+        // Hier moet een transferThread worden geopend die van de client ontvangt.
         clientOut.println(output());
     }
 

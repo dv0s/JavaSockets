@@ -7,7 +7,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Port extends BaseHandler implements CommandHandler {
+public class Port implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -17,6 +17,7 @@ public class Port extends BaseHandler implements CommandHandler {
         this.clientOut = clientOut;
         this.params = params;
     }
+
 
     @Override
     public void handle() {

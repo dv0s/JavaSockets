@@ -48,17 +48,15 @@ public class Client {
         while((fromServer = connection.serverIn.readLine()) != null){
             System.out.println("Server: " + fromServer);
 
-            if(fromServer.contains("\u0004")){ // Moet later iets van \r\n zijn.
-                connection.serverOut.println("Bye.");
+            if(fromServer.contains("\u0004")){
                 connection.close();
                 break;
             }
 
             // Er moet een manier worden gevonden om te weten wanneer de client mag praten.
             if(fromServer.contains("\u0003")) {
+                System.out.print("Command: ");
 
-            System.out.print("Command: ");
-                // Onze blokkende command afwacht ding
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
@@ -68,6 +66,9 @@ public class Client {
                     connection.serverOut.println(fromUser);
                 }
             }
+
+            // Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
+
         }
 
     }

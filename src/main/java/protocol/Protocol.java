@@ -42,7 +42,7 @@ public class Protocol {
     }
 
     private ArrayList<String> getParameters(String input) {
-        String[] params = input.split(" --");
+        String[] params = input.split(" ");
         return new ArrayList<>(Arrays.asList(params));
     }
 

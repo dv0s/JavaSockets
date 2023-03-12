@@ -4,10 +4,14 @@ import protocol.enums.Constants;
 import server.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Get extends BaseHandler implements CommandHandler {
+public class Get implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -16,11 +20,22 @@ public class Get extends BaseHandler implements CommandHandler {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
         this.params = params;
+
     }
 
     @Override
     public void handle() {
-        System.out.println(output());
+        System.out.println(Constants.BASE_DIR);
+        System.out.println(params.get(0));
+        Path check = Paths.get(Constants.BASE_DIR.toString() + File.separator + params.get(0));
+        System.out.println(Files.exists(check));
+
+
+        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+
+        // Eerst moeten we het bestand opzoeken die gevraagd wordt.
+
+
         clientOut.println(output());
     }
 
