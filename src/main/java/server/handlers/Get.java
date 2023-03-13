@@ -1,20 +1,16 @@
 package server.handlers;
 
 import protocol.data.FileHeader;
-import protocol.enums.Command;
 import protocol.enums.Constants;
-import protocol.enums.SocketMode;
 import protocol.threads.FileTransferThread;
 import protocol.utils.Tools;
 import server.interfaces.CommandHandler;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +32,7 @@ public class Get implements CommandHandler {
 
     @Override
     public void handle() {
+        // Eerst wat checks
         if(params.isEmpty()){
             System.out.println("No arguments found.");
             clientOut.println("No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
@@ -63,13 +60,12 @@ public class Get implements CommandHandler {
             checkSum = Tools.getFileChecksum(md5Digest, file);
             sendFile = Paths.get(Constants.BASE_DIR + File.separator + "server", file.getName());
 
-            fileHeader = new FileHeader(
-                    sendFile.getFileName().toString(),
-                    Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString(),
-                    Files.size(sendFile),
-                    Constants.HASHING_ALGORITHM.toString(),
-                    checkSum
-            );
+            // Fill the file header
+            fileHeader.setFileName(sendFile.getFileName().toString());
+            fileHeader.setFileType(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
+            fileHeader.setFileSize(Files.size(sendFile));
+            fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
+            fileHeader.setCheckSum(checkSum);
 
         }catch (NullPointerException e){
             System.err.print(e.getMessage());
