@@ -3,8 +3,10 @@ package client;
 import client.handlers.Connection;
 import protocol.Protocol;
 import protocol.data.FileHeader;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
+import server.handlers.*;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -13,6 +15,9 @@ import java.net.SocketAddress;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+
+import static protocol.enums.Command.UNKNOWN;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -55,30 +60,22 @@ public class Client {
             }
         }
 
+        Protocol protocol = new Protocol();
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
-        String fromServer, fromUser;
+        String fromServer, fromUser = null;
 
         while((fromServer = connection.serverIn.readLine()) != null){
             System.out.println("Server: " + fromServer);
 
+            // Close the connection.
             if(fromServer.contains(Constants.END_OF_TRANSMISSION.toString())){
                 connection.close();
                 break;
             }
 
-            // Er moet een manier worden gevonden om te weten wanneer de client mag praten.
-            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                System.out.print("Command: ");
-
-                fromUser = stdIn.readLine();
-
-                if (fromUser != null) {
-                    // Stuur de input door naar de Server.
-                    connection.serverOut.println(fromUser);
-                }
-            }
-
             // TODO: Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
+            //  Dit moet dan afgeleid zijn van wat de gebruiker heeft ingevoerd, en daar kunnen dan
+            //  z'n eigen handlers voor worden aangesproken?
 
             // Zodra we een Fileheader antwoord hebben ontvangen
             if(fromServer.contains("Fileheader")){
@@ -140,6 +137,16 @@ public class Client {
                     }
                 }
 
+                // Als de server het signaal geeft dat het klaar is met praten
+                if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
+                    System.out.print("Command: ");
+
+                    fromUser = stdIn.readLine();
+
+                    if (fromUser != null) {
+                        connection.serverOut.println(fromUser);
+                    }
+                }
             }
         }
 

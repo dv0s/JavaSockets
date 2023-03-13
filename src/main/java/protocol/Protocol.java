@@ -8,11 +8,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static protocol.enums.Command.UNKNOWN;
+import static protocol.enums.Command.*;
 
 public class Protocol {
 
-    public void processInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
+    public void processClientInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -41,7 +41,7 @@ public class Protocol {
         return input.toString();
     }
 
-    private ArrayList<String> getParameters(String input) {
+    public ArrayList<String> getParameters(String input) {
         String[] params = input.split(" ");
         return new ArrayList<>(Arrays.asList(params));
     }
