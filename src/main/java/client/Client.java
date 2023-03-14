@@ -73,6 +73,17 @@ public class Client {
                 break;
             }
 
+            // Response codes gebruiken als afgesproken in protocol.
+            if(fromServer.startsWith("2")){
+
+                client.handlers.Get.handle();
+
+            }
+
+            if(fromServer.startsWith("5")){
+                Error afhandeling
+            }
+
             // TODO: Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
             //  Dit moet dan afgeleid zijn van wat de gebruiker heeft ingevoerd, en daar kunnen dan
             //  z'n eigen handlers voor worden aangesproken?
