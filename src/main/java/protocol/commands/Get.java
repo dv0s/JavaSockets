@@ -20,13 +20,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Get implements CommandHandler {
+    public final Invoker invoker;
+    public final Path homeDirectory;
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
 
-    public Get(Invoker owner, BufferedReader in, PrintWriter out) {
+    public Get(Invoker invoker, Path homeDirectory, BufferedReader in, PrintWriter out) {
+        this.invoker = invoker;
+        this.homeDirectory = homeDirectory;
         this.clientIn = in;
         this.clientOut = out;
-
     }
 
     @Override
@@ -39,7 +42,7 @@ public class Get implements CommandHandler {
         }
 
         String fileName = args.get(0);
-        Path path = Paths.get(Constants.BASE_DIR + File.separator + "server" + File.separator + fileName);
+        Path path = Paths.get(homeDirectory.toString() + File.separator + fileName);
 
         if(Files.notExists(path)){
             System.out.println("Requested file '" + args.get(0) + "' not found.");

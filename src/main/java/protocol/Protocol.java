@@ -14,10 +14,10 @@ import static protocol.enums.Command.*;
 
 public class Protocol {
 
-    private final Path _homeDirectory;
+    private final Path homeDirectory;
 
     public Protocol(Path homeDirectory){
-        this._homeDirectory = homeDirectory;
+        this.homeDirectory = homeDirectory;
     }
 
     public void processInput(Invoker invoker, String input, BufferedReader in, PrintWriter out) {
@@ -31,7 +31,7 @@ public class Protocol {
         switch (command) {
             case OPEN -> new Open(in, out).handle(params);
             case LS -> new List(in, out, params).handle(params);
-            case GET -> new Get(invoker, in, out).handle(params);
+            case GET -> new Get(invoker, homeDirectory, in, out).handle(params);
             case PUT -> new Put(in, out, params).handle(params);
             case DELETE -> new Delete(in, out, params).handle(params);
             case SIZE -> new Size(in, out, params).handle(params);
