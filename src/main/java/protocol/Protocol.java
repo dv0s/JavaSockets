@@ -1,7 +1,8 @@
 package protocol;
 
+import protocol.commands.*;
 import protocol.enums.Command;
-import server.handlers.*;
+import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -12,7 +13,7 @@ import static protocol.enums.Command.*;
 
 public class Protocol {
 
-    public void processClientInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
+    public void processInput(Invoker invoker, String input, BufferedReader in, PrintWriter out) {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -21,20 +22,23 @@ public class Protocol {
 
         // Handle the commands
         switch (command) {
-            case OPEN -> new Open(clientIn, clientOut, params).handle();
-            case LS -> new List(clientIn, clientOut, params).handle();
-            case DIR -> new Dir(clientIn, clientOut, params).handle();
-            case GET -> new Get(clientIn, clientOut, params).handle();
-            case PUT -> new Put(clientIn, clientOut, params).handle();
-            case DELETE -> new Delete(clientIn, clientOut, params).handle();
-            case SIZE -> new Size(clientIn, clientOut, params).handle();
-            case PORT -> new Port(clientIn, clientOut, params).handle();
-            case CLOSE -> new Close(clientIn, clientOut).handle();
+            case OPEN -> new Open(in, out).handle(params);
+            case LS -> new List(in, out, params).handle(params);
+            case GET -> new Get(invoker, in, out).handle(params);
+            case PUT -> new Put(in, out, params).handle(params);
+            case DELETE -> new Delete(in, out, params).handle(params);
+            case SIZE -> new Size(in, out, params).handle(params);
+            case PORT -> new Port(in, out, params).handle(params);
+            case CLOSE -> new Close(in, out).handle(params);
             default -> {
                 System.out.println(UNKNOWN);
-                clientOut.println(UNKNOWN);
+                out.println(UNKNOWN);
             }
         }
+    }
+
+    public void processErrorHandling(){
+        System.err.println("Error occurred.. We need to do something here.");
     }
 
     public String output(Command input) {

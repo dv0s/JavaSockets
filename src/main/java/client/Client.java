@@ -1,12 +1,12 @@
 package client;
 
-import client.handlers.Connection;
+import protocol.enums.Invoker;
+import protocol.handlers.ConnectionHandler;
 import protocol.Protocol;
+import protocol.commands.Get;
 import protocol.data.FileHeader;
-import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
-import server.handlers.*;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -15,9 +15,6 @@ import java.net.SocketAddress;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-
-import static protocol.enums.Command.UNKNOWN;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -34,14 +31,13 @@ public class Client {
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
 
-        Connection connection = null;
+        ConnectionHandler connection = null;
+
         int attempts = 0;
-
         boolean connected = false;
-
         while (!connected) {
             try {
-                connection = new Connection(hostName,portNumber).establish();
+                connection = new ConnectionHandler(hostName,portNumber).establish();
                 connected = true;
 
             } catch (IOException ex) {
@@ -75,18 +71,14 @@ public class Client {
 
             // Response codes gebruiken als afgesproken in protocol.
             if(fromServer.startsWith("2")){
-
-                client.handlers.Get.handle();
-
+                protocol.processInput(Invoker.CLIENT, fromServer, connection.serverIn, connection.serverOut);
+                // Commando uitvoeren
             }
 
             if(fromServer.startsWith("5")){
-                Error afhandeling
+                protocol.processErrorHandling();
+                // Error afhandeling;
             }
-
-            // TODO: Hier moet ook nog een lijst komen voor de Client om de commando's te verwerken.
-            //  Dit moet dan afgeleid zijn van wat de gebruiker heeft ingevoerd, en daar kunnen dan
-            //  z'n eigen handlers voor worden aangesproken?
 
             // Zodra we een Fileheader antwoord hebben ontvangen
             if(fromServer.contains("Fileheader")){
@@ -147,16 +139,16 @@ public class Client {
                         fileOutputStream.close();
                     }
                 }
+            }
 
-                // Als de server het signaal geeft dat het klaar is met praten
-                if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                    System.out.print("Command: ");
+            // Als de server het signaal geeft dat het klaar is met praten
+            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
+                System.out.print("Command: ");
 
-                    fromUser = stdIn.readLine();
+                fromUser = stdIn.readLine();
 
-                    if (fromUser != null) {
-                        connection.serverOut.println(fromUser);
-                    }
+                if (fromUser != null) {
+                    connection.serverOut.println(fromUser);
                 }
             }
         }

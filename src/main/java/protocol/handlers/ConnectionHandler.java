@@ -1,4 +1,4 @@
-package client.handlers;
+package protocol.handlers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-public class Connection {
+public class ConnectionHandler {
 
     public String hostName;
     public int portNumber;
@@ -17,13 +17,13 @@ public class Connection {
     public PrintWriter serverOut = null;
     public BufferedReader serverIn = null;
 
-    public Connection(String hostName, int portNumber){
+    public ConnectionHandler(String hostName, int portNumber){
         super();
         this.hostName = hostName;
         this.portNumber = portNumber;
     }
 
-    public Connection establish() throws IOException {
+    public ConnectionHandler establish() throws IOException {
         SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
         serverSocket = new Socket();
 

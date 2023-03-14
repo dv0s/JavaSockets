@@ -2,7 +2,7 @@ package server;
 
 import protocol.enums.Constants;
 import protocol.utils.Tools;
-import server.threads.CommunicationThread;
+import protocol.threads.CommunicationThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;

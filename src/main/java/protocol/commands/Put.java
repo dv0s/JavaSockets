@@ -1,32 +1,32 @@
-package server.handlers;
+package protocol.commands;
 
 import protocol.enums.Constants;
-import server.interfaces.CommandHandler;
+import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Port implements CommandHandler {
+public class Put implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
 
-    public Port(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
+    public Put(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
         this.params = params;
     }
-
-
     @Override
-    public void handle() {
+    public void handle(ArrayList<String> args) {
+
+        // Hier moet een transferThread worden geopend die van de client ontvangt.
         clientOut.println(output());
     }
 
     @Override
     public String output() {
-        String output = "Command 'PORT' called";
+        String output = "Command 'PUT' called";
         return output + Constants.END_OF_TEXT;
     }
 }

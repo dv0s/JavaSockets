@@ -1,7 +1,7 @@
-package server.handlers;
+package protocol.commands;
 
 import protocol.enums.Constants;
-import server.interfaces.CommandHandler;
+import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -20,7 +20,7 @@ public class List implements CommandHandler {
 
 
     @Override
-    public void handle() {
+    public void handle(ArrayList<String> args) {
         clientOut.println(output());
     }
 

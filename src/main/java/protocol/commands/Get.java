@@ -1,10 +1,11 @@
-package server.handlers;
+package protocol.commands;
 
 import protocol.data.FileHeader;
 import protocol.enums.Constants;
+import protocol.enums.Invoker;
 import protocol.threads.FileTransferThread;
 import protocol.utils.Tools;
-import server.interfaces.CommandHandler;
+import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,30 +22,28 @@ import java.util.ArrayList;
 public class Get implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
-    public final ArrayList<String> params;
 
-    public Get(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
-        this.clientIn = clientIn;
-        this.clientOut = clientOut;
-        this.params = params;
+    public Get(Invoker owner, BufferedReader in, PrintWriter out) {
+        this.clientIn = in;
+        this.clientOut = out;
 
     }
 
     @Override
-    public void handle() {
+    public void handle(ArrayList<String> args) {
         // Eerst wat checks
-        if(params.isEmpty()){
+        if(args.isEmpty()){
             System.out.println("No arguments found.");
             clientOut.println("No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
-        String fileName = params.get(0);
+        String fileName = args.get(0);
         Path path = Paths.get(Constants.BASE_DIR + File.separator + "server" + File.separator + fileName);
 
         if(Files.notExists(path)){
-            System.out.println("Requested file '" + params.get(0) + "' not found.");
-            clientOut.println("Requested file '" + params.get(0) + "' not found." + Constants.END_OF_TEXT);
+            System.out.println("Requested file '" + args.get(0) + "' not found.");
+            clientOut.println("Requested file '" + args.get(0) + "' not found." + Constants.END_OF_TEXT);
             return;
         }
 
@@ -101,12 +100,18 @@ public class Get implements CommandHandler {
     @Override
     public String output() {
         String output;
-        if (this.params.isEmpty()) {
-            output =  "Command 'GET' called";
-        }
+//        if (this.params.isEmpty()) {
+//            output =  "Command 'GET' called";
+//        }
 
-        output = "Command 'GET' called with parameters: " + this.params;
+        output = "Command 'GET' called with parameters";
 
         return output + Constants.END_OF_TEXT;
     }
+
+    public void receiveFile(){
+
+    }
+
+    public void sendFile(){}
 }

@@ -1,18 +1,18 @@
-package server.handlers;
+package protocol.commands;
 
 import protocol.enums.Constants;
-import server.interfaces.CommandHandler;
+import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Size implements CommandHandler {
+public class Port implements CommandHandler {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
 
-    public Size(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
+    public Port(BufferedReader clientIn, PrintWriter clientOut, ArrayList<String> params) {
         this.clientIn = clientIn;
         this.clientOut = clientOut;
         this.params = params;
@@ -20,13 +20,13 @@ public class Size implements CommandHandler {
 
 
     @Override
-    public void handle() {
+    public void handle(ArrayList<String> args) {
         clientOut.println(output());
     }
 
     @Override
     public String output() {
-        String output = "Command 'SIZE' called";
+        String output = "Command 'PORT' called";
         return output + Constants.END_OF_TEXT;
     }
 }
