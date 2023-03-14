@@ -21,7 +21,6 @@ public class Server {
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 ServerSocket fileWatcherSocket = new ServerSocket(1234)
         ) {
-
             System.out.println("SocketSoldiers file sync server started. v0.0.1");
 
             while (listening) {

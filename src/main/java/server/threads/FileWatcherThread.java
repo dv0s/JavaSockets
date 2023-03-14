@@ -25,8 +25,16 @@ public class FileWatcherThread extends Thread {
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            // Server folder is defined here
-            Path directory = Paths.get("E:\\IdeaProjects\\AvansELU33ServerFiles");
+            // TODO:: Houd de folder in de gaten. Zodra een bestand is gewijzigd connect met de communicationThread
+            // Client folder is defined here
+            String directoryPath = System.getProperty("user.home") + File.separator + "Avans33FileSync";
+            Path directory = Paths.get(directoryPath);
+
+            // Create dir if not exists
+            if (!dirExists(directory)) {
+                createDir(directory);
+            }
+
             directory.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
 
             System.out.println("FileWatcher enabled");
@@ -48,7 +56,7 @@ public class FileWatcherThread extends Thread {
                         System.out.println("ENTRY_CREATE - File : " + file.getName());
                     }
 
-                    // Delete file from the cliend
+                    // Delete file from the client
                     if (event.kind() == ENTRY_DELETE) {
                         new Delete(clientIn, clientOut, params);
                         System.out.println("ENTRY_DELETE - File : " + file.getName());
@@ -61,5 +69,13 @@ public class FileWatcherThread extends Thread {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean dirExists(Path path) {
+        return Files.exists(path);
+    }
+
+    private void createDir(Path path) throws IOException {
+        Files.createDirectory(path);
     }
 }
