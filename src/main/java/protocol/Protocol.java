@@ -6,12 +6,19 @@ import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static protocol.enums.Command.*;
 
 public class Protocol {
+
+    private final Path _homeDirectory;
+
+    public Protocol(Path homeDirectory){
+        this._homeDirectory = homeDirectory;
+    }
 
     public void processInput(Invoker invoker, String input, BufferedReader in, PrintWriter out) {
         ArrayList<String> params = getParameters(input);

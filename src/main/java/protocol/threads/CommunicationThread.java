@@ -8,13 +8,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Path;
 
 public class CommunicationThread extends Thread {
     private final Socket socket;
+    private final Path homeDirectory;
 
-    public CommunicationThread(Socket socket) {
+    public CommunicationThread(Path homeDirectory, Socket socket) {
         super();
+
         this.socket = socket;
+        this.homeDirectory = homeDirectory;
     }
 
     public void run() {
@@ -27,7 +31,7 @@ public class CommunicationThread extends Thread {
 
             System.out.println("ConnectionHandler established with Client: " + clientId);
 
-            Protocol protocol = new Protocol();
+            Protocol protocol = new Protocol(homeDirectory);
             outputLine = "Hello" + Constants.END_OF_TEXT;
 
             clientOut.println(outputLine);

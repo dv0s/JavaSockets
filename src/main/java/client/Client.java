@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -27,6 +28,7 @@ public class Client {
         }
 
         System.out.println("File sync client started. v0.0.1");
+        Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
@@ -35,6 +37,7 @@ public class Client {
 
         int attempts = 0;
         boolean connected = false;
+
         while (!connected) {
             try {
                 connection = new ConnectionHandler(hostName,portNumber).establish();
@@ -56,7 +59,8 @@ public class Client {
             }
         }
 
-        Protocol protocol = new Protocol();
+        Protocol protocol = new Protocol(homeDirectory);
+
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser = null;
 

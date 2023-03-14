@@ -1,8 +1,13 @@
 package protocol.utils;
 
+import protocol.enums.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Optional;
 
@@ -50,6 +55,33 @@ public class Tools {
         return sb.toString();
     }
 
+    public static Path initializeHomeDirectory(String homeDirectory){
+        Path path = null;
+        try{
+            path = Paths.get(homeDirectory);
+
+            if(Files.notExists(path)){
+                Files.createDirectories(path);
+                System.out.println("Base directory has been created. Location is: " + path);
+            } else {
+                System.out.println("Base directory location: " + path);
+            }
+
+        }catch(IOException e){
+            System.err.println("Failed to create home directory!");
+            System.exit(1);
+        }
+
+        return path;
+
+    }
+
+    public static Optional<String> getExtensionByStringHandling(String filename) {
+        return Optional.ofNullable(filename)
+                .filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
+    }
+
     public static void startScreen(){
         System.out.println("" +
                 " _____            _        _     _____       _     _ _               \n" +
@@ -59,11 +91,5 @@ public class Tools {
                 "/\\__/ / (_) | (__|   <  __/ |_  /\\__/ / (_) | | (_| | |  __/ |  \\__ \\\n" +
                 "\\____/ \\___/ \\___|_|\\_\\___|\\__| \\____/ \\___/|_|\\__,_|_|\\___|_|  |___/\n" +
                 "                                                                     \n");
-    }
-
-    public static Optional<String> getExtensionByStringHandling(String filename) {
-        return Optional.ofNullable(filename)
-                .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
     }
 }

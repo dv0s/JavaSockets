@@ -4,6 +4,7 @@ import protocol.enums.Constants;
 import protocol.utils.Tools;
 import protocol.threads.CommunicationThread;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Files;
@@ -20,20 +21,7 @@ public class Server {
         }
 
         System.out.println("File sync server started. v0.0.1");
-
-        try{
-            Path path = Paths.get(Constants.BASE_DIR.toString());
-
-            if(Files.notExists(path)){
-                Files.createDirectories(path);
-                System.out.println("Base directory has been created. Location is: " + path);
-            } else {
-                System.out.println("Base directory location: " + path);
-            }
-
-        }catch(IOException e){
-            System.err.println("Failed to create directory!");
-        }
+        Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
 
         int portNumber = Integer.parseInt(args[0]);
         boolean listening = true;
@@ -45,7 +33,7 @@ public class Server {
             System.out.println("Waiting for connections...");
 
             while(listening){
-                new CommunicationThread(serverSocket.accept()).start();
+                new CommunicationThread(homeDirectory, serverSocket.accept()).start();
             }
 
         }catch(IOException e){
