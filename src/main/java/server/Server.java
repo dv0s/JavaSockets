@@ -1,6 +1,8 @@
 package server;
 
 import protocol.enums.Constants;
+import protocol.enums.Invoker;
+import protocol.handlers.ConnectionHandler;
 import protocol.utils.Tools;
 import protocol.threads.CommunicationThread;
 
@@ -23,22 +25,8 @@ public class Server {
         System.out.println("File sync server started. v0.0.1");
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
 
-        int portNumber = Integer.parseInt(args[0]);
-        boolean listening = true;
+        new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);
 
-        try(
-            ServerSocket serverSocket = new ServerSocket(portNumber);
-        ){
 
-            System.out.println("Waiting for connections...");
-
-            while(listening){
-                new CommunicationThread(homeDirectory, serverSocket.accept()).start();
-            }
-
-        }catch(IOException e){
-            System.out.println("Exception caught when trying to listen on port " + portNumber + ".");
-            System.out.println(e.getMessage());
-        }
     }
 }

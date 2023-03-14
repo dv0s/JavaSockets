@@ -3,7 +3,6 @@ package client;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
 import protocol.Protocol;
-import protocol.commands.Get;
 import protocol.data.FileHeader;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
@@ -13,9 +12,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -30,17 +29,17 @@ public class Client {
         System.out.println("File sync client started. v0.0.1");
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
 
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
-
-        ConnectionHandler connection = null;
+        ConnectionHandler serverConnection = null;
 
         int attempts = 0;
         boolean connected = false;
 
         while (!connected) {
+
+
             try {
-                connection = new ConnectionHandler(hostName,portNumber).establish();
+                // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
+                serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
                 connected = true;
 
             } catch (IOException ex) {
@@ -64,18 +63,18 @@ public class Client {
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser = null;
 
-        while((fromServer = connection.serverIn.readLine()) != null){
+        while((fromServer = serverConnection.in.readLine()) != null){
             System.out.println("Server: " + fromServer);
 
             // Close the connection.
             if(fromServer.contains(Constants.END_OF_TRANSMISSION.toString())){
-                connection.close();
+                serverConnection.close();
                 break;
             }
 
             // Response codes gebruiken als afgesproken in protocol.
             if(fromServer.startsWith("2")){
-                protocol.processInput(Invoker.CLIENT, fromServer, connection.serverIn, connection.serverOut);
+                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.in, serverConnection.out);
                 // Commando uitvoeren
             }
 
@@ -91,7 +90,7 @@ public class Client {
                 FileHeader fileHeader = new FileHeader();
 
                 // Lees de regels van server om de header op te stellen
-                while((nextLine = connection.serverIn.readLine()) != null){
+                while((nextLine = serverConnection.in.readLine()) != null){
                     System.out.println("Server: " + nextLine);
                     if(nextLine.equals("")){
                         break;
@@ -112,16 +111,16 @@ public class Client {
                 // TODO: 12/03/2023 Error handling voordat de bestandsoverdracht begint.
 
                 System.out.print("File header received: \n" + fileHeader);
-                connection.serverOut.println("OK");
+                serverConnection.out.println("OK");
 
                 // Nog een loop voor het opzetten van de overdracht.
-                while((nextLine = connection.serverIn.readLine()) != null){
+                while((nextLine = serverConnection.in.readLine()) != null){
                     if(nextLine.contains("OPEN")){
                         System.out.println("Probeer verbinding te maken.");
                         String[] command = nextLine.split(" ");
                         Path path = Paths.get(Constants.BASE_DIR + File.separator + "client");
 
-                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(connection.serverSocket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
+                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(serverConnection.socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
                         Socket fileTransferSocket = new Socket();
 
                         fileTransferSocket.connect(fileTransferSocketAddress);
@@ -152,7 +151,7 @@ public class Client {
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
-                    connection.serverOut.println(fromUser);
+                    serverConnection.out.println(fromUser);
                 }
             }
         }

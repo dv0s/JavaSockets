@@ -1,47 +1,89 @@
 package protocol.handlers;
 
+import protocol.enums.Invoker;
+import protocol.threads.CommunicationThread;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class ConnectionHandler {
 
-    public String hostName;
-    public int portNumber;
+    public Invoker invoker;
+    public Path homeDirectory;
 
-    public Socket serverSocket = null;
-    public PrintWriter serverOut = null;
-    public BufferedReader serverIn = null;
+    public Socket socket = null;
 
-    public ConnectionHandler(String hostName, int portNumber){
+    public BufferedReader in = null;
+    public PrintWriter out = null;
+
+    public ConnectionHandler(Invoker invoker, Path homeDirectory){
         super();
-        this.hostName = hostName;
-        this.portNumber = portNumber;
+
+        this.invoker = invoker;
+        this.homeDirectory = homeDirectory;
     }
 
-    public ConnectionHandler establish() throws IOException {
-        SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
-        serverSocket = new Socket();
+    public ConnectionHandler establish(String[] args) throws IOException {
 
-        serverSocket.connect(socketAddress);
+        if (invoker == Invoker.CLIENT){
+            if(args.length != 2){
+                System.err.println("Argument mismatch for setting up the connection!");
+                System.exit(2);
+            }
 
-        serverOut = new PrintWriter(serverSocket.getOutputStream(), true);
-        serverIn = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+            String hostName = args[0];
+            int portNumber = Integer.parseInt(args[1]);
+
+            SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
+
+            socket = new Socket();
+            socket.connect(socketAddress);
+
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+
+        }else{
+            if(args.length != 1){
+                System.err.println("Argument mismatch for setting up the connection!");
+                System.exit(2);
+            }
+
+            int portNumber = Integer.parseInt(args[0]);
+            boolean listening = true;
+
+            try(ServerSocket serverSocket = new ServerSocket(portNumber)){
+
+                System.out.println("Waiting for connections...");
+
+                while(listening){
+                    new CommunicationThread(homeDirectory, serverSocket.accept()).start();
+                }
+
+            }catch(IOException e){
+                System.out.println("Exception caught when trying to listen on port " + portNumber + ".");
+                System.out.println(e.getMessage());
+            }
+        }
 
         return this;
     }
 
     public void close() throws IOException {
-        this.serverIn.close();
-        this.serverOut.close();
-        this.serverSocket.close();
+        this.in.close();
+        this.out.close();
+        this.socket.close();
 
-        this.serverOut = null;
-        this.serverIn = null;
-        this.serverSocket = null;
+        this.out = null;
+        this.in = null;
+        this.socket = null;
     }
 }
