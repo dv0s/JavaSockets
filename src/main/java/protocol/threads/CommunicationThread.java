@@ -32,7 +32,7 @@ public class CommunicationThread extends Thread {
             System.out.println("ConnectionHandler established with Client: " + clientId);
 
             Protocol protocol = new Protocol(homeDirectory);
-            outputLine = "Hello" + Constants.END_OF_TEXT;
+            outputLine = "Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT;
 
             clientOut.println(outputLine);
 

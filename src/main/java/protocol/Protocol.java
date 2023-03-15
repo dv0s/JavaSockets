@@ -1,8 +1,7 @@
 package protocol;
 
 import protocol.commands.*;
-import protocol.enums.Command;
-import protocol.enums.Invoker;
+import protocol.enums.*;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
