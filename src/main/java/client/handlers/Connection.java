@@ -14,7 +14,6 @@ public class Connection {
     public int portNumber;
 
     public Socket serverSocket = null;
-    public Socket fileWatcherSocket = null;
     public PrintWriter serverOut = null;
     public BufferedReader serverIn = null;
 
@@ -26,15 +25,10 @@ public class Connection {
 
     public Connection establish() throws IOException {
         SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
-        SocketAddress fileWatcherAddress = new InetSocketAddress(hostName, 1234);
 
         serverSocket = new Socket();
-        fileWatcherSocket = new Socket();
 
         serverSocket.connect(socketAddress);
-
-        // Connect to the client address in another socket
-        fileWatcherSocket.connect(fileWatcherAddress);
 
         serverOut = new PrintWriter(serverSocket.getOutputStream(), true);
         serverIn = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
@@ -45,12 +39,10 @@ public class Connection {
     public void close() throws IOException {
         this.serverIn.close();
         this.serverOut.close();
-        this.fileWatcherSocket.close();
         this.serverSocket.close();
 
         this.serverOut = null;
         this.serverIn = null;
-        this.fileWatcherSocket = null;
         this.serverSocket = null;
     }
 }

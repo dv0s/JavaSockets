@@ -1,7 +1,6 @@
 package server;
 
 import server.threads.CommunicationThread;
-import server.threads.FileWatcherThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,16 +18,12 @@ public class Server {
 
         try (
                 ServerSocket serverSocket = new ServerSocket(portNumber);
-                ServerSocket fileWatcherSocket = new ServerSocket(1234)
         ) {
             System.out.println("SocketSoldiers file sync server started. v0.0.1");
 
             while (listening) {
                 // Communication socket
                 new CommunicationThread(serverSocket.accept()).start();
-
-                // FileWatcher socket
-                new FileWatcherThread(fileWatcherSocket.accept()).start();
             }
 
         } catch (IOException e) {
