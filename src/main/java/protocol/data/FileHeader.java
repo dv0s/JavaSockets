@@ -1,10 +1,8 @@
 package protocol.data;
 
-import protocol.enums.Constants;
-
 import java.util.Objects;
 
-public class FileHeader implements Comparable<FileHeader>{
+public class FileHeader{
     public String fileName;
     public String fileType;
     public long fileSize;
@@ -64,18 +62,17 @@ public class FileHeader implements Comparable<FileHeader>{
         this.checkSum = checkSum;
     }
 
-    @Override
-    public int compareTo(FileHeader o) {
+    public boolean compare(FileHeader o) {
         if (!Objects.equals(fileName, o.fileName))
-            return 0;
+            return false;
         if (!Objects.equals(fileSize, o.fileSize))
-            return 0;
+            return false;
         if (!Objects.equals(fileType, o.fileType))
-            return 0;
+            return false;
         if (!Objects.equals(checkSum, o.checkSum))
-            return 0;
+            return false;
 
-        return 1;
+        return true;
     }
 
     @Override

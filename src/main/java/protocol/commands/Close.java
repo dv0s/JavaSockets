@@ -1,6 +1,7 @@
 package protocol.commands;
 
 import protocol.enums.Constants;
+import protocol.enums.Invoker;
 import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -9,25 +10,29 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Close implements CommandHandler {
-    public final BufferedReader clientIn;
-    public final PrintWriter clientOut;
+    public final Invoker invoker;
+    public final BufferedReader in;
+    public final PrintWriter out;
 
-    public Close(BufferedReader clientIn, PrintWriter clientOut) {
-        this.clientIn = clientIn;
-        this.clientOut = clientOut;
+    public Close(Invoker invoker, BufferedReader in, PrintWriter out) {
+        this.invoker = invoker;
+        this.in = in;
+        this.out = out;
     }
 
     @Override
     public void handle(ArrayList<String> args) {
-        clientOut.println(output());
+        if(invoker == Invoker.SERVER){
 
-        try {
-            clientIn.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            out.println(output());
+            out.close();
+
+            try {
+                in.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
-
-        clientOut.close();
     }
 
     @Override

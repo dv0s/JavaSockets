@@ -7,6 +7,8 @@ public class FileHandler {
 
     public void receiveFile(){}
 
-    public void transfer(){}
+    public void transfer(){
+
+    }
 
 }

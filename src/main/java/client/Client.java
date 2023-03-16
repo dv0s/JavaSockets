@@ -61,10 +61,34 @@ public class Client {
         Protocol protocol = new Protocol(homeDirectory);
 
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
-        String fromServer, fromUser = null;
+        String fromServer, fromUser;
 
         while((fromServer = serverConnection.in.readLine()) != null){
             System.out.println("Server: " + fromServer);
+            System.out.println("We're in the first loop!");
+
+//            // Response codes gebruiken als afgesproken in protocol.
+//            if(fromServer.startsWith("2")){
+//                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+//            }
+//
+//            if(fromServer.startsWith("5")){
+//                protocol.processErrorHandling();
+//                // Error afhandeling;
+//            }
+
+            // Als de server het signaal geeft dat het klaar is met praten
+            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
+                System.out.print("Command: ");
+                fromUser = stdIn.readLine();
+
+                if (fromUser != null) {
+                    serverConnection.out.println(fromUser);
+
+                    // Not so sure about this placement.
+                    protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
+                }
+            }
 
             // Close the connection.
             if(fromServer.contains(Constants.END_OF_TRANSMISSION.toString())){
@@ -72,88 +96,6 @@ public class Client {
                 break;
             }
 
-            // Response codes gebruiken als afgesproken in protocol.
-            if(fromServer.startsWith("2")){
-                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.in, serverConnection.out);
-                // Commando uitvoeren
-            }
-
-            if(fromServer.startsWith("5")){
-                protocol.processErrorHandling();
-                // Error afhandeling;
-            }
-
-            // Zodra we een Fileheader antwoord hebben ontvangen
-            if(fromServer.contains("Fileheader")){
-                String nextLine;
-                String[] header;
-                FileHeader fileHeader = new FileHeader();
-
-                // Lees de regels van server om de header op te stellen
-                while((nextLine = serverConnection.in.readLine()) != null){
-                    System.out.println("Server: " + nextLine);
-                    if(nextLine.equals("")){
-                        break;
-                    }
-
-                    header = nextLine.split(":");
-
-                    switch (header[0].trim()) {
-                        case "Filename" -> fileHeader.setFileName(header[1].trim());
-                        case "Filetype" -> fileHeader.setFileType(header[1].trim());
-                        case "Filesize" -> fileHeader.setFileSize(Long.parseLong(header[1].trim()));
-                        case "HashAlgo" -> fileHeader.setHashAlgo(header[1].trim());
-                        case "CheckSum" -> fileHeader.setCheckSum(header[1].trim());
-                    }
-
-                }
-
-                // TODO: 12/03/2023 Error handling voordat de bestandsoverdracht begint.
-
-                System.out.print("File header received: \n" + fileHeader);
-                serverConnection.out.println("OK");
-
-                // Nog een loop voor het opzetten van de overdracht.
-                while((nextLine = serverConnection.in.readLine()) != null){
-                    if(nextLine.contains("OPEN")){
-                        System.out.println("Probeer verbinding te maken.");
-                        String[] command = nextLine.split(" ");
-                        Path path = Paths.get(Constants.BASE_DIR + File.separator + "client");
-
-                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(serverConnection.socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
-                        Socket fileTransferSocket = new Socket();
-
-                        fileTransferSocket.connect(fileTransferSocketAddress);
-
-                        BufferedInputStream fileTransferIn = new BufferedInputStream(fileTransferSocket.getInputStream());
-
-                        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.getFileName());
-
-                        int count;
-                        byte[] buffer = new byte[16 * 1024];
-
-                        FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(file));
-
-                        while ((count = fileTransferIn.read(buffer)) >= 0) {
-                            fileOutputStream.write(buffer, 0, count);
-                            fileOutputStream.flush();
-                        }
-
-                        fileOutputStream.close();
-                    }
-                }
-            }
-
-            // Als de server het signaal geeft dat het klaar is met praten
-            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                System.out.print("Command: ");
-
-                fromUser = stdIn.readLine();
-
-                if (fromUser != null) {
-                    serverConnection.out.println(fromUser);
-                }
-            }
         }
 
     }

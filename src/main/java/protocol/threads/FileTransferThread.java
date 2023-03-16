@@ -50,6 +50,9 @@ public class FileTransferThread extends Thread{
             throw new RuntimeException(e);
         }
 
+        System.out.println("FileTransferThread has transferred and should close now.");
+        // Close the thread after transfer.
+        Thread.currentThread().interrupt();
 
         // Check if the request is a GET or PUT
             // Prepare to receive a stream.
@@ -71,14 +74,6 @@ public class FileTransferThread extends Thread{
         // If not, restart te process
     }
 
-    public void checkFile(File file){
-    }
-
-    public int compareHeaders(FileHeader fileHeader, File file) throws NoSuchAlgorithmException, IOException {
-        FileHeader localFileHeader = constructHeader(file);
-        return fileHeader.compareTo(localFileHeader);
-    }
-
     public FileHeader constructHeader(File file) throws NoSuchAlgorithmException, IOException {
         Path sendFile = Paths.get(Constants.BASE_DIR + File.separator + "server", file.getName());
 
@@ -96,6 +91,7 @@ public class FileTransferThread extends Thread{
         return fileHeader;
     }
 
+    // TODO: FIX transfer method and receive method needs to be moved to the FileHandler class.
     // This will be the buffered sending
     public void transfer() throws IOException {
         Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.fileName);
@@ -110,6 +106,7 @@ public class FileTransferThread extends Thread{
             socketOut.flush();
         }
 
+        socketOut.close();
         in.close();
     }
 

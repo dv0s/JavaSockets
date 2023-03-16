@@ -5,6 +5,7 @@ import protocol.enums.*;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +20,7 @@ public class Protocol {
         this.homeDirectory = homeDirectory;
     }
 
-    public void processInput(Invoker invoker, String input, BufferedReader in, PrintWriter out) {
+    public void processInput(Invoker invoker, String input, Socket socket, BufferedReader in, PrintWriter out) {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -30,12 +31,12 @@ public class Protocol {
         switch (command) {
             case OPEN -> new Open(in, out).handle(params);
             case LS -> new List(in, out, params).handle(params);
-            case GET -> new Get(invoker, homeDirectory, in, out).handle(params);
+            case GET -> new Get(invoker, homeDirectory, socket, in, out).handle(params);
             case PUT -> new Put(in, out, params).handle(params);
             case DELETE -> new Delete(in, out, params).handle(params);
             case SIZE -> new Size(in, out, params).handle(params);
             case PORT -> new Port(in, out, params).handle(params);
-            case CLOSE -> new Close(in, out).handle(params);
+            case CLOSE -> new Close(invoker, in, out).handle(params);
             default -> {
                 System.out.println(UNKNOWN);
                 out.println(UNKNOWN);
