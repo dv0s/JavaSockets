@@ -1,7 +1,5 @@
 package protocol.utils;
 
-import protocol.enums.Constants;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,8 +19,7 @@ public class Tools {
      * @return String
      * @throws IOException
      */
-    public static String getFileChecksum(MessageDigest digest, File file) throws IOException
-    {
+    public static String getFileChecksum(MessageDigest digest, File file) throws IOException {
         //Get file input stream for reading the file content
         FileInputStream fis = new FileInputStream(file);
 
@@ -46,8 +43,7 @@ public class Tools {
         //This bytes[] has bytes in decimal format;
         //Convert it to hexadecimal format
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i< bytes.length ;i++)
-        {
+        for (int i = 0; i < bytes.length; i++) {
             sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
         }
 
@@ -55,19 +51,19 @@ public class Tools {
         return sb.toString();
     }
 
-    public static Path initializeHomeDirectory(String homeDirectory){
+    public static Path initializeHomeDirectory(String homeDirectory) {
         Path path = null;
-        try{
+        try {
             path = Paths.get(homeDirectory);
 
-            if(Files.notExists(path)){
+            if (Files.notExists(path)) {
                 Files.createDirectories(path);
                 System.out.println("Base directory has been created. Location is: " + path);
             } else {
                 System.out.println("Base directory location: " + path);
             }
 
-        }catch(IOException e){
+        } catch (IOException e) {
             System.err.println("Failed to create home directory!");
             System.exit(1);
         }
@@ -82,7 +78,7 @@ public class Tools {
                 .map(f -> f.substring(filename.lastIndexOf(".") + 1));
     }
 
-    public static void startScreen(){
+    public static void startScreen() {
         System.out.println("" +
                 " _____            _        _     _____       _     _ _               \n" +
                 "/  ___|          | |      | |   /  ___|     | |   | (_)              \n" +

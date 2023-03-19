@@ -1,7 +1,8 @@
 package protocol;
 
 import protocol.commands.*;
-import protocol.enums.*;
+import protocol.enums.Command;
+import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -10,13 +11,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static protocol.enums.Command.*;
+import static protocol.enums.Command.UNKNOWN;
 
 public class Protocol {
 
     private final Path homeDirectory;
 
-    public Protocol(Path homeDirectory){
+    public Protocol(Path homeDirectory) {
         this.homeDirectory = homeDirectory;
     }
 
@@ -29,13 +30,13 @@ public class Protocol {
 
         // Handle the commands
         switch (command) {
-            case OPEN -> new Open(in, out).handle(params);
-            case LS -> new List(in, out, params).handle(params);
+            case OPEN -> new Open(in, out).handle(params); // TODO: Command moet nog worden gemaakt.
+            case LS -> new List(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case GET -> new Get(invoker, homeDirectory, socket, in, out).handle(params);
-            case PUT -> new Put(in, out, params).handle(params);
-            case DELETE -> new Delete(in, out, params).handle(params);
-            case SIZE -> new Size(in, out, params).handle(params);
-            case PORT -> new Port(in, out, params).handle(params);
+            case PUT -> new Put(invoker, homeDirectory, socket, in, out).handle(params);
+            case DELETE -> new Delete(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case SIZE -> new Size(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case CLOSE -> new Close(invoker, in, out).handle(params);
             default -> {
                 System.out.println(UNKNOWN);
@@ -44,7 +45,7 @@ public class Protocol {
         }
     }
 
-    public void processErrorHandling(){
+    public void processErrorHandling() {
         System.err.println("Error occurred.. We need to do something here.");
     }
 

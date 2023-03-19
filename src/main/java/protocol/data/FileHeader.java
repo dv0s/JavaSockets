@@ -21,46 +21,56 @@ public class FileHeader{
         this.checkSum = checkSum;
     }
 
-    // Getters & Setters
+    //region Getters
+
     public String getFileName() {
         return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 
     public String getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-
     public long getFileSize() {
         return fileSize;
-    }
-
-    public void setFileSize(long fileSize) {
-        this.fileSize = fileSize;
     }
 
     public String getHashAlgo() {
         return hashAlgo;
     }
 
-    public void setHashAlgo(String hashAlgo) {
-        this.hashAlgo = hashAlgo;
-    }
-
     public String getCheckSum() {
         return checkSum;
+    }
+
+    //endregion
+
+    //region Setters
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public void setHashAlgo(String hashAlgo) {
+        this.hashAlgo = hashAlgo;
     }
 
     public void setCheckSum(String checkSum) {
         this.checkSum = checkSum;
     }
+
+    //endregion
+
+    //region Methods
 
     public boolean compare(FileHeader o) {
         if (!Objects.equals(fileName, o.fileName))
@@ -84,4 +94,6 @@ public class FileHeader{
                 "HashAlgo: " + hashAlgo + "\n" +
                 "CheckSum: " + checkSum + "\n\n";
     }
+
+    //endregion
 }

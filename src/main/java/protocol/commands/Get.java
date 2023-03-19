@@ -1,6 +1,7 @@
 package protocol.commands;
 
 import protocol.data.FileHeader;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
@@ -47,6 +48,12 @@ public class Get implements CommandHandler {
             return;
         }
 
+        if(args.size() > 1){
+            System.out.println("Too many arguments found.");
+            out.println(ResponseCode.FAILURE.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            return;
+        }
+
         // Work around om de juiste richting op te sturen is door de invoker te switchen tijdens de command call.
         if(invoker.equals(Invoker.CLIENT)){
             try {
@@ -55,21 +62,20 @@ public class Get implements CommandHandler {
                 System.err.println(e.getMessage());
             }
         }else{
-            handleServer(args);
+            try {
+                handleServer(args);
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
 
     }
 
-    @Override
-    public String output() {
-        String output = "Command 'GET' called with parameters";
-        return output + Constants.END_OF_TEXT;
-    }
-
     public void handleClient(ArrayList<String> args) throws IOException {
-        System.out.println("Handle Client method called. passed args:");
-        args.forEach(System.out::println);
         String fromServer;
+
+        // Should output "GET <filename>"
+        out.println(Command.GET + " " + args.get(0));
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if((fromServer = in.readLine()) != null){ // TODO: FIX Err... this won't end well.
@@ -97,9 +103,6 @@ public class Get implements CommandHandler {
 
                 }
 
-                // TODO: 12/03/2023 Error handling voordat de bestandsoverdracht begint.
-
-                System.out.print("File header received: \n" + fileHeader);
                 out.println("200 FILEHEADER RECEIVED");
 
                 // Nog een loop voor het opzetten van de overdracht.
@@ -113,15 +116,15 @@ public class Get implements CommandHandler {
                     if(nextLine.contains("OPEN")){
                         String[] command = nextLine.split(" ");
 
+                        // TODO: FIX Dit moet worden opgezet via de connectionHandler
                         SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
                         Socket fileTransferSocket = new Socket();
 
+                        // Bestand ontvangen via FileHandler.
                         fileTransferSocket.connect(fileTransferSocketAddress);
+                        new FileHandler(fileTransferSocket, fileHeader, homeDirectory).receiveFile();
 
-                        FileHandler fileHandler = new FileHandler(fileTransferSocket, fileHeader, homeDirectory);
-
-                        fileHandler.receiveFile();
-
+                        // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
                         if(fileHeaderLocal.compare(fileHeader)){
                             fileTransferSocket.close();
@@ -136,7 +139,7 @@ public class Get implements CommandHandler {
         }
     }
 
-    public void handleServer(ArrayList<String> args){
+    public void handleServer(ArrayList<String> args) throws IOException{
         if(args.isEmpty()){
             out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do" + Constants.END_OF_TEXT);
         }
@@ -148,16 +151,6 @@ public class Get implements CommandHandler {
         out.println(ResponseCode.SUCCESS.getCode() + " " + fileHeader);
 
         // Server sends the file to client.
-        sendFile(fileHeader);
-    }
-
-    public void receiveFile(FileHeader fileHeader){
-
-    }
-
-
-
-    public void sendFile(FileHeader fileHeader){
         Path path = Paths.get(homeDirectory.toString() + File.separator + fileHeader.getFileName());
 
         // Eerst moeten we het bestand opzoeken die gevraagd wordt.
@@ -196,5 +189,11 @@ public class Get implements CommandHandler {
         }
 
 //        out.println(output());
+    }
+
+    @Override
+    public String output() {
+        String output = "Command 'GET' called with parameters";
+        return output + Constants.END_OF_TEXT;
     }
 }

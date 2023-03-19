@@ -1,27 +1,22 @@
 package client;
 
+import protocol.Protocol;
+import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
-import protocol.Protocol;
-import protocol.data.FileHeader;
-import protocol.enums.Constants;
 import protocol.utils.Tools;
 
-import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.file.FileSystems;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
 
 public class Client {
     public static void main(String[] args) throws IOException {
         Tools.startScreen();
 
-        if(args.length != 2)
-        {
+        if (args.length != 2) {
             System.err.println("Usage: java client.Client <hostname> <port number>");
             System.exit(1);
         }
@@ -63,7 +58,7 @@ public class Client {
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
-        while((fromServer = serverConnection.in.readLine()) != null){
+        while ((fromServer = serverConnection.in.readLine()) != null) {
             System.out.println("Server: " + fromServer);
             System.out.println("We're in the first loop!");
 
@@ -78,20 +73,24 @@ public class Client {
 //            }
 
             // Als de server het signaal geeft dat het klaar is met praten
-            if(fromServer.contains(Constants.END_OF_TEXT.toString())) {
+            if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
                 System.out.print("Command: ");
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
-                    serverConnection.out.println(fromUser);
+                    // TODO: FIX Dit moet worden gedaan in protocol.processInput.
+                    //  En als de server dan eerst met een command komt, dan moet daar ook nog op gecheckt worden.
+//                    serverConnection.out.println(fromUser);
 
                     // Not so sure about this placement.
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
                 }
+            } else {
+                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
             }
 
             // Close the connection.
-            if(fromServer.contains(Constants.END_OF_TRANSMISSION.toString())){
+            if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
                 serverConnection.close();
                 break;
             }

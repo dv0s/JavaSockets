@@ -1,5 +1,6 @@
 package protocol.commands;
 
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.interfaces.CommandHandler;
@@ -22,8 +23,7 @@ public class Close implements CommandHandler {
 
     @Override
     public void handle(ArrayList<String> args) {
-        if(invoker == Invoker.SERVER){
-
+        if (invoker == Invoker.SERVER) {
             out.println(output());
             out.close();
 
@@ -32,6 +32,8 @@ public class Close implements CommandHandler {
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
+        } else {
+            out.println(Command.CLOSE);
         }
     }
 

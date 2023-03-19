@@ -4,20 +4,16 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
 import protocol.utils.Tools;
-import protocol.threads.CommunicationThread;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Server {
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         Tools.startScreen();
 
-        if(args.length != 1){
+        if (args.length != 1) {
             System.err.println("Usage: java Server <port number>");
             System.exit(1);
         }

@@ -113,7 +113,7 @@ public class FileHandler {
 
     // Voor de argumenten "Wie, Wat, Waar" aan houden
     //  Dit wil zeggen: Socket, fileName, homeDirectory
-    public static FileHeader constructFileHeader(String fileName, Path homeDirectory){
+    public static FileHeader constructFileHeader(String fileName, Path homeDirectory) {
         Path path = Paths.get(homeDirectory.toString() + File.separator + fileName);
 
         // Bestand klaar maken voor overdracht
@@ -122,7 +122,7 @@ public class FileHandler {
         String checkSum;
         Path sendFile;
         FileHeader fileHeader = new FileHeader();
-        try{
+        try {
             file = new File(path.toString());
             md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
@@ -135,9 +135,9 @@ public class FileHandler {
             fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
             fileHeader.setCheckSum(checkSum);
 
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.err.print(e.getMessage());
-        }catch(NoSuchAlgorithmException | IOException e){
+        } catch (NoSuchAlgorithmException | IOException e) {
             System.err.println(e.getMessage());
         }
 

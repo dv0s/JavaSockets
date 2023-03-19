@@ -1,4 +1,5 @@
 package protocol.threads;
+
 import protocol.Protocol;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
