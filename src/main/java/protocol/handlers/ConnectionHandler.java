@@ -32,6 +32,7 @@ public class ConnectionHandler {
         this.homeDirectory = homeDirectory;
     }
 
+    // TODO: FIX Connection handler moet verantwoordelijk worden voor de OPEN commando
     public ConnectionHandler establish(String[] args) throws IOException {
 
         if (invoker == Invoker.CLIENT){

@@ -22,6 +22,19 @@ public class FileHandler {
     public BufferedInputStream socketIn = null;
     public BufferedOutputStream socketOut = null;
 
+    public FileHandler(Socket socket, FileHeader fileHeader, Path homeDirectory) throws IOException {
+        super();
+
+        this.socket = socket;
+        this.fileHeader = fileHeader;
+        this.homeDirectory = homeDirectory;
+
+        setSocketIn(new BufferedInputStream(socket.getInputStream()));
+        setSocketOut(new BufferedOutputStream(socket.getOutputStream()));
+    }
+
+    //region Getters
+
     public FileHeader getFileHeader() {
         return fileHeader;
     }
@@ -38,9 +51,13 @@ public class FileHandler {
         return socketIn;
     }
 
-    public BufferedOutputStream getOut() {
+    public BufferedOutputStream getSocketOut() {
         return socketOut;
     }
+
+    //endregion
+
+    //region Setters
 
     public void setSocketIn(BufferedInputStream socketIn) {
         this.socketIn = socketIn;
@@ -50,16 +67,9 @@ public class FileHandler {
         this.socketOut = socketOut;
     }
 
-    public FileHandler(Socket socket, FileHeader fileHeader, Path homeDirectory) throws IOException {
-        super();
+    // endregion
 
-        this.socket = socket;
-        this.fileHeader = fileHeader;
-        this.homeDirectory = homeDirectory;
-
-        setSocketIn(new BufferedInputStream(socket.getInputStream()));
-        setSocketOut(new BufferedOutputStream(socket.getOutputStream()));
-    }
+    //region Methods
 
     public void sendFile() throws IOException {
         Path file = FileSystems.getDefault().getPath(homeDirectory.toString(), fileHeader.fileName);
@@ -97,6 +107,7 @@ public class FileHandler {
         socketOut.close();
         socketIn.close();
     }
+    //endregion
 
     //region Static Methods
 
