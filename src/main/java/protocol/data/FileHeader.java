@@ -92,7 +92,7 @@ public class FileHeader{
                 "Filetype: " + fileType + "\n" +
                 "Filesize: " + fileSize + "\n" +
                 "HashAlgo: " + hashAlgo + "\n" +
-                "CheckSum: " + checkSum + "\n\n";
+                "CheckSum: " + checkSum + "\n";
     }
 
     //endregion

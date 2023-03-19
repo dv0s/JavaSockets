@@ -151,7 +151,7 @@ public class Get implements CommandHandler {
         out.println(ResponseCode.SUCCESS.getCode() + " " + fileHeader);
 
         // Server sends the file to client.
-        Path path = Paths.get(homeDirectory.toString() + File.separator + fileHeader.getFileName());
+        Path path = Paths.get(homeDirectory + File.separator + fileHeader.getFileName());
 
         // Eerst moeten we het bestand opzoeken die gevraagd wordt.
         if(Files.notExists(path)){

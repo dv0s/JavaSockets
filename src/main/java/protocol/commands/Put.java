@@ -94,10 +94,6 @@ public class Put implements CommandHandler {
                     System.err.println("Failure occurred");
                 }
 
-                // if server contains END OF TEXT
-                if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                    break;
-                }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());

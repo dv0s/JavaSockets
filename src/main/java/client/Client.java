@@ -3,7 +3,9 @@ package client;
 import protocol.Protocol;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
+import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
+import protocol.returnobjects.Response;
 import protocol.utils.Tools;
 
 import java.io.BufferedReader;
@@ -60,14 +62,21 @@ public class Client {
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
             System.out.println("Server: " + fromServer);
-            System.out.println("We're in the first loop!");
 
-//            // Response codes gebruiken als afgesproken in protocol.
-//            if(fromServer.startsWith("2")){
+//            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+
+            // TODO: 19/03/2023 Hier moeten we nog wat mee doen i.v.m. de afgesproken response codes in het protocol.
+            // Response codes gebruiken als afgesproken in protocol.
+//            if(fromServer.startsWith(String.valueOf(ResponseCode.SUCCESS.getCode()))){
 //                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
 //            }
 //
-//            if(fromServer.startsWith("5")){
+//            if(fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))){
+//                protocol.processErrorHandling();
+//                // Error afhandeling;
+//            }
+//
+//            if(fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))){
 //                protocol.processErrorHandling();
 //                // Error afhandeling;
 //            }
@@ -78,15 +87,8 @@ public class Client {
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
-                    // TODO: FIX Dit moet worden gedaan in protocol.processInput.
-                    //  En als de server dan eerst met een command komt, dan moet daar ook nog op gecheckt worden.
-//                    serverConnection.out.println(fromUser);
-
-                    // Not so sure about this placement.
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
                 }
-            } else {
-                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
             }
 
             // Close the connection.
