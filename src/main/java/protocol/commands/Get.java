@@ -4,6 +4,7 @@ import protocol.data.FileHeader;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
+import protocol.handlers.FileHandler;
 import protocol.threads.FileTransferThread;
 import protocol.utils.Tools;
 import protocol.interfaces.CommandHandler;
@@ -70,7 +71,7 @@ public class Get implements CommandHandler {
         args.forEach(System.out::println);
         String fromServer;
 
-        // Zodra we een Fileheader antwoord hebben ontvangen
+        // Zodra we een FileHeader antwoord hebben ontvangen
         if((fromServer = in.readLine()) != null){ // TODO: FIX Err... this won't end well.
             if(fromServer.contains("Fileheader")){
                 String nextLine;
@@ -117,26 +118,11 @@ public class Get implements CommandHandler {
 
                         fileTransferSocket.connect(fileTransferSocketAddress);
 
-                        // After connecting to the file transfer socket, call on the file header to read the input
-                        //  and write it to the file
-                        BufferedInputStream fileTransferIn = new BufferedInputStream(fileTransferSocket.getInputStream());
+                        FileHandler fileHandler = new FileHandler(fileTransferSocket, fileHeader, homeDirectory);
 
-                        Path file = FileSystems.getDefault().getPath(homeDirectory.toString(), fileHeader.getFileName());
+                        fileHandler.receiveFile();
 
-                        // TODO: FIX This code needs to be handled by the file handler.
-                        int count;
-                        byte[] buffer = new byte[16 * 1024];
-
-                        FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(file));
-
-                        while ((count = fileTransferIn.read(buffer)) >= 0) {
-                            fileOutputStream.write(buffer, 0, count);
-                            fileOutputStream.flush();
-                        }
-
-                        fileOutputStream.close();
-
-                        FileHeader fileHeaderLocal = constructFileHeader(fileHeader.getFileName());
+                        FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
                         if(fileHeaderLocal.compare(fileHeader)){
                             fileTransferSocket.close();
                             out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
@@ -156,7 +142,7 @@ public class Get implements CommandHandler {
         }
 
         String fileName = args.get(0);
-        FileHeader fileHeader = constructFileHeader(args.get(0));
+        FileHeader fileHeader = FileHandler.constructFileHeader(fileName, homeDirectory);
 
         // Nadat er wat werk klaar is gezet, geef dan responseCode
         out.println(ResponseCode.SUCCESS.getCode() + " " + fileHeader);
@@ -169,37 +155,7 @@ public class Get implements CommandHandler {
 
     }
 
-    // TODO: FIX This should also be placed in file handler
-    public FileHeader constructFileHeader(String fileName){
-        Path path = Paths.get(homeDirectory.toString() + File.separator + fileName);
 
-        // Bestand klaar maken voor overdracht
-        File file;
-        MessageDigest md5Digest;
-        String checkSum;
-        Path sendFile;
-        FileHeader fileHeader = new FileHeader();
-        try{
-            file = new File(path.toString());
-            md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
-            checkSum = Tools.getFileChecksum(md5Digest, file);
-            sendFile = Paths.get(homeDirectory.toString(), file.getName());
-
-            // Fill the file header
-            fileHeader.setFileName(sendFile.getFileName().toString());
-            fileHeader.setFileType(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
-            fileHeader.setFileSize(Files.size(sendFile));
-            fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
-            fileHeader.setCheckSum(checkSum);
-
-        }catch (NullPointerException e){
-            System.err.print(e.getMessage());
-        }catch(NoSuchAlgorithmException | IOException e){
-            System.err.println(e.getMessage());
-        }
-
-        return fileHeader;
-    }
 
     public void sendFile(FileHeader fileHeader){
         Path path = Paths.get(homeDirectory.toString() + File.separator + fileHeader.getFileName());
@@ -216,7 +172,7 @@ public class Get implements CommandHandler {
                 if(input.equals("200 FILEHEADER RECEIVED")){ // TODO: FIX Don't trust magic strings.
 
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)){
-                        out.println("OPEN PORT 42068"); // TODO: FIX Fixed port for now.
+                        out.println("OPEN PORT 42068"); // TODO: FIX Using a fixed port for now.
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();

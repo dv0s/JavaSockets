@@ -1,51 +1,34 @@
 package protocol.threads;
 
 import protocol.data.FileHeader;
-import protocol.enums.Constants;
-import protocol.utils.Tools;
+import protocol.handlers.FileHandler;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 // This Thread will only be created after the header has been received through the communication channel.
 public class FileTransferThread extends Thread{
+
     public FileHeader fileHeader;
-    public Path path;
-
+    public Path homeDirectory;
     public Socket socket;
-    public BufferedOutputStream socketOut = null;
-    public BufferedInputStream socketIn = null;
 
-    public FileTransferThread(FileHeader fileHeader, Path path, Socket socket) throws IOException {
+
+    public FileTransferThread(FileHeader fileHeader, Path homeDirectory, Socket socket) throws IOException {
         super();
 
         this.fileHeader = fileHeader;
-        this.path = path;
+        this.homeDirectory = homeDirectory;
         this.socket = socket;
-
-        setSocketIn(new BufferedInputStream(socket.getInputStream()));
-        setSocketOut(new BufferedOutputStream(socket.getOutputStream()));
-    }
-
-    public void setSocketOut(BufferedOutputStream socketOut){
-        this.socketOut = socketOut;
-    }
-
-    public void setSocketIn(BufferedInputStream socketIn){
-        this.socketIn = socketIn;
     }
 
     public void run(){
         System.out.println("FileTransferThread has been started!");
 
         try {
-            transfer();
+            FileHandler fileHandler = new FileHandler(socket, fileHeader, homeDirectory);
+            fileHandler.sendFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -74,56 +57,4 @@ public class FileTransferThread extends Thread{
         // If not, restart te process
     }
 
-    public FileHeader constructHeader(File file) throws NoSuchAlgorithmException, IOException {
-        Path sendFile = Paths.get(Constants.BASE_DIR + File.separator + "server", file.getName());
-
-        FileHeader fileHeader = new FileHeader();
-
-        fileHeader.setFileName(file.getName());
-        fileHeader.setFileType(Tools.getExtensionByStringHandling(file.getName()).toString());
-        fileHeader.setFileSize(Files.size(sendFile));
-        fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
-
-        MessageDigest md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
-
-        fileHeader.setCheckSum(Tools.getFileChecksum(md5Digest, file));
-
-        return fileHeader;
-    }
-
-    // TODO: FIX transfer method and receive method needs to be moved to the FileHandler class.
-    // This will be the buffered sending
-    public void transfer() throws IOException {
-        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.fileName);
-
-        int count;
-        byte[] buffer = new byte[16 * 1024];
-
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(String.valueOf(file)));
-
-        while ((count = in.read(buffer)) >= 0) {
-            socketOut.write(buffer, 0, count);
-            socketOut.flush();
-        }
-
-        socketOut.close();
-        in.close();
-    }
-
-    // Dit is wat er gedaan moet worden aan de kant van de ontvanger
-    public void receive() throws IOException {
-        Path file = FileSystems.getDefault().getPath(String.valueOf(path), fileHeader.fileName);
-
-        int count;
-        byte[] buffer = new byte[16 * 1024];
-
-        FileOutputStream fileOutputStream = new FileOutputStream(String.valueOf(file));
-
-        while ((count = socketIn.read(buffer)) >= 0) {
-            fileOutputStream.write(buffer, 0, count);
-            fileOutputStream.flush();
-        }
-
-        fileOutputStream.close();
-    }
 }
