@@ -34,39 +34,64 @@ public class List implements CommandHandler {
     public void handle(ArrayList<String> args) {
         System.out.println(homeDirectory.toString());
 
-        // List commando
-        //  Moet ervoor zorgen dat de andere kant een lijst van bestanden teruggeeft die het in het bezit heeft.
-        //
-        // Server
+        // TODO: FIX Als client LS commando geeft, dan moet het eerst aan de server laten weten
+        //  dat het een lijst wilt opsturen. Maar als de server het commando geeft, dan moet de client
+        //  gelijk daarop antwoorden.
 
         if (invoker == Invoker.SERVER) {
             out.println(Command.LS);
+
+            try{
+                handleServer();
+            } catch(IOException e){
+                System.out.println(e.getMessage());
+            }
         } else {
-            try {
-                Files.list(homeDirectory).forEach((file) -> {
 
-                    // Define variables
-                    BasicFileAttributes attributes;
-                    try {
-                        attributes = Files.readAttributes(file, BasicFileAttributes.class);
-                        out.println(
-                                        file.getFileName() + "\u001f" +
-                                        Files.size(file) + "\u001f" +
-                                        attributes.lastModifiedTime() + "\u001c"
-                        );
+            out.println(generateDirectoryListAsString(homeDirectory) + output());
+        }
+    }
 
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+    public void handleServer() throws IOException{
+        // Deze methode moet een lijst ontvangen van alle bestanden die de andere kant heeft,
+        //  daarna zelf gaan checken of ze overeen komen. De marge die tussen de tijd van de bestanden zit is een seconde
+        String nextLine;
+        java.util.List<String> remoteDirectory = null;
+        java.util.List<String> localDirectory = null;
+        while((nextLine = in.readLine()) != null){
+            remoteDirectory.add(nextLine);
 
-                });
-
-            } catch (IOException e) {
-                System.out.print(e.getMessage());
+            if(nextLine.contains(Constants.END_OF_TEXT.toString())){
+                break;
             }
         }
 
-        out.println(output());
+
+    }
+
+    private String generateDirectoryListAsString(Path homeDirectory){
+        ArrayList<String> fileList = new ArrayList<>();
+        try {
+            Files.list(homeDirectory).forEach((file) -> {
+                try {
+                    BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + attributes.lastModifiedTime());
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+        } catch (IOException e) {
+            System.out.print(e.getMessage());
+        }
+
+        if(!fileList.isEmpty()) {
+            return String.join("\n", fileList);
+        }
+
+        return "ERROR";
     }
 
     @Override
