@@ -1,11 +1,10 @@
 package client;
 
+import client.handlers.FileWatcher;
 import protocol.Protocol;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
-import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
-import protocol.returnobjects.Response;
 import protocol.utils.Tools;
 
 import java.io.BufferedReader;
@@ -32,8 +31,6 @@ public class Client {
         boolean connected = false;
 
         while (!connected) {
-
-
             try {
                 // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
                 serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
@@ -59,6 +56,10 @@ public class Client {
 
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
+
+        // Start fileWatcher in separate thread
+        FileWatcher fileWatcher = new FileWatcher();
+        fileWatcher.start();
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
             System.out.println("Server: " + fromServer);
@@ -91,8 +92,11 @@ public class Client {
                 }
             }
 
-            // Close the connection.
             if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+                // Close fileWatcher
+                fileWatcher.interrupt();
+
+                // Close the connection.
                 serverConnection.close();
                 break;
             }

@@ -1,11 +1,13 @@
 package client.handlers;
 
+import protocol.enums.Constants;
+
 import java.io.*;
 import java.nio.file.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
-public class FileWatcher implements Runnable {
+public class FileWatcher extends Thread {
     private final WatchService watchService;
 
     public FileWatcher() {
@@ -24,9 +26,15 @@ public class FileWatcher implements Runnable {
             boolean poll = true;
 
             String clientCommandTrigger = "Command: ";
+
+            // TODO:: Deze nog fixen
             backspaces.append("\b".repeat(clientCommandTrigger.length() + 1));
 
             while (poll) {
+                if (currentThread().isInterrupted()) {
+                    break;
+                }
+
                 WatchKey key = watchService.take();
                 Path path = (Path) key.watchable();
 
@@ -57,21 +65,17 @@ public class FileWatcher implements Runnable {
 
             watchService.close();
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            if (e instanceof InterruptedException) {
+                currentThread().interrupt();
+            } else {
+                throw new RuntimeException(e);
+            }
         }
 
     }
 
     private Path getClientDir() throws IOException {
-        // Client folder is defined here
-        String directoryPath = System.getProperty("user.home") + File.separator + "Avans33FileSync";
-        Path directory = Paths.get(directoryPath);
-
-        // Create dir if not exists
-        if (!Files.exists(directory)) {
-            Files.createDirectory(directory);
-        }
-
-        return directory;
+        String directoryPath = Constants.BASE_DIR + File.separator + "client";
+        return Paths.get(directoryPath);
     }
 }
