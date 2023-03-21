@@ -1,10 +1,13 @@
 package protocol;
 
+import protocol.commands.*;
 import protocol.enums.Command;
-import server.handlers.*;
+import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.net.Socket;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -12,7 +15,13 @@ import static protocol.enums.Command.UNKNOWN;
 
 public class Protocol {
 
-    public void processInput(String input, BufferedReader clientIn, PrintWriter clientOut) {
+    private final Path homeDirectory;
+
+    public Protocol(Path homeDirectory) {
+        this.homeDirectory = homeDirectory;
+    }
+
+    public void processInput(Invoker invoker, String input, Socket socket, BufferedReader in, PrintWriter out) {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -21,28 +30,31 @@ public class Protocol {
 
         // Handle the commands
         switch (command) {
-            case OPEN -> new Open(clientIn, clientOut, params).handle();
-            case LS -> new List(clientIn, clientOut, params).handle();
-            case DIR -> new Dir(clientIn, clientOut, params).handle();
-            case GET -> new Get(clientIn, clientOut, params).handle();
-            case PUT -> new Put(clientIn, clientOut, params).handle();
-            case DELETE -> new Delete(clientIn, clientOut, params).handle();
-            case SIZE -> new Size(clientIn, clientOut, params).handle();
-            case PORT -> new Port(clientIn, clientOut, params).handle();
-            case CLOSE -> new Close(clientIn, clientOut).handle();
+            case OPEN -> new Open(in, out).handle(params); // TODO: Command moet nog worden gemaakt.
+            case LS -> new List(invoker, homeDirectory, in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case GET -> new Get(invoker, homeDirectory, socket, in, out).handle(params);
+            case PUT -> new Put(invoker, homeDirectory, socket, in, out).handle(params);
+            case DELETE -> new Delete(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case SIZE -> new Size(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case CLOSE -> new Close(invoker, in, out).handle(params);
             default -> {
                 System.out.println(UNKNOWN);
-                clientOut.println(UNKNOWN);
+                out.println(UNKNOWN);
             }
         }
+    }
+
+    public void processErrorHandling() {
+        System.err.println("Error occurred.. We need to do something here.");
     }
 
     public String output(Command input) {
         return input.toString();
     }
 
-    private ArrayList<String> getParameters(String input) {
-        String[] params = input.split(" --");
+    public ArrayList<String> getParameters(String input) {
+        String[] params = input.split(" ");
         return new ArrayList<>(Arrays.asList(params));
     }
 

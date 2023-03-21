@@ -1,15 +1,15 @@
 package protocol.returnobjects;
 
+import protocol.data.FileHeader;
 import protocol.data.ResponseBody;
-import protocol.data.ResponseHeader;
 
 public class Response {
-    public ResponseHeader responseHeader;
+    public FileHeader fileHeader;
     public ResponseBody responseBody;
 
-    public Response(){
+    public Response() {
         super();
-        this.responseHeader = null;
+        this.fileHeader = null;
         this.responseBody = null;
     }
 }

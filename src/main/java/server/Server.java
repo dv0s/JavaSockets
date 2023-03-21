@@ -1,34 +1,28 @@
 package server;
 
-import server.threads.CommunicationThread;
+import protocol.enums.Constants;
+import protocol.enums.Invoker;
+import protocol.handlers.ConnectionHandler;
+import protocol.utils.Tools;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.nio.file.Path;
 
 public class Server {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        Tools.startScreen();
 
         if (args.length != 1) {
             System.err.println("Usage: java Server <port number>");
             System.exit(1);
         }
 
-        int portNumber = Integer.parseInt(args[0]);
-        boolean listening = true;
+        System.out.println("File sync server started. v0.0.1");
+        Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
 
-        try (
-                ServerSocket serverSocket = new ServerSocket(portNumber);
-        ) {
-            System.out.println("SocketSoldiers file sync server started. v0.0.1");
+        new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);
 
-            while (listening) {
-                // Communication socket
-                new CommunicationThread(serverSocket.accept()).start();
-            }
 
-        } catch (IOException e) {
-            System.out.println("Exception caught when trying to listen on port " + portNumber + ".");
-            System.out.println(e.getMessage());
-        }
     }
 }

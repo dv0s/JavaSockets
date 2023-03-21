@@ -1,32 +1,56 @@
 package protocol.enums;
 
 public enum State {
-    IDLE{
+    IDLE {
         @Override
-        public String toString() { return "IDLE"; }
+        public String toString() {
+            return "IDLE";
+        }
     },
-    LISTEN{
+    LISTEN {
         @Override
-        public String toString() { return "LISTENING"; }
+        public String toString() {
+            return "LISTENING";
+        }
     },
-    WAIT{
+    WAIT {
         @Override
-        public String toString() { return "WAITING"; }
+        public String toString() {
+            return "WAITING";
+        }
     },
-    BUSY{
+    BUSY {
         @Override
-        public String toString() { return "BUSY"; }
+        public String toString() {
+            return "BUSY";
+        }
     },
-    CONNECT{
+    CONNECT {
         @Override
-        public String toString() { return "CONNECTING"; }
+        public String toString() {
+            return "CONNECTING";
+        }
     },
-    CLOSE{
+    CLOSE {
         @Override
-        public String toString() { return "CLOSING"; }
+        public String toString() {
+            return "CLOSING";
+        }
+    },
+    SENDING {
+        @Override
+        public String toString() {
+            return "SENDING";
+        }
+    },
+    RECEIVING {
+        @Override
+        public String toString() {
+            return super.toString();
+        }
     };
 
-    public static State fromInt(int x){
+    public static State fromInt(int x) {
         return switch (x) {
             case 0 -> IDLE;
             case 1 -> LISTEN;
@@ -34,19 +58,23 @@ public enum State {
             case 3 -> BUSY;
             case 4 -> CONNECT;
             case 5 -> CLOSE;
+            case 6 -> SENDING;
+            case 7 -> RECEIVING;
             default -> null;
         };
 
     }
 
-    public static State fromString(String str){
-        return switch (str){
+    public static State fromString(String str) {
+        return switch (str) {
             case "IDLE" -> IDLE;
             case "LISTEN" -> LISTEN;
             case "WAIT" -> WAIT;
             case "BUSY" -> BUSY;
             case "CONNECT" -> CONNECT;
             case "CLOSE" -> CLOSE;
+            case "SENDING" -> SENDING;
+            case "RECEIVING" -> RECEIVING;
             default -> null;
         };
     }
