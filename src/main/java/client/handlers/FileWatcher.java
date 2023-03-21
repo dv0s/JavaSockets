@@ -42,9 +42,17 @@ public class FileWatcher extends Thread {
                     File file = path.resolve((Path) event.context()).toFile();
 
                     // Send the file to the client
-                    if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
+                    if (event.kind() == ENTRY_CREATE) {
                         // Send information to the client
-                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_DELETE - File : " + file.getName());
+                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_CREATE - File : " + file.getName());
+
+                        // Client can give a new command
+                        System.out.print(clientCommandTrigger);
+                    }
+
+                    if (event.kind() == ENTRY_MODIFY) {
+                        // Send information to the client
+                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_MODIFY - File : " + file.getName());
 
                         // Client can give a new command
                         System.out.print(clientCommandTrigger);
