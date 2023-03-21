@@ -38,7 +38,8 @@ public class Put implements CommandHandler {
     public void handle(ArrayList<String> args) {
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
-            out.println(ResponseCode.FAILURE.getCode() + " No arguments found. correct usage: PUT <filename>" + Constants.END_OF_TEXT);
+            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: PUT <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
@@ -86,7 +87,7 @@ public class Put implements CommandHandler {
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.END_OF_TEXT);
-                    out.println(Constants.END_OF_TEXT); //TODO: FIX this will start the cycle again, but needs to be fixed.
+//                    out.println(Constants.END_OF_TEXT); //TODO: FIX this will start the cycle again, but needs to be fixed.
                     break;
                 }
 
@@ -139,6 +140,7 @@ public class Put implements CommandHandler {
             System.out.println("Client: " + nextLine);
 
             if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
+                out.println(output());
                 break;
             }
 
@@ -168,7 +170,6 @@ public class Put implements CommandHandler {
 
     @Override
     public String output() {
-        String output = "Command 'PUT' called";
-        return output + Constants.END_OF_TEXT;
+        return Constants.END_OF_TEXT.toString();
     }
 }

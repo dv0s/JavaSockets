@@ -43,14 +43,16 @@ public class Get implements CommandHandler {
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
         if(args.isEmpty()){
+            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
             System.out.println("No arguments found.");
-            out.println(ResponseCode.FAILURE.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
         if(args.size() > 1){
+            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
             System.out.println("Too many arguments found.");
-            out.println(ResponseCode.FAILURE.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
@@ -141,7 +143,7 @@ public class Get implements CommandHandler {
 
     public void handleServer(ArrayList<String> args) throws IOException{
         if(args.isEmpty()){
-            out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do");
         }
 
         String fileName = args.get(0);
@@ -155,7 +157,7 @@ public class Get implements CommandHandler {
 
         // Eerst moeten we het bestand opzoeken die gevraagd wordt.
         if(Files.notExists(path)){
-            out.println(ResponseCode.FAILURE.getCode() + " Requested file '" + fileHeader.getFileName() + "' not found." + Constants.END_OF_TEXT);
+            out.println(ResponseCode.FAILURE.getCode() + " Requested file '" + fileHeader.getFileName() + "' not found.");
             return;
         }
 
@@ -173,8 +175,7 @@ public class Get implements CommandHandler {
                 }
 
                 if(input.equals("200 FILE RECEIVED SUCCESSFUL")){
-                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.END_OF_TEXT);
-                    out.println(Constants.END_OF_TEXT); //TODO: FIX this will start the cycle again, but needs to be fixed.
+                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + output());
                     break;
                 }
 
@@ -188,12 +189,11 @@ public class Get implements CommandHandler {
             System.err.println(e.getMessage());
         }
 
-//        out.println(output());
+        out.println(output());
     }
 
     @Override
     public String output() {
-        String output = "Command 'GET' called with parameters";
-        return output + Constants.END_OF_TEXT;
+        return Constants.END_OF_TEXT.toString();
     }
 }

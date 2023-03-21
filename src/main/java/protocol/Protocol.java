@@ -38,10 +38,7 @@ public class Protocol {
             case SIZE -> new Size(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case CLOSE -> new Close(invoker, in, out).handle(params);
-            default -> {
-                System.out.println(UNKNOWN);
-                out.println(UNKNOWN);
-            }
+            default -> out.println(UNKNOWN);
         }
     }
 

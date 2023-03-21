@@ -18,7 +18,7 @@ public class Server {
             System.exit(1);
         }
 
-        System.out.println("File sync server started. v0.0.1");
+        System.out.println("File sync server started. " + Constants.VERSION);
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
 
         new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);

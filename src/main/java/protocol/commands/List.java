@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
@@ -33,15 +31,17 @@ public class List implements CommandHandler {
 
 
     @Override
-    public void handle(ArrayList<String> args){
+    public void handle(ArrayList<String> args) {
         System.out.println(homeDirectory.toString());
 
-        // List commando moet ervoor zorgen dat de andere een lijst van bestanden teruggeeft die het in het bezit heeft.
+        // List commando
+        //  Moet ervoor zorgen dat de andere kant een lijst van bestanden teruggeeft die het in het bezit heeft.
+        //
         // Server
 
-        if(invoker == Invoker.CLIENT){
+        if (invoker == Invoker.SERVER) {
             out.println(Command.LS);
-        }else{
+        } else {
             try {
                 Files.list(homeDirectory).forEach((file) -> {
 
@@ -50,11 +50,9 @@ public class List implements CommandHandler {
                     try {
                         attributes = Files.readAttributes(file, BasicFileAttributes.class);
                         out.println(
-                                file + "\u001f" +
-                                file.getFileName()+"\u001f"+
-                                        Files.size(file)+"\u001f"+
-                                        attributes.lastAccessTime()+"\u001f"+attributes.lastModifiedTime()
-                                        +"\u001c"
+                                        file.getFileName() + "\u001f" +
+                                        Files.size(file) + "\u001f" +
+                                        attributes.lastModifiedTime() + "\u001c"
                         );
 
                     } catch (IOException e) {
@@ -73,7 +71,6 @@ public class List implements CommandHandler {
 
     @Override
     public String output() {
-        String output = "Command 'LIST' called";
-        return output + Constants.END_OF_TEXT;
+        return Constants.END_OF_TEXT.toString();
     }
 }

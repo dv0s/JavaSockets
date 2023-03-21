@@ -13,7 +13,7 @@ public enum Command {
     UNKNOWN {
         @Override
         public String toString() {
-            return "UNKNOWN\u0003";
+            return "Unknown command.\n" + Constants.END_OF_TEXT;
         }
     };
 

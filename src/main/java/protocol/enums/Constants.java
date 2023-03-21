@@ -29,6 +29,12 @@ public enum Constants {
             return "\u0004";
         }
     },
+    VERSION {
+        @Override
+        public String toString() {
+            return "v0.0.2";
+        }
+    },
     BASE_DIR {
         @Override
         public String toString() {

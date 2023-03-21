@@ -1,11 +1,11 @@
 package client;
 
 import protocol.Protocol;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
-import protocol.returnobjects.Response;
 import protocol.utils.Tools;
 
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ public class Client {
             System.exit(1);
         }
 
-        System.out.println("File sync client started. v0.0.1");
+        System.out.println("File sync client started. " + Constants.VERSION);
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
 
         ConnectionHandler serverConnection = null;
@@ -61,34 +61,34 @@ public class Client {
         String fromServer, fromUser;
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
-            System.out.println("Server: " + fromServer);
-
-//            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-
-            // TODO: 19/03/2023 Hier moeten we nog wat mee doen i.v.m. de afgesproken response codes in het protocol.
-            // Response codes gebruiken als afgesproken in protocol.
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.SUCCESS.getCode()))){
-//                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-//            }
-//
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))){
-//                protocol.processErrorHandling();
-//                // Error afhandeling;
-//            }
-//
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))){
-//                protocol.processErrorHandling();
-//                // Error afhandeling;
-//            }
+            if(!fromServer.contains(Constants.END_OF_TEXT.toString()) && !fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+                System.out.println("Server: " + fromServer);
+            }
 
             // Als de server het signaal geeft dat het klaar is met praten
             if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                System.out.print("Command: ");
-                fromUser = stdIn.readLine();
+                if(fromServer.equals(Constants.END_OF_TEXT.toString())){
 
-                if (fromUser != null) {
+                    fromUser = input(stdIn);
+
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
+                }else{
+
+                    if (fromServer.startsWith(String.valueOf(ResponseCode.SUCCESS.getCode()))) {
+                        protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+                    }
+
+                    if (fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))) {
+                        protocol.processErrorHandling();
+                        // Error afhandeling;
+                    }
+
+                    if (fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))) {
+                        protocol.processErrorHandling();
+                        // Error afhandeling;
+                    }
                 }
+
             }
 
             // Close the connection.
@@ -99,5 +99,17 @@ public class Client {
 
         }
 
+    }
+
+    private static String input(BufferedReader stdIn) throws IOException {
+        System.out.print("Command: ");
+        String fromUser = stdIn.readLine();
+
+        if (fromUser.isBlank()) {
+            System.out.println("Input is needed. Please try again");
+            fromUser = input(stdIn);
+        }
+
+        return fromUser;
     }
 }

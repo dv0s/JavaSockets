@@ -24,6 +24,7 @@ public class Close implements CommandHandler {
     @Override
     public void handle(ArrayList<String> args) {
         if (invoker == Invoker.SERVER) {
+            out.println("Disconnecting from server...");
             out.println(output());
             out.close();
 
@@ -39,6 +40,6 @@ public class Close implements CommandHandler {
 
     @Override
     public String output() {
-        return "Disconnecting from server..." + Constants.END_OF_TRANSMISSION;
+        return Constants.END_OF_TRANSMISSION.toString();
     }
 }

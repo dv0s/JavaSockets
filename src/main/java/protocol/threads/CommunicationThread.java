@@ -33,9 +33,10 @@ public class CommunicationThread extends Thread {
             System.out.println("ConnectionHandler established with Client: " + clientId);
 
             Protocol protocol = new Protocol(homeDirectory);
-            outputLine = "Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT;
+            outputLine = "Connection established. Welcome client #" + clientId;
 
             clientOut.println(outputLine);
+            clientOut.println(Constants.END_OF_TEXT);
 
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
             while ((inputLine = clientIn.readLine()) != null) {
