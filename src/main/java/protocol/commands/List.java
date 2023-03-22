@@ -3,6 +3,7 @@ package protocol.commands;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
+import protocol.handlers.FileHandler;
 import protocol.interfaces.CommandHandler;
 
 import java.io.BufferedReader;
@@ -11,7 +12,10 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class List implements CommandHandler {
 
@@ -34,64 +38,55 @@ public class List implements CommandHandler {
     public void handle(ArrayList<String> args) {
         System.out.println(homeDirectory.toString());
 
-        // TODO: FIX Als client LS commando geeft, dan moet het eerst aan de server laten weten
-        //  dat het een lijst wilt opsturen. Maar als de server het commando geeft, dan moet de client
-        //  gelijk daarop antwoorden.
+        // TODO: Sever is de enige die dit commando aanroept naar de client toe.
+        //  De client zal hier een opdracht voor krijgen op het moment dat het vraagt om te syncen.
 
         if (invoker == Invoker.SERVER) {
-            out.println(Command.LS);
+            out.println(Command.LS + output());
 
-            try{
+            try {
                 handleServer();
-            } catch(IOException e){
+            } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
         } else {
-
-            out.println(generateDirectoryListAsString(homeDirectory) + output());
+            out.println(FileHandler.directoryListAsString(homeDirectory) + output());
         }
     }
 
-    public void handleServer() throws IOException{
+    public void handleServer() throws IOException {
         // Deze methode moet een lijst ontvangen van alle bestanden die de andere kant heeft,
         //  daarna zelf gaan checken of ze overeen komen. De marge die tussen de tijd van de bestanden zit is een seconde
         String nextLine;
-        java.util.List<String> remoteDirectory = null;
-        java.util.List<String> localDirectory = null;
-        while((nextLine = in.readLine()) != null){
-            remoteDirectory.add(nextLine);
+        ArrayList<String> remoteDirectory = new ArrayList<>();
+        ArrayList<String> localDirectory = FileHandler.directoryList(homeDirectory);
 
-            if(nextLine.contains(Constants.END_OF_TEXT.toString())){
+        while ((nextLine = in.readLine()) != null) {
+            remoteDirectory.add(nextLine.replace(Constants.END_OF_TEXT.toString(), ""));
+
+            if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
                 break;
             }
         }
 
+        // TODO: FIX De check hier moet een lijst terug geven met bestanden die niet overeen komen
+        //  En dan eventueel gelijk syncen als je kan.
+        if (localDirectory.equals(remoteDirectory)) {
+            System.out.println("Both directories are equal.");
+        } else {
+            System.out.println("Discrepancy detected.");
 
-    }
+//            localDirectory.removeAll(remoteDirectory);
 
-    private String generateDirectoryListAsString(Path homeDirectory){
-        ArrayList<String> fileList = new ArrayList<>();
-        try {
-            Files.list(homeDirectory).forEach((file) -> {
-                try {
-                    BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
-                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + attributes.lastModifiedTime());
+            System.out.println("Local Directory:");
+            localDirectory.forEach(System.out::println);
 
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-            });
-
-        } catch (IOException e) {
-            System.out.print(e.getMessage());
+            System.out.println("Remote Directory:");
+            remoteDirectory.forEach(System.out::println);
         }
 
-        if(!fileList.isEmpty()) {
-            return String.join("\n", fileList);
-        }
+        out.println(output());
 
-        return "ERROR";
     }
 
     @Override

@@ -10,8 +10,12 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class FileHandler {
 
@@ -142,6 +146,52 @@ public class FileHandler {
         }
 
         return fileHeader;
+    }
+
+    public static String directoryListAsString(Path homeDirectory) {
+
+        ArrayList<String> fileList = directoryList(homeDirectory);
+
+        if (!fileList.isEmpty()) {
+            return String.join("\n", fileList);
+        }
+
+        return "ERROR";
+    }
+
+    public static ArrayList<String> directoryList(Path homeDirectory) {
+        ArrayList<String> fileList = new ArrayList<>();
+        try {
+            Files.list(homeDirectory).forEach((file) -> {
+                try {
+                    SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + DateFormat.format(new Date(attributes.lastModifiedTime().toMillis())));
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+        } catch (IOException e) {
+            System.out.print(e.getMessage());
+        }
+
+        return fileList;
+    }
+
+    public static ArrayList<String> compareContents(ArrayList<String> local, ArrayList<String> remote){
+        ArrayList<String> localList = new ArrayList<>();
+        ArrayList<String> remoteList = new ArrayList<>();
+
+        local.forEach((rule) -> {
+            String[] attr = rule.split("\u001f");
+            localList.add(attr[0] + "\u001f" + attr[2]);
+        });
+
+        // TODO: 22/03/2023 FIX Deze functie wordt waarschijnlijk niet afgemaakt, but just in case.
+        return localList;
     }
 
     //endregion

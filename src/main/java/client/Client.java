@@ -1,11 +1,11 @@
 package client;
 
 import protocol.Protocol;
-import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
+import protocol.handlers.FileHandler;
 import protocol.utils.Tools;
 
 import java.io.BufferedReader;
@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class Client {
     public static void main(String[] args) throws IOException {
@@ -61,32 +62,30 @@ public class Client {
         String fromServer, fromUser;
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
-            if(!fromServer.contains(Constants.END_OF_TEXT.toString()) && !fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+            if (!fromServer.contains(Constants.END_OF_TEXT.toString()) && !fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
                 System.out.println("Server: " + fromServer);
             }
 
             // Als de server het signaal geeft dat het klaar is met praten
             if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                if(fromServer.equals(Constants.END_OF_TEXT.toString())){
+                if (fromServer.equals(Constants.END_OF_TEXT.toString())) {
 
                     fromUser = input(stdIn);
-
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
-                }else{
 
-                    if (fromServer.startsWith(String.valueOf(ResponseCode.SUCCESS.getCode()))) {
-                        protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-                    }
+                } else {
 
                     if (fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))) {
                         protocol.processErrorHandling();
                         // Error afhandeling;
-                    }
-
-                    if (fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))) {
+                    } else if (fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))) {
                         protocol.processErrorHandling();
                         // Error afhandeling;
+                    } else {
+                        // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
+                        protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
                     }
+
                 }
 
             }
