@@ -1,6 +1,9 @@
 package client.handlers;
 
+import protocol.Protocol;
 import protocol.enums.Constants;
+import protocol.enums.Invoker;
+import protocol.handlers.ConnectionHandler;
 
 import java.io.*;
 import java.nio.file.*;
@@ -10,9 +13,16 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public class FileWatcher extends Thread {
     private final WatchService watchService;
 
-    public FileWatcher() {
+    private final ConnectionHandler serverConnection;
+
+    private final Protocol protocol;
+
+    public FileWatcher(ConnectionHandler serverConnection, Protocol protocol) {
         try {
+            this.protocol = protocol;
+            this.serverConnection = serverConnection;
             this.watchService = FileSystems.getDefault().newWatchService();
+
             getClientDir().register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -45,6 +55,18 @@ public class FileWatcher extends Thread {
                     if (event.kind() == ENTRY_CREATE) {
                         // Send information to the client
                         System.out.println(backspaces + "FILE-WATCHER : ENTRY_CREATE - File : " + file.getName());
+
+                        // Send file to the server
+                        String command = "put " + file.getName();
+                        System.out.println(command);
+
+                        protocol.processInput(
+                                Invoker.CLIENT,
+                                command,
+                                serverConnection.socket,
+                                serverConnection.in,
+                                serverConnection.out
+                        );
 
                         // Client can give a new command
                         System.out.print(clientCommandTrigger);

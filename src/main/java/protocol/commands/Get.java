@@ -42,26 +42,26 @@ public class Get implements CommandHandler {
     @Override
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
-        if(args.isEmpty()){
+        if (args.isEmpty()) {
             System.out.println("No arguments found.");
             out.println(ResponseCode.FAILURE.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
-        if(args.size() > 1){
+        if (args.size() > 1) {
             System.out.println("Too many arguments found.");
             out.println(ResponseCode.FAILURE.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
         // Work around om de juiste richting op te sturen is door de invoker te switchen tijdens de command call.
-        if(invoker.equals(Invoker.CLIENT)){
+        if (invoker.equals(Invoker.CLIENT)) {
             try {
                 handleClient(args);
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
-        }else{
+        } else {
             try {
                 handleServer(args);
             } catch (IOException e) {
@@ -78,16 +78,16 @@ public class Get implements CommandHandler {
         out.println(Command.GET + " " + args.get(0));
 
         // Zodra we een FileHeader antwoord hebben ontvangen
-        if((fromServer = in.readLine()) != null){ // TODO: FIX Err... this won't end well.
-            if(fromServer.contains("Fileheader")){
+        if ((fromServer = in.readLine()) != null) { // TODO: FIX Err... this won't end well.
+            if (fromServer.contains("Fileheader")) {
                 String nextLine;
                 String[] header;
                 FileHeader fileHeader = new FileHeader();
 
                 // Lees de regels van server om de header op te stellen
-                while((nextLine = in.readLine()) != null){
+                while ((nextLine = in.readLine()) != null) {
                     System.out.println("Server: " + nextLine);
-                    if(nextLine.equals("")){
+                    if (nextLine.equals("")) {
                         break;
                     }
 
@@ -106,14 +106,14 @@ public class Get implements CommandHandler {
                 out.println("200 FILEHEADER RECEIVED");
 
                 // Nog een loop voor het opzetten van de overdracht.
-                while((nextLine = in.readLine()) != null){
+                while ((nextLine = in.readLine()) != null) {
                     System.out.println("Server: " + nextLine);
 
-                    if(nextLine.contains(Constants.END_OF_TEXT.toString())){
+                    if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
                         break;
                     }
 
-                    if(nextLine.contains("OPEN")){
+                    if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
                         // TODO: FIX Dit moet worden opgezet via de connectionHandler
@@ -126,10 +126,10 @@ public class Get implements CommandHandler {
 
                         // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
-                        if(fileHeaderLocal.compare(fileHeader)){
+                        if (fileHeaderLocal.compare(fileHeader)) {
                             fileTransferSocket.close();
                             out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
-                        }else{
+                        } else {
                             out.println(ResponseCode.FAILURE.getCode() + "FILE CORRUPTED");
                             // TODO: FIX Hier moet de loop opnieuw beginnen zodra het bestand corrupted is.
                         }
@@ -139,8 +139,8 @@ public class Get implements CommandHandler {
         }
     }
 
-    public void handleServer(ArrayList<String> args) throws IOException{
-        if(args.isEmpty()){
+    public void handleServer(ArrayList<String> args) throws IOException {
+        if (args.isEmpty()) {
             out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do" + Constants.END_OF_TEXT);
         }
 
@@ -154,17 +154,17 @@ public class Get implements CommandHandler {
         Path path = Paths.get(homeDirectory + File.separator + fileHeader.getFileName());
 
         // Eerst moeten we het bestand opzoeken die gevraagd wordt.
-        if(Files.notExists(path)){
+        if (Files.notExists(path)) {
             out.println(ResponseCode.FAILURE.getCode() + " Requested file '" + fileHeader.getFileName() + "' not found." + Constants.END_OF_TEXT);
             return;
         }
 
         String input;
-        try{
-            while((input = in.readLine()) != null){
-                if(input.equals("200 FILEHEADER RECEIVED")){ // TODO: FIX Don't trust magic strings.
+        try {
+            while ((input = in.readLine()) != null) {
+                if (input.equals("200 FILEHEADER RECEIVED")) { // TODO: FIX Don't trust magic strings.
 
-                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)){
+                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
                         out.println("OPEN PORT 42068"); // TODO: FIX Using a fixed port for now.
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
@@ -172,19 +172,19 @@ public class Get implements CommandHandler {
                     }
                 }
 
-                if(input.equals("200 FILE RECEIVED SUCCESSFUL")){
+                if (input.equals("200 FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.END_OF_TEXT);
                     out.println(Constants.END_OF_TEXT); //TODO: FIX this will start the cycle again, but needs to be fixed.
                     break;
                 }
 
-                if(input.startsWith("5")){
+                if (input.startsWith("5")) {
                     System.err.println("Failure occurred");
                 }
 
             }
 
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println(e.getMessage());
         }
 

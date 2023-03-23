@@ -58,7 +58,7 @@ public class Client {
         String fromServer, fromUser;
 
         // Start fileWatcher in separate thread
-        FileWatcher fileWatcher = new FileWatcher();
+        FileWatcher fileWatcher = new FileWatcher(serverConnection, protocol);
         fileWatcher.start();
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
