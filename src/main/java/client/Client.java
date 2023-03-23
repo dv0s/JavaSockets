@@ -1,6 +1,6 @@
 package client;
 
-import client.handlers.FileWatcher;
+import client.threads.FileWatcherThread;
 import protocol.Protocol;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
@@ -58,7 +58,7 @@ public class Client {
         String fromServer, fromUser;
 
         // Start fileWatcher in separate thread
-        FileWatcher fileWatcher = new FileWatcher(serverConnection, protocol);
+        FileWatcherThread fileWatcher = new FileWatcherThread(serverConnection, protocol);
         fileWatcher.start();
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
@@ -88,6 +88,10 @@ public class Client {
                 fromUser = stdIn.readLine();
 
                 if (fromUser != null) {
+                    // TODO:: filewatcher moet eigenlijk wachten wait()
+                    fileWatcher.interrupt();
+
+                    // process input
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
                 }
             }

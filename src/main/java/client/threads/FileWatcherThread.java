@@ -1,4 +1,4 @@
-package client.handlers;
+package client.threads;
 
 import protocol.Protocol;
 import protocol.enums.Constants;
@@ -10,14 +10,14 @@ import java.nio.file.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
-public class FileWatcher extends Thread {
+public class FileWatcherThread extends Thread {
     private final WatchService watchService;
 
     private final ConnectionHandler serverConnection;
 
     private final Protocol protocol;
 
-    public FileWatcher(ConnectionHandler serverConnection, Protocol protocol) {
+    public FileWatcherThread(ConnectionHandler serverConnection, Protocol protocol) {
         try {
             this.protocol = protocol;
             this.serverConnection = serverConnection;
@@ -40,6 +40,8 @@ public class FileWatcher extends Thread {
             // TODO:: Deze nog fixen
             backspaces.append("\b".repeat(clientCommandTrigger.length() + 1));
 
+
+
             while (poll) {
                 if (currentThread().isInterrupted()) {
                     break;
@@ -49,17 +51,26 @@ public class FileWatcher extends Thread {
                 Path path = (Path) key.watchable();
 
                 for (WatchEvent<?> event : key.pollEvents()) {
+                    String command = null, fileWatcherState = null;
                     File file = path.resolve((Path) event.context()).toFile();
 
                     // Send the file to the client
-                    if (event.kind() == ENTRY_CREATE) {
-                        // Send information to the client
-                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_CREATE - File : " + file.getName());
+                    if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
+                        fileWatcherState = event.kind() == ENTRY_CREATE ? "ENTRY_CREATE" : "ENTRY_MODIFY";
 
                         // Send file to the server
-                        String command = "put " + file.getName();
-                        System.out.println(command);
+                        command = "put " + file.getName();
+                    }
 
+                    // Delete file from the client
+                    if (event.kind() == ENTRY_DELETE) {
+                        fileWatcherState = "ENTRY_DELETE";
+                        // TODO:: implement command when available
+                    }
+
+                    System.out.println(backspaces + "FILE-WATCHER : " + fileWatcherState + " - File :" + file.getName());
+
+                    if (command != null) {
                         protocol.processInput(
                                 Invoker.CLIENT,
                                 command,
@@ -67,27 +78,10 @@ public class FileWatcher extends Thread {
                                 serverConnection.in,
                                 serverConnection.out
                         );
-
-                        // Client can give a new command
-                        System.out.print(clientCommandTrigger);
                     }
 
-                    if (event.kind() == ENTRY_MODIFY) {
-                        // Send information to the client
-                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_MODIFY - File : " + file.getName());
-
-                        // Client can give a new command
-                        System.out.print(clientCommandTrigger);
-                    }
-
-                    // Delete file from the client
-                    if (event.kind() == ENTRY_DELETE) {
-                        // Send information to the client
-                        System.out.println(backspaces + "FILE-WATCHER : ENTRY_DELETE - File : " + file.getName());
-
-                        // Client can give a new command
-                        System.out.print(clientCommandTrigger);
-                    }
+                    // Client can give a new command
+                    System.out.print(clientCommandTrigger);
                 }
 
                 poll = key.reset();
