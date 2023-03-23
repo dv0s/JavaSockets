@@ -8,51 +8,20 @@ import protocol.handlers.ConnectionHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 
 public class ClientThread extends Thread {
-    private String[] args = null;
+    private final ConnectionHandler serverConnection;
 
-    private final Path homeDirectory;
+    private final Protocol protocol;
 
-    public ClientThread(String[] args, Path homeDirectory) {
-        this.args = args;
-        this.homeDirectory = homeDirectory;
+    public ClientThread(ConnectionHandler serverConnection, Protocol protocol) {
+        this.serverConnection = serverConnection;
+        this.protocol = protocol;
     }
 
     @Override
     public void run() {
         super.run();
-
-        ConnectionHandler serverConnection = null;
-
-        int attempts = 0;
-        boolean connected = false;
-
-        while (!connected) {
-            try {
-                // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
-                serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
-                connected = true;
-
-            } catch (IOException ex) {
-                try {
-                    if (attempts < 10) {
-                        attempts++;
-                        System.out.println("Attempt " + attempts + " to connect.. please wait.");
-                        Thread.sleep(2000);
-                    } else {
-                        System.err.println("Server doesn't seem te be up and running. Please try again later.");
-                        System.exit(2);
-                    }
-                } catch (InterruptedException exc) {
-                    throw new RuntimeException(exc);
-                }
-            }
-        }
-
-        Protocol protocol = new Protocol(homeDirectory);
-
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 

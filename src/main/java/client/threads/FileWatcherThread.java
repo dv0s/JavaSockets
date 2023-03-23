@@ -32,23 +32,16 @@ public class FileWatcherThread extends Thread {
             backspaces.append("\b".repeat(clientCommandTrigger.length() + 1));
 
             while (poll) {
-                if (currentThread().isInterrupted()) {
-                    break;
-                }
-
                 WatchKey key = watchService.take();
                 Path path = (Path) key.watchable();
 
                 for (WatchEvent<?> event : key.pollEvents()) {
-                    String command = null, fileWatcherState = null;
+                    String fileWatcherState = null;
                     File file = path.resolve((Path) event.context()).toFile();
 
                     // Send the file to the client
                     if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
                         fileWatcherState = event.kind() == ENTRY_CREATE ? "ENTRY_CREATE" : "ENTRY_MODIFY";
-
-                        // Send file to the server
-                        command = "put " + file.getName();
                     }
 
                     // Delete file from the client
@@ -60,6 +53,8 @@ public class FileWatcherThread extends Thread {
                     System.out.println(backspaces + "FILE-WATCHER : " + fileWatcherState + " - File :" + file.getName());
 
                     // TODO:: implement server
+                    // new Put(invoker, homeDirectory, socket, in, out).handle(params);
+                    // new Delete(in, out, params).handle(params);
 
                     // Client can give a new command
                     System.out.print(clientCommandTrigger);
@@ -69,6 +64,7 @@ public class FileWatcherThread extends Thread {
             }
 
             watchService.close();
+            interrupt();
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
                 currentThread().interrupt();
