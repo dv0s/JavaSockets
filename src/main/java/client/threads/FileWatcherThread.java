@@ -1,9 +1,6 @@
 package client.threads;
 
-import protocol.Protocol;
 import protocol.enums.Constants;
-import protocol.enums.Invoker;
-import protocol.handlers.ConnectionHandler;
 
 import java.io.*;
 import java.nio.file.*;
@@ -13,14 +10,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public class FileWatcherThread extends Thread {
     private final WatchService watchService;
 
-    private final ConnectionHandler serverConnection;
-
-    private final Protocol protocol;
-
-    public FileWatcherThread(ConnectionHandler serverConnection, Protocol protocol) {
+    public FileWatcherThread() {
         try {
-            this.protocol = protocol;
-            this.serverConnection = serverConnection;
             this.watchService = FileSystems.getDefault().newWatchService();
 
             getClientDir().register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
@@ -39,8 +30,6 @@ public class FileWatcherThread extends Thread {
 
             // TODO:: Deze nog fixen
             backspaces.append("\b".repeat(clientCommandTrigger.length() + 1));
-
-
 
             while (poll) {
                 if (currentThread().isInterrupted()) {
@@ -70,15 +59,7 @@ public class FileWatcherThread extends Thread {
 
                     System.out.println(backspaces + "FILE-WATCHER : " + fileWatcherState + " - File :" + file.getName());
 
-                    if (command != null) {
-                        protocol.processInput(
-                                Invoker.CLIENT,
-                                command,
-                                serverConnection.socket,
-                                serverConnection.in,
-                                serverConnection.out
-                        );
-                    }
+                    // TODO:: implement server
 
                     // Client can give a new command
                     System.out.print(clientCommandTrigger);
