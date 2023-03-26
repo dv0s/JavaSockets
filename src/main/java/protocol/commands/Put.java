@@ -65,7 +65,7 @@ public class Put implements CommandHandler {
     public void handleClient(ArrayList<String> args) throws IOException {
         // Stel een file header op voor het te verzenden bestand.
         FileHeader fileHeader = FileHandler.constructFileHeader(args.get(0), homeDirectory);
-        out.println("PUT " + fileHeader);
+        out.println("PUT " + fileHeader + Constants.END_OF_TEXT + "\n");
 
         // Geef het commando door aan de server met de header erbij.
 
@@ -77,7 +77,7 @@ public class Put implements CommandHandler {
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN PORT 42068"); // TODO: FIX Using a fixed port for now.
+                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now.
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
@@ -105,33 +105,28 @@ public class Put implements CommandHandler {
     }
 
     public void handleServer(ArrayList<String> args) throws IOException {
-        if (!args.get(0).equals("Fileheader")) {
+        if (!args.get(0).equals("FileHeader")) {
             out.println(ResponseCode.FAILURE + " First line is no file header. Exiting" + Constants.END_OF_TEXT);
         }
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         String nextLine;
-        String[] header;
+        String[] headerLines;
         FileHeader fileHeader = new FileHeader();
 
-        // Lees de regels van server om de header op te stellen
-        while ((nextLine = in.readLine()) != null) {
-            System.out.println("Client: " + nextLine);
-            if (nextLine.equals("")) {
-                break;
-            }
 
-            header = nextLine.split(":");
-
-            switch (header[0].trim()) {
-                case "Filename" -> fileHeader.setFileName(header[1].trim());
-                case "Filetype" -> fileHeader.setFileType(header[1].trim());
-                case "Filesize" -> fileHeader.setFileSize(Long.parseLong(header[1].trim()));
-                case "HashAlgo" -> fileHeader.setHashAlgo(header[1].trim());
-                case "CheckSum" -> fileHeader.setCheckSum(header[1].trim());
-            }
-
+        headerLines = args.get(0).split(Constants.UNIT_SEPARATOR.toString());
+        if(headerLines.length != 6){
+            out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
+            return;
         }
+
+        // Vul de header
+        fileHeader.setFileName(headerLines[1].trim());
+        fileHeader.setLastModified(headerLines[2].trim());
+        fileHeader.setFileSize(Long.parseLong(headerLines[3].trim()));
+        fileHeader.setHashAlgo(headerLines[4].trim());
+        fileHeader.setCheckSum(headerLines[5].trim());
 
         out.println("200 HEADER RECEIVED");
 
@@ -148,7 +143,7 @@ public class Put implements CommandHandler {
                 String[] command = nextLine.split(" ");
 
                 // TODO: FIX Dit moet worden opgezet via de connectionHandler
-                SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
+                SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[1]));
                 Socket fileTransferSocket = new Socket();
 
                 // Bestand ontvangen via FileHandler.

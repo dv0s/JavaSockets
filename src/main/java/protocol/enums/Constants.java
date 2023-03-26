@@ -29,6 +29,18 @@ public enum Constants {
             return "\u0004";
         }
     },
+    FILE_SEPARATOR {
+        @Override
+        public String toString() {
+            return "\u001C";
+        }
+    },
+    UNIT_SEPARATOR {
+        @Override
+        public String toString() {
+            return "\u001F";
+        }
+    },
     VERSION {
         @Override
         public String toString() {

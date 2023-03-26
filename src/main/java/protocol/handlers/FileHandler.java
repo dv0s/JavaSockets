@@ -128,13 +128,14 @@ public class FileHandler {
         FileHeader fileHeader = new FileHeader();
         try {
             file = new File(path.toString());
+            BasicFileAttributes attributes = null;
             md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
             sendFile = Paths.get(homeDirectory.toString(), file.getName());
 
             // Fill the file header
             fileHeader.setFileName(sendFile.getFileName().toString());
-            fileHeader.setFileType(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
+            fileHeader.setLastModified(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
             fileHeader.setFileSize(Files.size(sendFile));
             fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
             fileHeader.setCheckSum(checkSum);
@@ -164,7 +165,7 @@ public class FileHandler {
         try {
             Files.list(homeDirectory).forEach((file) -> {
                 try {
-                    SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
                     fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + DateFormat.format(new Date(attributes.lastModifiedTime().toMillis())));
 

@@ -1,6 +1,7 @@
 package protocol.threads;
 
 import protocol.Protocol;
+import protocol.enums.Constants;
 import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
@@ -32,7 +33,7 @@ public class CommunicationThread extends Thread {
 
             Protocol protocol = new Protocol(homeDirectory);
 
-            clientOut.println("Connection established. Welcome client #" + clientId);
+//            clientOut.println("Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
             protocol.processInput(Invoker.SERVER, "LS", socket, clientIn, clientOut);
 
             String inputLine;

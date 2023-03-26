@@ -66,6 +66,12 @@ public class Client {
                 System.out.println("Server: " + fromServer);
             }
 
+            // Close the connection. Check this one first in case of connection with other party throwing both the control characters.
+            if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+                serverConnection.close();
+                break;
+            }
+
             // Als de server het signaal geeft dat het klaar is met praten
             if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
                 if (fromServer.equals(Constants.END_OF_TEXT.toString())) {
@@ -87,15 +93,7 @@ public class Client {
                     }
 
                 }
-
             }
-
-            // Close the connection.
-            if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
-                serverConnection.close();
-                break;
-            }
-
         }
 
     }

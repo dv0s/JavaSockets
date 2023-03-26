@@ -1,21 +1,23 @@
 package protocol.data;
 
+import protocol.enums.Constants;
+
 import java.util.Objects;
 
 public class FileHeader{
     public String fileName;
-    public String fileType;
+    public String lastModified;
     public long fileSize;
     public String hashAlgo;
     public String checkSum;
 
     public FileHeader(){}
 
-    public FileHeader(String fileName, String fileType, long fileSize, String hashAlgo, String checkSum){
+    public FileHeader(String fileName, String lastModified, long fileSize, String hashAlgo, String checkSum){
         super();
 
         this.fileName = fileName;
-        this.fileType = fileType;
+        this.lastModified = lastModified;
         this.fileSize = fileSize;
         this.hashAlgo = hashAlgo;
         this.checkSum = checkSum;
@@ -27,8 +29,8 @@ public class FileHeader{
         return fileName;
     }
 
-    public String getFileType() {
-        return fileType;
+    public String getLastModified() {
+        return lastModified;
     }
 
     public long getFileSize() {
@@ -51,8 +53,8 @@ public class FileHeader{
         this.fileName = fileName;
     }
 
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
+    public void setLastModified(String lastModified) {
+        this.lastModified = lastModified;
     }
 
 
@@ -77,7 +79,7 @@ public class FileHeader{
             return false;
         if (!Objects.equals(fileSize, o.fileSize))
             return false;
-        if (!Objects.equals(fileType, o.fileType))
+        if (!Objects.equals(lastModified, o.lastModified))
             return false;
         if (!Objects.equals(checkSum, o.checkSum))
             return false;
@@ -87,12 +89,12 @@ public class FileHeader{
 
     @Override
     public String toString() {
-        return "Fileheader\n" +
-                "Filename: " + fileName + "\n" +
-                "Filetype: " + fileType + "\n" +
-                "Filesize: " + fileSize + "\n" +
-                "HashAlgo: " + hashAlgo + "\n" +
-                "CheckSum: " + checkSum + "\n";
+        return "FileHeader" + Constants.UNIT_SEPARATOR +
+                fileName + Constants.UNIT_SEPARATOR +
+                lastModified + Constants.UNIT_SEPARATOR +
+                fileSize + Constants.UNIT_SEPARATOR +
+                hashAlgo + Constants.UNIT_SEPARATOR +
+                checkSum;
     }
 
     //endregion
