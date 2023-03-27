@@ -22,7 +22,5 @@ public class Server {
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
 
         new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);
-
-
     }
 }
