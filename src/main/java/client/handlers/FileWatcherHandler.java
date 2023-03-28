@@ -10,21 +10,22 @@ import java.util.Scanner;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileWatcherHandler implements Runnable {
-    private final Scanner scanner;
-    private final WatchService watchService;
+    private static Path clientDir;
 
-    private ArrayList<File> changedFiles;
+    private static WatchService watchService;
 
-    private ArrayList<File> deletedFiles;
+    private static ArrayList<File> changedFiles = new ArrayList<>();
 
-    private boolean busy;
+    private static ArrayList<File> deletedFiles = new ArrayList<>();
+
+    private static boolean busy;
 
     public FileWatcherHandler() {
         try {
-            this.scanner = new Scanner(System.in);
-            this.watchService = FileSystems.getDefault().newWatchService();
+            watchService = FileSystems.getDefault().newWatchService();
+            clientDir = Paths.get(Constants.BASE_DIR + File.separator + "client");
 
-            getClientDir().register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+            clientDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
 
             System.out.println("FileWatcher started ...");
             run();
@@ -39,13 +40,6 @@ public class FileWatcherHandler implements Runnable {
             boolean poll = true;
 
             while (poll) {
-                String fromUser;
-                fromUser = scanner.nextLine().toUpperCase();
-
-                if (fromUser.equals("CLOSE")) {
-                    break;
-                }
-
                 WatchKey key = watchService.take();
                 Path path = (Path) key.watchable();
 
@@ -53,48 +47,52 @@ public class FileWatcherHandler implements Runnable {
                     File file = path.resolve((Path) event.context()).toFile();
 
                     if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
-                        onPut(event.kind().toString(), file);
+                        changedFiles.add(file);
                     }
 
                     if (event.kind() == ENTRY_DELETE) {
-                        onDelete(event.kind().toString(), file);
+                        deletedFiles.add(file);
                     }
                 }
 
                 poll = key.reset();
             }
 
-            scanner.close();
             watchService.close();
+
+            busy = true;
+            System.out.println("Sending new files to server...");
+            onPut(changedFiles);
+
+            // TODO:: Deleting locally and remotely (server side)
+            busy = true;
+            System.out.println("Deleting files ...");
+            onDelete(deletedFiles);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void onPut(String kind, File file) {
-        System.out.println("FILE-WATCHER : " + kind + " - File :" + file.getName());
-        System.out.println("Do you want to send this file to the server? (Y/N): ");
-        String fromUser = scanner.nextLine().toUpperCase();
-
-        if (fromUser.equals("Y")) {
-            System.out.println("Sending file to user...");
+    private static void onPut(ArrayList<File> files) {
+        for (File file : files) {
+            System.out.println("Send to server: " + file.getPath());
             // new Put(invoker, homeDirectory, socket, in, out).handle(params);
         }
+        busy = false;
     }
 
-    private void onDelete(String kind, File file) {
-        System.out.println("FILE-WATCHER : " + kind + " - File :" + file.getName());
-        System.out.println("Do you want to delete this file to the server? (Y/N): ");
-        String fromUser = scanner.nextLine().toUpperCase();
-
-        if (fromUser.equals("Y")) {
-            System.out.println("Sending file to user...");
-            // new Delete(invoker, homeDirectory, socket, in, out).handle(params);
+    private static void onDelete(ArrayList<File> files) {
+        for (File file : files) {
+            if (file.delete()) {
+                System.out.println("File deleted locally: " + file.getPath());
+                System.out.println("Delete on server: " + file.getPath());
+            }
+            // new Put(invoker, homeDirectory, socket, in, out).handle(params);
         }
+        busy = false;
     }
 
-    private Path getClientDir() throws IOException {
-        String directoryPath = Constants.BASE_DIR + File.separator + "client";
-        return Paths.get(directoryPath);
+    public static boolean isBusy() {
+        return busy;
     }
 }
