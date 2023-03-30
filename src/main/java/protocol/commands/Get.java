@@ -6,8 +6,7 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.CommandHandler;
-import protocol.returnobjects.Response;
+import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
 import java.io.BufferedReader;
@@ -23,7 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Get implements CommandHandler {
+public class Get implements ICommand {
     public final Invoker invoker;
     public final Path homeDirectory;
     public final Socket socket;
@@ -117,7 +116,6 @@ public class Get implements CommandHandler {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        // TODO: FIX Dit moet worden opgezet via de connectionHandler
                         SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[1]));
                         Socket fileTransferSocket = new Socket();
 
@@ -127,11 +125,11 @@ public class Get implements CommandHandler {
 
                         // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
-                        if (fileHeaderLocal.compare(fileHeader)) {
+                        if (fileHeaderLocal.compareCheckSum(fileHeader)) {
                             fileTransferSocket.close();
                             out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
                         } else {
-                            out.println(ResponseCode.FAILURE.getCode() + "FILE CORRUPTED");
+                            out.println(ResponseCode.FAILURE.getCode() + " FILE CORRUPTED");
                             // TODO: FIX Hier moet de loop opnieuw beginnen zodra het bestand corrupted is.
                         }
                     }
@@ -167,10 +165,10 @@ public class Get implements CommandHandler {
         String input;
         try {
             while ((input = in.readLine()) != null) {
-                if (input.equals("200 FILEHEADER RECEIVED")) { // TODO: FIX Don't trust magic strings.
+                if (input.equals("200 FILEHEADER RECEIVED")) {
 
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now.
+                        out.println("OPEN 42068");
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();

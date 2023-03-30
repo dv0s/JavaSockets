@@ -47,6 +47,12 @@ public enum Constants {
             return "v0.0.2";
         }
     },
+    DATETIME_FORMAT {
+        @Override
+        public String toString() {
+            return "yyyy-MM-dd'T'HH:mm:ss";
+        }
+    },
     BASE_DIR {
         @Override
         public String toString() {

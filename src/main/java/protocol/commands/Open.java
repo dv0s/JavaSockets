@@ -1,13 +1,13 @@
 package protocol.commands;
 
 import protocol.enums.Constants;
-import protocol.interfaces.CommandHandler;
+import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Open implements CommandHandler {
+public class Open implements ICommand {
     public final BufferedReader in;
     public final PrintWriter out;
 

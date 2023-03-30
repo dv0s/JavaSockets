@@ -87,6 +87,10 @@ public class FileHeader{
         return true;
     }
 
+    public boolean compareCheckSum(FileHeader o){
+        return Objects.equals(checkSum, o.checkSum);
+    }
+
     @Override
     public String toString() {
         return "FileHeader" + Constants.UNIT_SEPARATOR +

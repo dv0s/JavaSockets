@@ -11,9 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -110,6 +114,12 @@ public class FileHandler {
         fileOut.close();
         socketOut.close();
         socketIn.close();
+
+        // TODO: 30/03/2023 LastModifiedDate moet hier bij het bestand gelijk getrokken worden.
+        LocalDateTime lastModifiedDateTime = LocalDateTime.parse(fileHeader.lastModified);
+        Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);
+        Files.setLastModifiedTime(file, FileTime.from(instant));
+
     }
     //endregion
 
@@ -128,14 +138,17 @@ public class FileHandler {
         FileHeader fileHeader = new FileHeader();
         try {
             file = new File(path.toString());
-            BasicFileAttributes attributes = null;
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATETIME_FORMAT.toString());
             md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
+
             sendFile = Paths.get(homeDirectory.toString(), file.getName());
+            BasicFileAttributes attributes = Files.readAttributes(sendFile, BasicFileAttributes.class);
+            String lastModifiedDateTime = simpleDateFormat.format(attributes.lastModifiedTime().toMillis());
 
             // Fill the file header
             fileHeader.setFileName(sendFile.getFileName().toString());
-            fileHeader.setLastModified(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
+            fileHeader.setLastModified(lastModifiedDateTime);
             fileHeader.setFileSize(Files.size(sendFile));
             fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
             fileHeader.setCheckSum(checkSum);
@@ -162,6 +175,7 @@ public class FileHandler {
 
     public static ArrayList<String> directoryList(Path homeDirectory) {
         ArrayList<String> fileList = new ArrayList<>();
+
         try {
             Files.list(homeDirectory).forEach((file) -> {
                 try {

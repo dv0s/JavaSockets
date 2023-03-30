@@ -5,7 +5,7 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.CommandHandler;
+import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
 import java.io.BufferedReader;
@@ -18,7 +18,7 @@ import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class Put implements CommandHandler {
+public class Put implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
@@ -77,7 +77,7 @@ public class Put implements CommandHandler {
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now.
+                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now. Need to check if port is usable
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
@@ -87,7 +87,6 @@ public class Put implements CommandHandler {
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.END_OF_TEXT);
-//                    out.println(Constants.END_OF_TEXT); //TODO: FIX this will start the cycle again, but needs to be fixed.
                     break;
                 }
 
@@ -105,7 +104,7 @@ public class Put implements CommandHandler {
     }
 
     public void handleServer(ArrayList<String> args) throws IOException {
-        if (!args.get(0).equals("FileHeader")) {
+        if (!args.get(0).contains("FileHeader")) {
             out.println(ResponseCode.FAILURE + " First line is no file header. Exiting" + Constants.END_OF_TEXT);
             out.println(output());
             return;
@@ -155,7 +154,7 @@ public class Put implements CommandHandler {
 
                 // Bestand headers controleren of het bestand succesvol is overgebracht.
                 FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
-                if (fileHeaderLocal.compare(fileHeader)) {
+                if (fileHeaderLocal.compareCheckSum(fileHeader)) {
                     fileTransferSocket.close();
                     out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
                 } else {

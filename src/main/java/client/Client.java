@@ -5,7 +5,6 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
-import protocol.handlers.FileHandler;
 import protocol.utils.Tools;
 
 import java.io.BufferedReader;
@@ -13,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class Client {
     public static void main(String[] args) throws IOException {

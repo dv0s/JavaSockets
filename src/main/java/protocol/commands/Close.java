@@ -3,14 +3,14 @@ package protocol.commands;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
-import protocol.interfaces.CommandHandler;
+import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Close implements CommandHandler {
+public class Close implements ICommand {
     public final Invoker invoker;
     public final BufferedReader in;
     public final PrintWriter out;

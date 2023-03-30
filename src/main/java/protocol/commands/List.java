@@ -4,7 +4,7 @@ import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.CommandHandler;
+import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class List implements CommandHandler {
+public class List implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
