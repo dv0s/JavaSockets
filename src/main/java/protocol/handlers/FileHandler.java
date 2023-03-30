@@ -138,13 +138,14 @@ public class FileHandler {
         FileHeader fileHeader = new FileHeader();
         try {
             file = new File(path.toString());
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATETIME_FORMAT.toString());
             md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
 
             sendFile = Paths.get(homeDirectory.toString(), file.getName());
             BasicFileAttributes attributes = Files.readAttributes(sendFile, BasicFileAttributes.class);
-            String lastModifiedDateTime = simpleDateFormat.format(attributes.lastModifiedTime().toMillis());
+
+            // Standardize last modified date
+            String lastModifiedDateTime = preparedDateTimeString(attributes.lastModifiedTime().toMillis());
 
             // Fill the file header
             fileHeader.setFileName(sendFile.getFileName().toString());
@@ -179,9 +180,8 @@ public class FileHandler {
         try {
             Files.list(homeDirectory).forEach((file) -> {
                 try {
-                    SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
-                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + DateFormat.format(new Date(attributes.lastModifiedTime().toMillis())));
+                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + preparedDateTimeString(attributes.lastModifiedTime().toMillis()));
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -209,5 +209,9 @@ public class FileHandler {
         return localList;
     }
 
+
+    public static String preparedDateTimeString(long millis){
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneOffset.UTC).toString();
+    }
     //endregion
 }

@@ -76,13 +76,18 @@ public class List implements ICommand {
 
             System.out.println("Discrepancy detected.");
 
-//            localDirectory.removeAll(remoteDirectory);
-
+            System.out.println();
             System.out.println("Local Directory:");
             localDirectory.forEach(System.out::println);
 
+            System.out.println();
             System.out.println("Remote Directory:");
             remoteDirectory.forEach(System.out::println);
+
+            System.out.println();
+            System.out.println("Differences:");
+            localDirectory.removeAll(remoteDirectory);
+            localDirectory.forEach(System.out::println);
         }
 
         out.println(output());
