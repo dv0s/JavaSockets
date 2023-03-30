@@ -107,6 +107,8 @@ public class Put implements CommandHandler {
     public void handleServer(ArrayList<String> args) throws IOException {
         if (!args.get(0).equals("FileHeader")) {
             out.println(ResponseCode.FAILURE + " First line is no file header. Exiting" + Constants.END_OF_TEXT);
+            out.println(output());
+            return;
         }
 
         // Zodra we een FileHeader antwoord hebben ontvangen
@@ -118,6 +120,7 @@ public class Put implements CommandHandler {
         headerLines = args.get(0).split(Constants.UNIT_SEPARATOR.toString());
         if(headerLines.length != 6){
             out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
+            out.println(output());
             return;
         }
 

@@ -80,6 +80,11 @@ public class Get implements CommandHandler {
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if ((fromServer = in.readLine()) != null) {
+            if (fromServer.startsWith(ResponseCode.FAILURE.toString())){
+                System.err.println(fromServer);
+                return;
+            }
+
             if (fromServer.contains("FileHeader")) {
                 String nextLine;
                 String[] headerLines;
@@ -137,7 +142,9 @@ public class Get implements CommandHandler {
 
     public void handleServer(ArrayList<String> args) throws IOException {
         if (args.isEmpty()) {
-            out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do");
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. Don't know what to do.");
+            out.println(output());
+            return;
         }
 
         String fileName = args.get(0);
@@ -148,6 +155,7 @@ public class Get implements CommandHandler {
         // Eerst moeten we het bestand opzoeken die gevraagd wordt.
         if (Files.notExists(path)) {
             out.println(ResponseCode.FAILURE.getCode() + " Requested file '" + fileName + "' not found.");
+            out.println(output());
             return;
         }
 

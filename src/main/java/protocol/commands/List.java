@@ -69,6 +69,11 @@ public class List implements CommandHandler {
         if (localDirectory.equals(remoteDirectory)) {
             System.out.println("Both directories are equal.");
         } else {
+
+            // Op het moment dat er een verschil in beide mappen ontdekt is, moeten beide lijsten worden mee gestuurd
+            // naar de Sync functie die door de server wordt aangeroepen. Dit zal een serie van Get en Put commando's
+            // over en weer gooien zodat de mappen weer gelijk zijn aan elkaar.
+
             System.out.println("Discrepancy detected.");
 
 //            localDirectory.removeAll(remoteDirectory);
