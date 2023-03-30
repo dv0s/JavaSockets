@@ -38,7 +38,6 @@ public class Put implements ICommand {
     public void handle(ArrayList<String> args) {
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
-            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
             out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: PUT <filename>" + Constants.END_OF_TEXT);
             return;
         }
@@ -144,7 +143,6 @@ public class Put implements ICommand {
             if (nextLine.contains("OPEN")) {
                 String[] command = nextLine.split(" ");
 
-                // TODO: FIX Dit moet worden opgezet via de connectionHandler
                 SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[1]));
                 Socket fileTransferSocket = new Socket();
 

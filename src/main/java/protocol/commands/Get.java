@@ -41,14 +41,12 @@ public class Get implements ICommand {
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
         if (args.isEmpty()) {
-            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
             System.out.println("No arguments found.");
             out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;
         }
 
         if (args.size() > 1) {
-            // TODO: FIX Misschien dat er voor de server ook een error commando mag komen zodat die het terug kan sturen naar de client
             System.out.println("Too many arguments found.");
             out.println(ResponseCode.ERROR.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
             return;

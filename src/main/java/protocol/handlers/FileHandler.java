@@ -115,11 +115,9 @@ public class FileHandler {
         socketOut.close();
         socketIn.close();
 
-        // TODO: 30/03/2023 LastModifiedDate moet hier bij het bestand gelijk getrokken worden.
         LocalDateTime lastModifiedDateTime = LocalDateTime.parse(fileHeader.lastModified);
         Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);
         Files.setLastModifiedTime(file, FileTime.from(instant));
-
     }
     //endregion
 

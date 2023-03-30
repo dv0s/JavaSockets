@@ -33,9 +33,6 @@ public class List implements ICommand {
     public void handle(ArrayList<String> args) {
         System.out.println(homeDirectory.toString());
 
-        // TODO: Sever is de enige die dit commando aanroept naar de client toe.
-        //  De client zal hier een opdracht voor krijgen op het moment dat het vraagt om te syncen.
-
         if (invoker == Invoker.SERVER) {
             out.println(Command.LS + output());
 
@@ -64,8 +61,6 @@ public class List implements ICommand {
             }
         }
 
-        // TODO: FIX De check hier moet een lijst terug geven met bestanden die niet overeen komen
-        //  En dan eventueel gelijk syncen als je kan.
         if (localDirectory.equals(remoteDirectory)) {
             System.out.println("Both directories are equal.");
         } else {
