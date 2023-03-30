@@ -96,6 +96,6 @@ public class Client {
 
         }
 
-        new FileWatcherHandler();
+        new FileWatcherHandler(args);
     }
 }
