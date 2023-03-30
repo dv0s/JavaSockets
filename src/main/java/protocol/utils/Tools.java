@@ -93,7 +93,7 @@ public class Tools {
                 "                                                                     \n");
     }
 
-    public static ArrayList<String> stringToDirectoryArrayList(String directoryString){
+    public static ArrayList<String> directoryArrayListFromString(String directoryString){
         String[] directoryArray = directoryString.split(Constants.FILE_SEPARATOR.toString());
 
         return new ArrayList<>(Arrays.asList(directoryArray));

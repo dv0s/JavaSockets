@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.stream.Stream;
 
 public class FileHandler {
 
@@ -175,11 +176,14 @@ public class FileHandler {
     public static ArrayList<String> directoryList(Path homeDirectory) {
         ArrayList<String> fileList = new ArrayList<>();
 
-        try {
-            Files.list(homeDirectory).forEach((file) -> {
+        try (Stream<Path> list = Files.list(homeDirectory)){
+            list.forEach((file) -> {
                 try {
                     BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
-                    fileList.add(file.getFileName() + "\u001f" + Files.size(file) + "\u001f" + preparedDateTimeString(attributes.lastModifiedTime().toMillis()));
+                    fileList.add("" +
+                            file.getFileName() + Constants.UNIT_SEPARATOR +
+                            Files.size(file) + Constants.UNIT_SEPARATOR +
+                            preparedDateTimeString(attributes.lastModifiedTime().toMillis()) + Constants.FILE_SEPARATOR);
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);

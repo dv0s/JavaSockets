@@ -1,5 +1,6 @@
 package protocol.commands;
 
+import protocol.data.FileMetaData;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
@@ -10,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
+import java.sql.Array;
 import java.util.ArrayList;
 
 public class List implements ICommand {
@@ -66,10 +68,18 @@ public class List implements ICommand {
         } else {
 
             // Op het moment dat er een verschil in beide mappen ontdekt is, moeten beide lijsten worden mee gestuurd
-            // naar de Sync functie die door de server wordt aangeroepen. Dit zal een serie van Get en Put commando's
+            // naar de sync functie die door de server wordt aangeroepen. Dit zal een serie van Get en Put commando's
             // over en weer gooien zodat de mappen weer gelijk zijn aan elkaar.
-
             System.out.println("Discrepancy detected.");
+
+            ArrayList<FileMetaData> putList = new ArrayList<>();
+            ArrayList<FileMetaData> getList = new ArrayList<>();
+            ArrayList<FileMetaData> delList = new ArrayList<>();
+
+            ArrayList<String> remoteDirectoryCopy = (ArrayList<String>) remoteDirectory.clone();
+            ArrayList<String> localDirectoryCopy = (ArrayList<String>) localDirectory.clone();
+            ArrayList<String> differenceDirectory = new ArrayList<>();
+
 
             System.out.println();
             System.out.println("Local Directory:");
@@ -81,8 +91,21 @@ public class List implements ICommand {
 
             System.out.println();
             System.out.println("Differences:");
-            localDirectory.removeAll(remoteDirectory);
-            localDirectory.forEach(System.out::println);
+            remoteDirectoryCopy.removeAll(localDirectory);
+            localDirectoryCopy.removeAll(remoteDirectory);
+
+            System.out.println("--Remote");
+            remoteDirectoryCopy.forEach(System.out::println);
+
+            System.out.println("--Local");
+            localDirectoryCopy.forEach(System.out::println);
+
+            ArrayList<FileMetaData> remoteMetaList = convertToFileMetaDataList(remoteDirectoryCopy);
+            ArrayList<FileMetaData> localMetaList = convertToFileMetaDataList(localDirectoryCopy);
+
+
+            //https://stackoverflow.com/questions/57252497/java-8-streams-compare-two-lists-object-values-and-add-value-to-new-list
+
         }
 
         out.println(output());
@@ -92,5 +115,17 @@ public class List implements ICommand {
     @Override
     public String output() {
         return Constants.END_OF_TEXT.toString();
+    }
+
+    public ArrayList<FileMetaData> convertToFileMetaDataList(ArrayList<String> list){
+        ArrayList<FileMetaData> result = new ArrayList<>();
+        list.forEach((file) -> {
+            String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
+            String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
+
+            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1], lines[2]);
+            result.add(fileMetaData);
+        });
+        return result;
     }
 }
