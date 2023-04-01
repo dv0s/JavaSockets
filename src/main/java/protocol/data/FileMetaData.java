@@ -2,6 +2,8 @@ package protocol.data;
 
 import protocol.enums.Constants;
 
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -14,7 +16,7 @@ public class FileMetaData {
     public LocalDateTime lastModified;
     public long fileSize;
 
-    public FileMetaData(String fileName, String lastModified, String fileSize){
+    public FileMetaData(String fileName, String fileSize, String lastModified){
         this.fileName = fileName;
         this.lastModified = convertStringToLocalDateTime(lastModified);
         this.fileSize = Long.parseLong(fileSize);
@@ -54,9 +56,13 @@ public class FileMetaData {
     }
 
     private LocalDateTime convertStringToLocalDateTime(String lastModified){
-        DateTimeFormatter formatter =DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT.toString());
-        return LocalDateTime.parse(lastModified, formatter);
+        LocalDateTime lastModifiedDateTime = LocalDateTime.parse(lastModified);
+        Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);
+        return LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
-
+    @Override
+    public String toString() {
+        return fileName + Constants.UNIT_SEPARATOR + fileSize + Constants.UNIT_SEPARATOR + lastModified + Constants.FILE_SEPARATOR;
+    }
 }

@@ -49,6 +49,7 @@ public class List implements ICommand {
     }
 
     public void handleServer() throws IOException {
+
         // Deze methode moet een lijst ontvangen van alle bestanden die de andere kant heeft,
         //  daarna zelf gaan checken of ze overeen komen. De marge die tussen de tijd van de bestanden zit is een seconde
         String nextLine;
@@ -72,15 +73,11 @@ public class List implements ICommand {
             // over en weer gooien zodat de mappen weer gelijk zijn aan elkaar.
             System.out.println("Discrepancy detected.");
 
-            ArrayList<FileMetaData> putList = new ArrayList<>();
-            ArrayList<FileMetaData> getList = new ArrayList<>();
-            ArrayList<FileMetaData> delList = new ArrayList<>();
-
             ArrayList<String> remoteDirectoryCopy = (ArrayList<String>) remoteDirectory.clone();
             ArrayList<String> localDirectoryCopy = (ArrayList<String>) localDirectory.clone();
             ArrayList<String> differenceDirectory = new ArrayList<>();
 
-
+            // Printing
             System.out.println();
             System.out.println("Local Directory:");
             localDirectory.forEach(System.out::println);
@@ -99,13 +96,114 @@ public class List implements ICommand {
 
             System.out.println("--Local");
             localDirectoryCopy.forEach(System.out::println);
+            // Printing end
+
+            ArrayList<String> putList = new ArrayList<>();
+            ArrayList<String> getList = new ArrayList<>();
+            ArrayList<String> delList = new ArrayList<>();
 
             ArrayList<FileMetaData> remoteMetaList = convertToFileMetaDataList(remoteDirectoryCopy);
             ArrayList<FileMetaData> localMetaList = convertToFileMetaDataList(localDirectoryCopy);
 
+            // Hier alvast een lijst opstellen met get en put voor bestanden die aan weerskanten niet bestaan.
+
+            // Vul de beide lijsten met items die niet op local staan
+            localMetaList.forEach((localItem) -> {
+                FileMetaData remoteItem = remoteMetaList.stream()
+                        .filter(remote -> localItem.getFileName().equals(remote.fileName))
+                        .findAny().orElse(null);
+
+                if(remoteItem != null) {
+                    // Als die bestaat, gooi hem dan gelijk in een van de 2 lijsten.
+                    int compareInt = localItem.compareDate(remoteItem.lastModified);
+
+                    if (compareInt > 0) {
+                        putList.add(localItem.toString());
+                    } else if (compareInt < 0) {
+                        getList.add(remoteItem.toString());
+                    }
+                }else{
+                    putList.add(localItem.toString());
+                }
+            });
+
+            // Zoek en pak items die wel op remote staan, en niet op local voor de get list.
+            remoteMetaList.forEach((remoteItem) -> {
+                FileMetaData localItem = localMetaList.stream()
+                        .filter(local -> remoteItem.getFileName().equals(local.fileName))
+                        .findAny().orElse(null);
+
+                if(localItem == null){
+                    getList.add(remoteItem.toString());
+                }
+            });
+
+
+
+
+
+
+
+//            for(String localDirectoryCopyEntry : localDirectoryCopy){
+//                String[] properties = localDirectoryCopyEntry.split(Constants.UNIT_SEPARATOR.toString());
+//                String fileName = properties[0];
+//
+//                remoteMetaList.forEach((item) -> {
+//                    if(!item.getFileName().contains(fileName)){
+//                        getList.add(localDirectoryCopyEntry);
+//                    }
+//                });
+//            }
+//
+//            // vul de putList met items die niet op remote staan
+//            for(String remoteDirecotryCopyEntry : remoteDirectoryCopy){
+//                String[] properties = remoteDirecotryCopyEntry.split(Constants.UNIT_SEPARATOR.toString());
+//                String fileName = properties[0];
+//
+//                localMetaList.forEach((item) -> {
+//                    if(!item.getFileName().contains(fileName)){
+//                        putList.add(remoteDirecotryCopyEntry);
+//                    }
+//                });
+//            }
+//
+//            // compare local directory with remote and determine if the file is older or not.
+//            localMetaList.forEach(localItem -> {
+//                FileMetaData remoteItem = null;
+//
+//                // Eerst zoeken we het item op door de lokale lijst te doorlopen
+//                for(FileMetaData remoteMetaItem : remoteMetaList){
+//                    // Als er een match is, dan slaan we het item op.
+//                    if(remoteMetaItem.getFileName().equals(localItem.getFileName())){
+//                        remoteItem = remoteMetaItem;
+//                    }
+//                }
+//
+//                // Daarna gaan we bepalen in welke commando bus het moet komen.
+//                if(remoteItem != null){
+//                    int compareInt = localItem.compareDate(remoteItem.lastModified);
+//
+//                    if(compareInt > 0){
+//                        putList.add(localItem.toString());
+//                    }else if(compareInt < 0){
+//                        getList.add(remoteItem.toString());
+//                    }
+//                }
+//            });
+
+            System.out.println();
+            System.out.println("Processing lists");
+            System.out.println("--Put list");
+            putList.forEach(System.out::println);
+
+            System.out.println("--Get list");
+            getList.forEach(System.out::println);
+
+            System.out.println("--Del list");
+            delList.forEach(System.out::println);
 
             //https://stackoverflow.com/questions/57252497/java-8-streams-compare-two-lists-object-values-and-add-value-to-new-list
-
+            // Verwijderen moet sowieso gedaan worden tijdens de sessie. Niet bij het opnieuw ophalen.
         }
 
         out.println(output());
