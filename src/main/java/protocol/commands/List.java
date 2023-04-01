@@ -10,6 +10,7 @@ import protocol.interfaces.ICommand;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.util.ArrayList;
@@ -18,16 +19,16 @@ public class List implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
+    public final Socket socket;
     public final BufferedReader in;
     public final PrintWriter out;
-    public final ArrayList<String> params;
 
-    public List(Invoker invoker, Path homeDirectory, BufferedReader in, PrintWriter out, ArrayList<String> params) {
+    public List(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
+        this.socket = socket;
         this.in = in;
         this.out = out;
-        this.params = params;
     }
 
 
@@ -38,11 +39,11 @@ public class List implements ICommand {
         if (invoker == Invoker.SERVER) {
             out.println(Command.LS + output());
 
-            try {
-                handleServer();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
+//            try {
+//                handleServer();
+//            } catch (IOException e) {
+//                System.out.println(e.getMessage());
+//            }
         } else {
             out.println(FileHandler.directoryListAsString(homeDirectory) + output());
         }
@@ -66,6 +67,7 @@ public class List implements ICommand {
 
         if (localDirectory.equals(remoteDirectory)) {
             System.out.println("Both directories are equal.");
+
         } else {
 
             // Op het moment dat er een verschil in beide mappen ontdekt is, moeten beide lijsten worden mee gestuurd
@@ -75,7 +77,6 @@ public class List implements ICommand {
 
             ArrayList<String> remoteDirectoryCopy = (ArrayList<String>) remoteDirectory.clone();
             ArrayList<String> localDirectoryCopy = (ArrayList<String>) localDirectory.clone();
-            ArrayList<String> differenceDirectory = new ArrayList<>();
 
             // Printing
             System.out.println();
@@ -102,8 +103,8 @@ public class List implements ICommand {
             ArrayList<String> getList = new ArrayList<>();
             ArrayList<String> delList = new ArrayList<>();
 
-            ArrayList<FileMetaData> remoteMetaList = convertToFileMetaDataList(remoteDirectoryCopy);
-            ArrayList<FileMetaData> localMetaList = convertToFileMetaDataList(localDirectoryCopy);
+            ArrayList<FileMetaData> remoteMetaList = FileHandler.convertToFileMetaDataList(remoteDirectoryCopy);
+            ArrayList<FileMetaData> localMetaList = FileHandler.convertToFileMetaDataList(localDirectoryCopy);
 
             // Hier alvast een lijst opstellen met get en put voor bestanden die aan weerskanten niet bestaan.
 
@@ -138,59 +139,6 @@ public class List implements ICommand {
                 }
             });
 
-
-
-
-
-
-
-//            for(String localDirectoryCopyEntry : localDirectoryCopy){
-//                String[] properties = localDirectoryCopyEntry.split(Constants.UNIT_SEPARATOR.toString());
-//                String fileName = properties[0];
-//
-//                remoteMetaList.forEach((item) -> {
-//                    if(!item.getFileName().contains(fileName)){
-//                        getList.add(localDirectoryCopyEntry);
-//                    }
-//                });
-//            }
-//
-//            // vul de putList met items die niet op remote staan
-//            for(String remoteDirecotryCopyEntry : remoteDirectoryCopy){
-//                String[] properties = remoteDirecotryCopyEntry.split(Constants.UNIT_SEPARATOR.toString());
-//                String fileName = properties[0];
-//
-//                localMetaList.forEach((item) -> {
-//                    if(!item.getFileName().contains(fileName)){
-//                        putList.add(remoteDirecotryCopyEntry);
-//                    }
-//                });
-//            }
-//
-//            // compare local directory with remote and determine if the file is older or not.
-//            localMetaList.forEach(localItem -> {
-//                FileMetaData remoteItem = null;
-//
-//                // Eerst zoeken we het item op door de lokale lijst te doorlopen
-//                for(FileMetaData remoteMetaItem : remoteMetaList){
-//                    // Als er een match is, dan slaan we het item op.
-//                    if(remoteMetaItem.getFileName().equals(localItem.getFileName())){
-//                        remoteItem = remoteMetaItem;
-//                    }
-//                }
-//
-//                // Daarna gaan we bepalen in welke commando bus het moet komen.
-//                if(remoteItem != null){
-//                    int compareInt = localItem.compareDate(remoteItem.lastModified);
-//
-//                    if(compareInt > 0){
-//                        putList.add(localItem.toString());
-//                    }else if(compareInt < 0){
-//                        getList.add(remoteItem.toString());
-//                    }
-//                }
-//            });
-
             System.out.println();
             System.out.println("Processing lists");
             System.out.println("--Put list");
@@ -201,9 +149,6 @@ public class List implements ICommand {
 
             System.out.println("--Del list");
             delList.forEach(System.out::println);
-
-            //https://stackoverflow.com/questions/57252497/java-8-streams-compare-two-lists-object-values-and-add-value-to-new-list
-            // Verwijderen moet sowieso gedaan worden tijdens de sessie. Niet bij het opnieuw ophalen.
         }
 
         out.println(output());
@@ -213,17 +158,5 @@ public class List implements ICommand {
     @Override
     public String output() {
         return Constants.END_OF_TEXT.toString();
-    }
-
-    public ArrayList<FileMetaData> convertToFileMetaDataList(ArrayList<String> list){
-        ArrayList<FileMetaData> result = new ArrayList<>();
-        list.forEach((file) -> {
-            String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
-            String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
-
-            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1], lines[2]);
-            result.add(fileMetaData);
-        });
-        return result;
     }
 }

@@ -73,7 +73,7 @@ public class Get implements ICommand {
         String fromServer;
 
         // Should output "GET <filename>"
-        out.println(Command.GET + " " + args.get(0));
+        out.println(Command.GET + " " + args.get(0) + Constants.END_OF_TEXT);
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if ((fromServer = in.readLine()) != null) {
@@ -143,7 +143,7 @@ public class Get implements ICommand {
             return;
         }
 
-        String fileName = args.get(0);
+        String fileName = args.get(0).replace(Constants.END_OF_TEXT.toString(), "");
 
         // Server sends the file to client.
         Path path = Paths.get(homeDirectory + File.separator + fileName);

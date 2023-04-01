@@ -31,7 +31,7 @@ public class Protocol {
         // Handle the commands
         switch (command) {
             case OPEN -> new Open(in, out).handle(params); // TODO: Command moet nog worden gemaakt.
-            case LS -> new List(invoker, homeDirectory, in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+            case LS -> new List(invoker, homeDirectory, socket, in, out).handle(params); // TODO: FIX Commando doet nu ook lijsten scheiden voor sync.
             case GET -> new Get(invoker, homeDirectory, socket, in, out).handle(params);
             case PUT -> new Put(invoker, homeDirectory, socket, in, out).handle(params);
             case DELETE -> new Delete(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.

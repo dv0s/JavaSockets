@@ -1,6 +1,7 @@
 package client;
 
 import protocol.Protocol;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
@@ -87,7 +88,13 @@ public class Client {
                         // Error afhandeling;
                     } else {
                         // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
-                        protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+                        // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
+                        if(fromServer.startsWith("PUT") || fromServer.startsWith("GET")){ // TODO: FIX This is a cheat. Needs to be dynamic.
+                            protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+                        }else{
+                            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+
+                        }
                     }
 
                 }

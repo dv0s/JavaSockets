@@ -1,6 +1,7 @@
 package protocol.handlers;
 
 import protocol.data.FileHeader;
+import protocol.data.FileMetaData;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
 
@@ -203,8 +204,8 @@ public class FileHandler {
         ArrayList<String> remoteList = new ArrayList<>();
 
         local.forEach((rule) -> {
-            String[] attr = rule.split("\u001f");
-            localList.add(attr[0] + "\u001f" + attr[2]);
+            String[] attr = rule.split(Constants.UNIT_SEPARATOR.toString());
+            localList.add(attr[0] + Constants.UNIT_SEPARATOR + attr[2]);
         });
 
         // TODO: 22/03/2023 FIX Deze functie wordt waarschijnlijk niet afgemaakt, but just in case.
@@ -214,6 +215,18 @@ public class FileHandler {
 
     public static String preparedDateTimeString(long millis){
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneOffset.UTC).toString();
+    }
+
+    public static ArrayList<FileMetaData> convertToFileMetaDataList(ArrayList<String> list){
+        ArrayList<FileMetaData> result = new ArrayList<>();
+        list.forEach((file) -> {
+            String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
+            String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
+
+            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1], lines[2]);
+            result.add(fileMetaData);
+        });
+        return result;
     }
     //endregion
 }
