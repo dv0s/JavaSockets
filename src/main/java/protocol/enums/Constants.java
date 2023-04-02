@@ -11,6 +11,14 @@ public enum Constants {
             return "UTF-8";
         }
     },
+    COMM_PORT{
+        @Override
+        public String toString() {return "42069"; }
+    },
+    DATA_PORT{
+        @Override
+        public String toString() {return "42068"; }
+    },
     HASHING_ALGORITHM {
         @Override
         public String toString() {

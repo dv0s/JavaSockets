@@ -181,10 +181,8 @@ public class FileHandler {
             list.forEach((file) -> {
                 try {
                     BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
-                    fileList.add("" +
-                            file.getFileName() + Constants.UNIT_SEPARATOR +
-                            Files.size(file) + Constants.UNIT_SEPARATOR +
-                            preparedDateTimeString(attributes.lastModifiedTime().toMillis()) + Constants.FILE_SEPARATOR);
+                    FileMetaData fileMetaData = new FileMetaData(file.getFileName().toString(), preparedDateTimeString(attributes.lastModifiedTime().toMillis()));
+                    fileList.add(fileMetaData.toString());
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -223,7 +221,7 @@ public class FileHandler {
             String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
             String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
 
-            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1], lines[2]);
+            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1]);
             result.add(fileMetaData);
         });
         return result;

@@ -37,7 +37,7 @@ public class Protocol {
             case DELETE -> new Delete(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case SIZE -> new Size(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
-            case SYNC -> new Sync(invoker, homeDirectory, socket, in, out).handle(params); // TODO: Commando moet nog worden afgemaakt.
+            case SYNC -> new Sync(invoker, homeDirectory, socket, in, out).handle(params);
             case CLOSE -> new Close(invoker, in, out).handle(params);
             default -> out.println(UNKNOWN);
         }

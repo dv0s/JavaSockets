@@ -101,7 +101,7 @@ public class Get implements ICommand {
                 fileHeader.setHashAlgo(headerLines[4].trim());
                 fileHeader.setCheckSum(headerLines[5].trim());
 
-                out.println("200 FILEHEADER RECEIVED");
+                out.println(ResponseCode.SUCCESS + " FILEHEADER RECEIVED");
 
                 // Nog een loop voor het opzetten van de overdracht.
                 while ((nextLine = in.readLine()) != null) {
@@ -114,7 +114,7 @@ public class Get implements ICommand {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[1]));
+                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
                         Socket fileTransferSocket = new Socket();
 
                         // Bestand ontvangen via FileHandler.
@@ -163,24 +163,24 @@ public class Get implements ICommand {
         String input;
         try {
             while ((input = in.readLine()) != null) {
-                if (input.equals("200 FILEHEADER RECEIVED")) {
+                if (input.equals(ResponseCode.SUCCESS + " FILEHEADER RECEIVED")) {
 
                     // TODO: FIX OPEN commando moet in connectionHandler plaatsvinden.
-                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN 42068"); // TODO: FIX ResponseCode needs to be sent.
+                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.DATA_PORT.toString()))) {
+                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.DATA_PORT);
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
                     }
                 }
 
-                if (input.equals("200 FILE RECEIVED SUCCESSFUL")) {
+                if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + output());
                     break;
                 }
 
-                if (input.startsWith("5")) {
-                    System.err.println("Failure occurred");
+                if (input.startsWith(ResponseCode.FAILURE.toString())) {
+                    System.err.println("Failure occurred while getting the file.");
                 }
 
             }

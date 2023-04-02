@@ -34,9 +34,13 @@ public class Sync implements ICommand {
 
     @Override
     public void handle(ArrayList<String> args) {
-        System.out.println("Sync command has been called.");
         if (invoker == Invoker.CLIENT) {
-            handleClient(args);
+            try {
+                handleClient(args);
+            } catch (IOException e){
+                System.err.println(e.getMessage());
+            }
+
         } else {
             out.println(Command.LS + output());
 
@@ -48,7 +52,7 @@ public class Sync implements ICommand {
         }
     }
 
-    public void handleClient(ArrayList<String> args) {
+    public void handleClient(ArrayList<String> args) throws IOException {
 
     }
 

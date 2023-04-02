@@ -14,15 +14,14 @@ public class FileMetaData {
 
     public String fileName;
     public LocalDateTime lastModified;
-    public long fileSize;
 
-    public FileMetaData(String fileName, String fileSize, String lastModified){
+    public FileMetaData(String fileName, String lastModified){
         this.fileName = fileName;
         this.lastModified = convertStringToLocalDateTime(lastModified);
-        this.fileSize = Long.parseLong(fileSize);
     }
 
     // region Getters
+
     public String getFileName() {
         return fileName;
     }
@@ -31,9 +30,6 @@ public class FileMetaData {
         return lastModified;
     }
 
-    public long getFileSize() {
-        return fileSize;
-    }
     // endregion
 
     public int compareDate(LocalDateTime oLastModified){
@@ -45,16 +41,6 @@ public class FileMetaData {
         return -1;
     }
 
-    public int compareSize(long oFileSize){
-        if(fileSize == oFileSize){
-            return 0;
-        } else if (fileSize > oFileSize) {
-            return 1;
-        }
-
-        return -1;
-    }
-
     private LocalDateTime convertStringToLocalDateTime(String lastModified){
         LocalDateTime lastModifiedDateTime = LocalDateTime.parse(lastModified);
         Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);
@@ -63,6 +49,6 @@ public class FileMetaData {
 
     @Override
     public String toString() {
-        return fileName + Constants.UNIT_SEPARATOR + fileSize + Constants.UNIT_SEPARATOR + lastModified + Constants.FILE_SEPARATOR;
+        return fileName + Constants.UNIT_SEPARATOR + lastModified + Constants.FILE_SEPARATOR;
     }
 }

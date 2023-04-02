@@ -57,6 +57,9 @@ public class Client {
 
         Protocol protocol = new Protocol(homeDirectory);
 
+        // Send the sync command upon connection
+//        protocol.processInput(Invoker.CLIENT, Command.SYNC.toString(), serverConnection.socket, serverConnection.in, serverConnection.out);
+
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
@@ -89,7 +92,7 @@ public class Client {
                     } else {
                         // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
                         // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
-                        if(fromServer.startsWith("PUT") || fromServer.startsWith("GET")){ // TODO: FIX This is a cheat. Needs to be dynamic.
+                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){ // TODO: FIX This is a cheat. Needs to be dynamic.
                             protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
                         }else{
                             protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
