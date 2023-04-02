@@ -165,8 +165,9 @@ public class Get implements ICommand {
             while ((input = in.readLine()) != null) {
                 if (input.equals("200 FILEHEADER RECEIVED")) {
 
+                    // TODO: FIX OPEN commando moet in connectionHandler plaatsvinden.
                     try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN 42068");
+                        out.println("OPEN 42068"); // TODO: FIX ResponseCode needs to be sent.
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();

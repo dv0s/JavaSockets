@@ -75,8 +75,8 @@ public class Put implements ICommand {
                 // If server contains 'Header received'
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
-                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)) {
-                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now. Need to check if port is usable
+                    try (ServerSocket fileTransferSocket = new ServerSocket(42068)) { // TODO: FIX Hardcoded port numbers needs to be not hardcoded.
+                        out.println("OPEN 42068"); // TODO: FIX Using a fixed port for now. Need to check if port is usable.
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
