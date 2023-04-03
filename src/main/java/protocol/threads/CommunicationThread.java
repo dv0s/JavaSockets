@@ -36,7 +36,6 @@ public class CommunicationThread extends Thread {
 
     public void run() {
         try (
-                PrintWriter clientOut = new PrintWriter(commSocket.getOutputStream(), true);
                 BufferedReader clientIn = new BufferedReader(new InputStreamReader(commSocket.getInputStream()))
         ) {
 
