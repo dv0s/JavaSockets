@@ -1,13 +1,13 @@
 package protocol.commands;
 
 import protocol.enums.Constants;
-import protocol.interfaces.CommandHandler;
+import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Delete implements CommandHandler {
+public class Delete implements ICommand {
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;

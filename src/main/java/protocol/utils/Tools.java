@@ -1,5 +1,7 @@
 package protocol.utils;
 
+import protocol.enums.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class Tools {
@@ -87,5 +91,11 @@ public class Tools {
                 "/\\__/ / (_) | (__|   <  __/ |_  /\\__/ / (_) | | (_| | |  __/ |  \\__ \\\n" +
                 "\\____/ \\___/ \\___|_|\\_\\___|\\__| \\____/ \\___/|_|\\__,_|_|\\___|_|  |___/\n" +
                 "                                                                     \n");
+    }
+
+    public static ArrayList<String> directoryArrayListFromString(String directoryString){
+        String[] directoryArray = directoryString.split(Constants.FILE_SEPARATOR.toString());
+
+        return new ArrayList<>(Arrays.asList(directoryArray));
     }
 }

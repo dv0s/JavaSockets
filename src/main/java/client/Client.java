@@ -1,9 +1,10 @@
 package client;
 
-import client.handlers.FileWatcherHandler;
 import protocol.Protocol;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
+import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
 import protocol.utils.Tools;
 
@@ -22,7 +23,7 @@ public class Client {
             System.exit(1);
         }
 
-        System.out.println("File sync client started. v0.0.1");
+        System.out.println("File sync client started. " + Constants.VERSION);
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
 
         ConnectionHandler serverConnection = null;
@@ -31,10 +32,13 @@ public class Client {
         boolean connected = false;
 
         while (!connected) {
+
+
             try {
                 // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
                 serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
                 connected = true;
+
             } catch (IOException ex) {
                 try {
                     if (attempts < 10) {
@@ -53,49 +57,64 @@ public class Client {
 
         Protocol protocol = new Protocol(homeDirectory);
 
+        // Send the sync command upon connection
+//        protocol.processInput(Invoker.CLIENT, Command.SYNC.toString(), serverConnection.socket, serverConnection.in, serverConnection.out);
+
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
-            System.out.println("Server: " + fromServer);
-
-//            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-
-            // TODO: 19/03/2023 Hier moeten we nog wat mee doen i.v.m. de afgesproken response codes in het protoco
-            // Response codes gebruiken als afgesproken in protocol.
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.SUCCESS.getCode()))){
-//                protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-//            }
-//
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))){
-//                protocol.processErrorHandling();
-//                // Error afhandeling;
-//            }
-//
-//            if(fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))){
-//                protocol.processErrorHandling();
-//                // Error afhandeling;
-//            }
-
-            // Als de server het signaal geeft dat het klaar is met praten
-            if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                System.out.print("Command: ");
-                fromUser = stdIn.readLine();
-
-                if (fromUser != null) {
-                    // process input
-                    protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
-                }
+            if (!fromServer.contains(Constants.END_OF_TEXT.toString()) && !fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+                System.out.println("Server: " + fromServer);
             }
 
+            // Close the connection. Check this one first in case of connection with other party throwing both the control characters.
             if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
-                // Close the connection.
                 serverConnection.close();
                 break;
             }
 
+            // Als de server het signaal geeft dat het klaar is met praten
+            if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
+                if (fromServer.equals(Constants.END_OF_TEXT.toString())) {
+
+                    fromUser = input(stdIn);
+                    protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
+
+                } else {
+
+                    if (fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))) {
+                        protocol.processErrorHandling();
+                        // Error afhandeling;
+                    } else if (fromServer.startsWith(String.valueOf(ResponseCode.ERROR.getCode()))) {
+                        protocol.processErrorHandling();
+                        // Error afhandeling;
+                    } else {
+                        // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
+                        // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
+                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){ // TODO: FIX This is a cheat. Needs to be dynamic.
+                            protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+                        }else{
+                            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
+
+                        }
+                    }
+
+                }
+            }
         }
 
-        new FileWatcherHandler(args);
+    }
+
+    private static String input(BufferedReader stdIn) throws IOException {
+        System.out.print("Command: ");
+        String fromUser = stdIn.readLine();
+
+        if (fromUser.isBlank()) {
+            System.out.println("Input is needed. Please try again");
+            fromUser = input(stdIn);
+        }
+
+        return fromUser;
     }
 }

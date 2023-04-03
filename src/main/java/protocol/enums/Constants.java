@@ -11,6 +11,14 @@ public enum Constants {
             return "UTF-8";
         }
     },
+    COMM_PORT{
+        @Override
+        public String toString() {return "42069"; }
+    },
+    DATA_PORT{
+        @Override
+        public String toString() {return "42068"; }
+    },
     HASHING_ALGORITHM {
         @Override
         public String toString() {
@@ -27,6 +35,30 @@ public enum Constants {
         @Override
         public String toString() {
             return "\u0004";
+        }
+    },
+    FILE_SEPARATOR {
+        @Override
+        public String toString() {
+            return "\u001C";
+        }
+    },
+    UNIT_SEPARATOR {
+        @Override
+        public String toString() {
+            return "\u001F";
+        }
+    },
+    VERSION {
+        @Override
+        public String toString() {
+            return "v0.0.2";
+        }
+    },
+    DATETIME_FORMAT {
+        @Override
+        public String toString() {
+            return "yyyy-MM-dd'T'HH:mm:ss";
         }
     },
     BASE_DIR {

@@ -1,5 +1,7 @@
 package protocol.commands;
 
+import protocol.Protocol;
+import protocol.data.FileHeader;
 import protocol.data.FileMetaData;
 import protocol.enums.Command;
 import protocol.enums.Constants;
@@ -12,10 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Path;
-import java.sql.Array;
 import java.util.ArrayList;
 
-public class List implements ICommand {
+public class Sync implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
@@ -23,7 +24,7 @@ public class List implements ICommand {
     public final BufferedReader in;
     public final PrintWriter out;
 
-    public List(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
+    public Sync(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
         this.socket = socket;
@@ -31,26 +32,31 @@ public class List implements ICommand {
         this.out = out;
     }
 
-
     @Override
     public void handle(ArrayList<String> args) {
-        System.out.println(homeDirectory.toString());
+        if (invoker == Invoker.CLIENT) {
+            try {
+                handleClient(args);
+            } catch (IOException e){
+                System.err.println(e.getMessage());
+            }
 
-        if (invoker == Invoker.SERVER) {
+        } else {
             out.println(Command.LS + output());
 
-//            try {
-//                handleServer();
-//            } catch (IOException e) {
-//                System.out.println(e.getMessage());
-//            }
-        } else {
-            out.println(FileHandler.directoryListAsString(homeDirectory) + output());
+            try {
+                handleServer(args);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
-    public void handleServer() throws IOException {
+    public void handleClient(ArrayList<String> args) throws IOException {
 
+    }
+
+    public void handleServer(ArrayList<String> args) throws IOException {
         // Deze methode moet een lijst ontvangen van alle bestanden die de andere kant heeft,
         //  daarna zelf gaan checken of ze overeen komen. De marge die tussen de tijd van de bestanden zit is een seconde
         String nextLine;
@@ -114,7 +120,7 @@ public class List implements ICommand {
                         .filter(remote -> localItem.getFileName().equals(remote.fileName))
                         .findAny().orElse(null);
 
-                if(remoteItem != null) {
+                if (remoteItem != null) {
                     // Als die bestaat, gooi hem dan gelijk in een van de 2 lijsten.
                     int compareInt = localItem.compareDate(remoteItem.lastModified);
 
@@ -123,7 +129,7 @@ public class List implements ICommand {
                     } else if (compareInt < 0) {
                         getList.add(remoteItem.toString());
                     }
-                }else{
+                } else {
                     putList.add(localItem.toString());
                 }
             });
@@ -134,7 +140,7 @@ public class List implements ICommand {
                         .filter(local -> remoteItem.getFileName().equals(local.fileName))
                         .findAny().orElse(null);
 
-                if(localItem == null){
+                if (localItem == null) {
                     getList.add(remoteItem.toString());
                 }
             });
@@ -149,10 +155,35 @@ public class List implements ICommand {
 
             System.out.println("--Del list");
             delList.forEach(System.out::println);
+
+            //https://stackoverflow.com/questions/57252497/java-8-streams-compare-two-lists-object-values-and-add-value-to-new-list
+            // Verwijderen moet sowieso gedaan worden tijdens de sessie. Niet bij het opnieuw ophalen.
+
+            for (String putItem :
+                    putList) {
+                System.out.println("Putting: " + putItem);
+
+                // voer put commando uit
+                String[] itemProperties = putItem.split(Constants.UNIT_SEPARATOR.toString());
+                ArrayList<String> params = new ArrayList<>();
+                params.add(itemProperties[0]);
+
+                new Put(Invoker.CLIENT, homeDirectory, socket, in, out).handle(params);
+            }
+
+            for (String getItem :
+                    getList) {
+                System.out.println("Getting: " + getItem);
+                // voer get commando uit
+                String[] itemProperties = getItem.split(Constants.UNIT_SEPARATOR.toString());
+                ArrayList<String> params = new ArrayList<>();
+                params.add(itemProperties[0]);
+
+                new Get(Invoker.CLIENT, homeDirectory, socket, in, out).handle(params);
+            }
         }
 
         out.println(output());
-
     }
 
     @Override

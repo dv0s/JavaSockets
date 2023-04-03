@@ -1,6 +1,7 @@
 package protocol.handlers;
 
 import protocol.data.FileHeader;
+import protocol.data.FileMetaData;
 import protocol.enums.Constants;
 import protocol.utils.Tools;
 
@@ -10,8 +11,17 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.stream.Stream;
 
 public class FileHandler {
 
@@ -106,6 +116,10 @@ public class FileHandler {
         fileOut.close();
         socketOut.close();
         socketIn.close();
+
+        LocalDateTime lastModifiedDateTime = LocalDateTime.parse(fileHeader.lastModified);
+        Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);
+        Files.setLastModifiedTime(file, FileTime.from(instant));
     }
     //endregion
 
@@ -126,11 +140,16 @@ public class FileHandler {
             file = new File(path.toString());
             md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
+
             sendFile = Paths.get(homeDirectory.toString(), file.getName());
+            BasicFileAttributes attributes = Files.readAttributes(sendFile, BasicFileAttributes.class);
+
+            // Standardize last modified date
+            String lastModifiedDateTime = preparedDateTimeString(attributes.lastModifiedTime().toMillis());
 
             // Fill the file header
             fileHeader.setFileName(sendFile.getFileName().toString());
-            fileHeader.setFileType(Tools.getExtensionByStringHandling(sendFile.getFileName().toString()).toString());
+            fileHeader.setLastModified(lastModifiedDateTime);
             fileHeader.setFileSize(Files.size(sendFile));
             fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
             fileHeader.setCheckSum(checkSum);
@@ -144,5 +163,68 @@ public class FileHandler {
         return fileHeader;
     }
 
+    public static String directoryListAsString(Path homeDirectory) {
+
+        ArrayList<String> fileList = directoryList(homeDirectory);
+
+        if (!fileList.isEmpty()) {
+            return String.join("\n", fileList);
+        }
+
+        return "ERROR";
+    }
+
+    public static ArrayList<String> directoryList(Path homeDirectory) {
+        ArrayList<String> fileList = new ArrayList<>();
+
+        try (Stream<Path> list = Files.list(homeDirectory)){
+            list.forEach((file) -> {
+                try {
+                    BasicFileAttributes attributes = Files.readAttributes(file, BasicFileAttributes.class);
+                    FileMetaData fileMetaData = new FileMetaData(file.getFileName().toString(), preparedDateTimeString(attributes.lastModifiedTime().toMillis()));
+                    fileList.add(fileMetaData.toString());
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+        } catch (IOException e) {
+            System.out.print(e.getMessage());
+        }
+
+        return fileList;
+    }
+
+    public static ArrayList<String> compareContents(ArrayList<String> local, ArrayList<String> remote){
+        ArrayList<String> localList = new ArrayList<>();
+        ArrayList<String> remoteList = new ArrayList<>();
+
+        local.forEach((rule) -> {
+            String[] attr = rule.split(Constants.UNIT_SEPARATOR.toString());
+            localList.add(attr[0] + Constants.UNIT_SEPARATOR + attr[2]);
+        });
+
+        // TODO: 22/03/2023 FIX Deze functie wordt waarschijnlijk niet afgemaakt, but just in case.
+        return localList;
+    }
+
+
+    public static String preparedDateTimeString(long millis){
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneOffset.UTC).toString();
+    }
+
+    public static ArrayList<FileMetaData> convertToFileMetaDataList(ArrayList<String> list){
+        ArrayList<FileMetaData> result = new ArrayList<>();
+        list.forEach((file) -> {
+            String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
+            String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
+
+            FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1]);
+            result.add(fileMetaData);
+        });
+        return result;
+    }
     //endregion
 }

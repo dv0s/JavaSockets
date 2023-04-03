@@ -1,6 +1,7 @@
 package protocol.threads;
 
 import protocol.Protocol;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 
@@ -27,16 +28,16 @@ public class CommunicationThread extends Thread {
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-            String inputLine, outputLine;
-            long clientId = Thread.currentThread().getId();
 
+            long clientId = Thread.currentThread().getId();
             System.out.println("ConnectionHandler established with Client: " + clientId);
 
             Protocol protocol = new Protocol(homeDirectory);
-            outputLine = "Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT;
 
-            clientOut.println(outputLine);
+//            clientOut.println("Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
+            protocol.processInput(Invoker.SERVER, Command.SYNC.toString(), socket, clientIn, clientOut); // TODO: FIX Client needs to make this call
 
+            String inputLine;
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
             while ((inputLine = clientIn.readLine()) != null) {
                 System.out.println(clientId + " Client: " + inputLine);

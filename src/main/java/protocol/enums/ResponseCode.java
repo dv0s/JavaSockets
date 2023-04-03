@@ -17,4 +17,6 @@ public enum ResponseCode {
     public int getCode() {
         return code;
     }
+
+    public String toString(){ return String.valueOf(code); }
 }
