@@ -19,8 +19,8 @@ public class CommunicationThread extends Thread {
     public CommunicationThread(Path homeDirectory, Socket socket) {
         super();
 
-        this.socket = socket;
         this.homeDirectory = homeDirectory;
+        this.socket = socket;
     }
 
     public void run() {
@@ -34,7 +34,7 @@ public class CommunicationThread extends Thread {
 
             Protocol protocol = new Protocol(homeDirectory);
 
-//            clientOut.println("Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
+//            clientOut.println("ServerConnection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
 //            protocol.processInput(Invoker.SERVER, Command.SYNC.toString(), socket); // TODO: FIX Client needs to make this call
 
             String inputLine;

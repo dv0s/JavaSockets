@@ -1,15 +1,12 @@
 package protocol.handlers;
 
-import protocol.enums.ConnectionType;
 import protocol.enums.Constants;
-import protocol.enums.Invoker;
 import protocol.threads.CommunicationThread;
 import protocol.threads.FileTransferThread;
+import protocol.utils.ClientConnection;
+import protocol.utils.ServerConnection;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,7 +26,7 @@ public class ConnectionHandler {
         this.homeDirectory = homeDirectory;
     }
 
-    // TODO: FIX Connection handler moet verantwoordelijk worden voor de OPEN commando
+    // TODO: FIX ServerConnection handler moet verantwoordelijk worden voor de OPEN commando
     //  Optie bij maken dat data socket ook constant open staat en waar verschillende nieuwe threads voor bestanden bij worden aangemaakt
     public ConnectionHandler establish(String[] args) throws IOException {
         if (args.length != 2) {
@@ -56,6 +53,38 @@ public class ConnectionHandler {
         return this;
     }
 
+    public ServerConnection setupServer(){
+        System.out.println("Setting up sockets...");
+
+        ServerSocket serverCommSocket = null;
+        try {
+            serverCommSocket = new ServerSocket(Constants.Integers.COMM_PORT.getValue());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        ServerSocket serverDataSocket = null;
+        try {
+            serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return new ServerConnection(serverCommSocket, serverDataSocket);
+    }
+
+    public ClientConnection setupClient(String hostName){
+        System.out.println("Setting up sockets...");
+
+        SocketAddress commAddress = new InetSocketAddress(hostName, Constants.Integers.COMM_PORT.getValue());
+        Socket commSocket = new Socket();
+
+        SocketAddress dataAddress = new InetSocketAddress(hostName, Constants.Integers.DATA_PORT.getValue());
+        Socket dataSocket = new Socket();
+
+        return new ClientConnection(commSocket, commAddress, dataSocket, dataAddress);
+    }
+
     public ConnectionHandler listen() throws IOException {
         System.out.println("Open for connections...");
         while (true) {
@@ -73,9 +102,15 @@ public class ConnectionHandler {
                 System.err.println("Exception caught when trying to listen on port " + Constants.Integers.DATA_PORT + ".");
                 System.out.println(e.getMessage());
             }
-
         }
+    }
 
+    public static void startCommThread(CommunicationThread thread){
+        thread.start();
+    }
+
+    public static void startDataThread(FileTransferThread thread){
+        thread.start();
     }
 
     public void close() throws IOException {
