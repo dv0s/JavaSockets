@@ -24,12 +24,12 @@ public class CommunicationThread extends Thread {
     }
 
     public void run() {
+        long clientId = Thread.currentThread().getId();
+
         try (
                 PrintWriter clientOut = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()))
         ) {
-
-            long clientId = Thread.currentThread().getId();
             System.out.println("ConnectionHandler established with Client: " + clientId);
 
             Protocol protocol = new Protocol(homeDirectory);
@@ -44,7 +44,11 @@ public class CommunicationThread extends Thread {
                 protocol.processInput(Invoker.SERVER, inputLine, socket, clientIn, clientOut);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            if (e.getMessage().startsWith("Stream closed")) {
+                System.out.println("Connection closed successfully: " + clientId);
+            } else {
+                e.printStackTrace();
+            }
         }
     }
 }
