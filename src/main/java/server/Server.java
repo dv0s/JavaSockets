@@ -4,6 +4,8 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
+import protocol.threads.CommunicationThread;
+import protocol.utils.ServerConnection;
 import protocol.utils.Tools;
 
 import java.io.File;
@@ -26,8 +28,11 @@ public class Server {
         ArrayList<String> fileList = FileHandler.directoryList(homeDirectory);
         fileList.forEach(System.out::println);
 
-        new ConnectionHandler(homeDirectory).listen();
+        ServerConnection connection = ConnectionHandler.setupServer();
 
+        while(true){
+            new CommunicationThread(homeDirectory, connection).start();
+        }
 
     }
 }

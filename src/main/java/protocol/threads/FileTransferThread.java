@@ -1,6 +1,7 @@
 package protocol.threads;
 
 import protocol.data.FileHeader;
+import protocol.enums.TransferDirection;
 import protocol.handlers.FileHandler;
 
 import java.io.IOException;

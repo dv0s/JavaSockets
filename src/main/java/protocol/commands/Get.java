@@ -1,14 +1,12 @@
 package protocol.commands;
 
 import protocol.data.FileHeader;
-import protocol.enums.Command;
-import protocol.enums.Constants;
-import protocol.enums.Invoker;
-import protocol.enums.ResponseCode;
+import protocol.enums.*;
 import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
+import protocol.utils.ConnectionSockets;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -20,23 +18,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Get implements ICommand {
+public class Get {
     public final Invoker invoker;
     public final Path homeDirectory;
-    public final ConnectionHandler connection;
+    public final ConnectionSockets connectionSockets;
 
     public final Socket socket;
     public final BufferedReader in;
     public final PrintWriter out;
 
-    public Get(Invoker invoker, Path homeDirectory, ConnectionHandler connection) throws IOException {
+    public Get(Invoker invoker, Path homeDirectory, ConnectionSockets connectionSockets) throws IOException {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.connection = connection;
+        this.connectionSockets = connectionSockets;
 
-        this.socket = connection.commSocket;
-        this.in = new BufferedReader(new InputStreamReader(connection.commSocket.getInputStream()));
-        this.out = new PrintWriter(connection.commSocket.getOutputStream(), true);
+        this.socket = connectionSockets.commSocket;
+        this.in = new BufferedReader(new InputStreamReader(connectionSockets.commSocket.getInputStream()));
+        this.out = new PrintWriter(connectionSockets.commSocket.getOutputStream(), true);
     }
 
     public void handle(ArrayList<String> args) {
@@ -78,7 +76,7 @@ public class Get implements ICommand {
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if ((fromServer = in.readLine()) != null) {
-            if (fromServer.startsWith(ResponseCode.FAILURE.toString())){
+            if (fromServer.startsWith(ResponseCode.FAILURE.toString())) {
                 System.err.println(fromServer);
                 return;
             }
@@ -89,7 +87,7 @@ public class Get implements ICommand {
                 FileHeader fileHeader = new FileHeader();
 
                 headerLines = fromServer.split(Constants.Strings.UNIT_SEPARATOR.toString());
-                if(headerLines.length != 6){
+                if (headerLines.length != 6) {
                     out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
                     return;
 
@@ -115,17 +113,11 @@ public class Get implements ICommand {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
-                        Socket fileTransferSocket = new Socket();
-
-                        // Bestand ontvangen via FileHandler.
-                        fileTransferSocket.connect(fileTransferSocketAddress);
-                        new FileHandler(fileTransferSocket, fileHeader, homeDirectory).receiveFile();
+                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
 
                         // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
                         if (fileHeaderLocal.compareCheckSum(fileHeader)) {
-                            fileTransferSocket.close();
                             out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
                         } else {
                             out.println(ResponseCode.FAILURE.getCode() + " FILE CORRUPTED");
@@ -166,13 +158,10 @@ public class Get implements ICommand {
             while ((input = in.readLine()) != null) {
                 if (input.equals(ResponseCode.SUCCESS + " FILEHEADER RECEIVED")) {
 
-                    // TODO: FIX OPEN commando moet in connectionHandler plaatsvinden.
-                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.Integers.DATA_PORT.toString()))) {
-                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
+                    out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
-                        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
-                        new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
-                    }
+                    // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+                    new FileTransferThread(fileHeader, homeDirectory, connectionSockets.dataSocket).start();
                 }
 
                 if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {

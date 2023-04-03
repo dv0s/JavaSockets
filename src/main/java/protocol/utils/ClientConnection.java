@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 
 public class ClientConnection {
-    public final Socket commSocket;
+    public Socket commSocket;
     public final SocketAddress commAddress;
-    public final Socket dataSocket;
+    public Socket dataSocket;
     public final SocketAddress dataAddress;
 
     public ClientConnection(Socket commSocket, SocketAddress commAddress, Socket dataSocket, SocketAddress dataAddress) {
@@ -20,5 +20,13 @@ public class ClientConnection {
 
     public void connect(Socket socket, SocketAddress socketAddress) throws IOException {
         socket.connect(socketAddress);
+    }
+
+    public void close() throws IOException {
+        this.commSocket.close();
+        this.dataSocket.close();
+
+        this.commSocket = null;
+        this.dataSocket = null;
     }
 }

@@ -4,6 +4,7 @@ import protocol.commands.*;
 import protocol.enums.Command;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
+import protocol.utils.ConnectionSockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class Protocol {
         this.homeDirectory = homeDirectory;
     }
 
-    public void processInput(Invoker invoker, String input, ConnectionHandler connection) throws IOException {
+    public void processInput(Invoker invoker, String input, ConnectionSockets connectionSockets) throws IOException {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -32,14 +33,14 @@ public class Protocol {
 
         // Handle the commands
         switch (command) {
-            case OPEN -> new Open(invoker, homeDirectory, connection).handle(params); // TODO: Command moet nog worden gemaakt.
-            case LS -> new List(invoker, homeDirectory, connection).handle(params); // TODO: FIX Commando doet nu ook lijsten scheiden voor sync.
-            case GET -> new Get(invoker, homeDirectory, connection).handle(params);
-            case PUT -> new Put(invoker, homeDirectory, connection).handle(params);
+//            case OPEN -> new Open(invoker, homeDirectory, connectionSockets).handle(params); // TODO: Command moet nog worden gemaakt.
+            case LS -> new List(invoker, homeDirectory, connectionSockets).handle(params); // TODO: FIX Commando doet nu ook lijsten scheiden voor sync.
+            case GET -> new Get(invoker, homeDirectory, connectionSockets).handle(params);
+            case PUT -> new Put(invoker, homeDirectory, connectionSockets).handle(params);
 //            case DELETE -> new Delete().handle(params); // TODO: Command moet nog worden gemaakt.
 //            case SIZE -> new Size().handle(params); // TODO: Command moet nog worden gemaakt.
 //            case PORT -> new Port().handle(params); // TODO: Command moet nog worden gemaakt.
-            case SYNC -> new Sync(invoker, homeDirectory, connection).handle(params);
+            case SYNC -> new Sync(invoker, homeDirectory, connectionSockets).handle(params);
 //            case CLOSE -> new Close(invoker, in, out).handle(params);
 //            default -> out.println(UNKNOWN);
         }

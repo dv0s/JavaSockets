@@ -94,8 +94,8 @@ public class FileHandler {
             socketOut.flush();
         }
 
-        socketOut.close();
-        socketIn.close();
+//        socketOut.close();
+//        socketIn.close();
         fileIn.close();
     }
 
@@ -114,8 +114,8 @@ public class FileHandler {
         }
 
         fileOut.close();
-        socketOut.close();
-        socketIn.close();
+//        socketOut.close();
+//        socketIn.close();
 
         LocalDateTime lastModifiedDateTime = LocalDateTime.parse(fileHeader.lastModified);
         Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);

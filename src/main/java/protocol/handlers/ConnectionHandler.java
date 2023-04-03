@@ -53,7 +53,7 @@ public class ConnectionHandler {
         return this;
     }
 
-    public ServerConnection setupServer(){
+    public static ServerConnection setupServer(){
         System.out.println("Setting up sockets...");
 
         ServerSocket serverCommSocket = null;
@@ -73,7 +73,7 @@ public class ConnectionHandler {
         return new ServerConnection(serverCommSocket, serverDataSocket);
     }
 
-    public ClientConnection setupClient(String hostName){
+    public static ClientConnection setupClient(String hostName){
         System.out.println("Setting up sockets...");
 
         SocketAddress commAddress = new InetSocketAddress(hostName, Constants.Integers.COMM_PORT.getValue());
@@ -85,25 +85,25 @@ public class ConnectionHandler {
         return new ClientConnection(commSocket, commAddress, dataSocket, dataAddress);
     }
 
-    public ConnectionHandler listen() throws IOException {
-        System.out.println("Open for connections...");
-        while (true) {
-
-            try (ServerSocket serverCommSocket = new ServerSocket(Constants.Integers.COMM_PORT.getValue())) {
-                new CommunicationThread(homeDirectory, serverCommSocket.accept()).start();
-            } catch (IOException e) {
-                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.COMM_PORT + ".");
-                System.out.println(e.getMessage());
-            }
-
-            try (ServerSocket serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue())) {
-                new FileTransferThread(homeDirectory, serverDataSocket.accept()).start();
-            } catch (IOException e) {
-                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.DATA_PORT + ".");
-                System.out.println(e.getMessage());
-            }
-        }
-    }
+//    public ConnectionHandler listen() throws IOException {
+//        System.out.println("Open for connections...");
+//        while (true) {
+//
+//            try (ServerSocket serverCommSocket = new ServerSocket(Constants.Integers.COMM_PORT.getValue())) {
+//                new CommunicationThread(homeDirectory, serverCommSocket.accept()).start();
+//            } catch (IOException e) {
+//                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.COMM_PORT + ".");
+//                System.out.println(e.getMessage());
+//            }
+//
+//            try (ServerSocket serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue())) {
+//                new FileTransferThread(homeDirectory, serverDataSocket.accept()).start();
+//            } catch (IOException e) {
+//                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.DATA_PORT + ".");
+//                System.out.println(e.getMessage());
+//            }
+//        }
+//    }
 
     public static void startCommThread(CommunicationThread thread){
         thread.start();

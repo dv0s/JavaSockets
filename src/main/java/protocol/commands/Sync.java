@@ -9,9 +9,11 @@ import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
+import protocol.utils.ConnectionSockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -21,18 +23,18 @@ public class Sync implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
-    public final ConnectionHandler connection;
-    public final Socket socket = null;
-    public final BufferedReader in = null;
-    public final PrintWriter out = null;
+    public final ConnectionSockets connectionSockets;
+    public Socket socket = null;
+    public BufferedReader in = null;
+    public PrintWriter out = null;
 
-    public Sync(Invoker invoker, Path homeDirectory, ConnectionHandler connection) {
+    public Sync(Invoker invoker, Path homeDirectory, ConnectionSockets connectionSockets) throws IOException {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.connection = connection;
-//        this.socket = socket;
-//        this.in = in;
-//        this.out = out;
+        this.connectionSockets = connectionSockets;
+        this.socket = connectionSockets.commSocket;
+        this.in = new BufferedReader(new InputStreamReader(connectionSockets.commSocket.getInputStream()));
+        this.out = new PrintWriter(connectionSockets.commSocket.getOutputStream(), true);
     }
 
     public void handle(ArrayList<String> args) {
@@ -170,7 +172,7 @@ public class Sync implements ICommand {
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
-                new Put(Invoker.CLIENT, homeDirectory, connection).handle(params);
+                new Put(Invoker.CLIENT, homeDirectory, connectionSockets).handle(params);
             }
 
             for (String getItem :
@@ -181,7 +183,7 @@ public class Sync implements ICommand {
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
-                new Get(Invoker.CLIENT, homeDirectory, connection).handle(params);
+                new Get(Invoker.CLIENT, homeDirectory, connectionSockets).handle(params);
             }
         }
 

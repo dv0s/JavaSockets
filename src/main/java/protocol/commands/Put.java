@@ -8,9 +8,11 @@ import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
+import protocol.utils.ConnectionSockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -23,18 +25,19 @@ public class Put implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
-    public final ConnectionHandler connection;
-    public final Socket socket = null;
-    public final BufferedReader in = null;
-    public final PrintWriter out = null;
+    public final ConnectionSockets connectionSockets;
+    public Socket socket;
+    public BufferedReader in;
+    public PrintWriter out;
 
-    public Put(Invoker invoker, Path homeDirectory, ConnectionHandler connection) {
+    public Put(Invoker invoker, Path homeDirectory, ConnectionSockets connectionSockets) throws IOException {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.connection = connection;
-//        this.socket = socket;
-//        this.in = in;
-//        this.out = out;
+        this.connectionSockets = connectionSockets;
+
+        this.socket = connectionSockets.commSocket;
+        this.in = new BufferedReader(new InputStreamReader(connectionSockets.commSocket.getInputStream()));
+        this.out = new PrintWriter(connectionSockets.commSocket.getOutputStream(), true);
     }
 
     public void handle(ArrayList<String> args) {
@@ -77,13 +80,10 @@ public class Put implements ICommand {
                 // If server contains 'Header received'
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
-                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.Integers.DATA_PORT.toString()))) {
                         out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
-                        new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
-                    }
-
+                        new FileTransferThread(fileHeader, homeDirectory, connectionSockets.dataSocket).start();
                 }
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
@@ -145,17 +145,12 @@ public class Put implements ICommand {
             if (nextLine.contains("OPEN")) {
                 String[] command = nextLine.split(" ");
 
-                SocketAddress fileTransferSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
-                Socket fileTransferSocket = new Socket();
-
                 // Bestand ontvangen via FileHandler.
-                fileTransferSocket.connect(fileTransferSocketAddress);
-                new FileHandler(fileTransferSocket, fileHeader, homeDirectory).receiveFile();
+                new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
 
                 // Bestand headers controleren of het bestand succesvol is overgebracht.
                 FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
                 if (fileHeaderLocal.compareCheckSum(fileHeader)) {
-                    fileTransferSocket.close();
                     out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
                 } else {
                     out.println(ResponseCode.FAILURE.getCode() + "FILE CORRUPTED");
