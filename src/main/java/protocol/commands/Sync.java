@@ -6,6 +6,7 @@ import protocol.data.FileMetaData;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
+import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
 
@@ -20,19 +21,20 @@ public class Sync implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
-    public final Socket socket;
-    public final BufferedReader in;
-    public final PrintWriter out;
+    public final ConnectionHandler connection;
+    public final Socket socket = null;
+    public final BufferedReader in = null;
+    public final PrintWriter out = null;
 
-    public Sync(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
+    public Sync(Invoker invoker, Path homeDirectory, ConnectionHandler connection) {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.socket = socket;
-        this.in = in;
-        this.out = out;
+        this.connection = connection;
+//        this.socket = socket;
+//        this.in = in;
+//        this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         if (invoker == Invoker.CLIENT) {
             try {
@@ -168,7 +170,7 @@ public class Sync implements ICommand {
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
-                new Put(Invoker.CLIENT, homeDirectory, socket, in, out).handle(params);
+                new Put(Invoker.CLIENT, homeDirectory, connection).handle(params);
             }
 
             for (String getItem :
@@ -179,14 +181,13 @@ public class Sync implements ICommand {
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
-                new Get(Invoker.CLIENT, homeDirectory, socket, in, out).handle(params);
+                new Get(Invoker.CLIENT, homeDirectory, connection).handle(params);
             }
         }
 
         out.println(output());
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

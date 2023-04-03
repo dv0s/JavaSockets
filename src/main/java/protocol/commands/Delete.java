@@ -18,12 +18,10 @@ public class Delete implements ICommand {
         this.params = params;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         clientOut.println(output());
     }
 
-    @Override
     public String output() {
         String output = "Command 'DELETE' called";
 

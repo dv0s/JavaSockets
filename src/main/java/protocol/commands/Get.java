@@ -5,14 +5,12 @@ import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
+import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,19 +23,22 @@ import java.util.ArrayList;
 public class Get implements ICommand {
     public final Invoker invoker;
     public final Path homeDirectory;
+    public final ConnectionHandler connection;
+
     public final Socket socket;
     public final BufferedReader in;
     public final PrintWriter out;
 
-    public Get(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
+    public Get(Invoker invoker, Path homeDirectory, ConnectionHandler connection) throws IOException {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.socket = socket;
-        this.in = in;
-        this.out = out;
+        this.connection = connection;
+
+        this.socket = connection.commSocket;
+        this.in = new BufferedReader(new InputStreamReader(connection.commSocket.getInputStream()));
+        this.out = new PrintWriter(connection.commSocket.getOutputStream(), true);
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
         if (args.isEmpty()) {
@@ -192,7 +193,6 @@ public class Get implements ICommand {
         out.println(output());
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

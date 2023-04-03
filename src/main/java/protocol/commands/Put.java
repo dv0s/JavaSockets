@@ -4,6 +4,7 @@ import protocol.data.FileHeader;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
+import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
@@ -22,19 +23,20 @@ public class Put implements ICommand {
 
     public final Invoker invoker;
     public final Path homeDirectory;
-    public final Socket socket;
-    public final BufferedReader in;
-    public final PrintWriter out;
+    public final ConnectionHandler connection;
+    public final Socket socket = null;
+    public final BufferedReader in = null;
+    public final PrintWriter out = null;
 
-    public Put(Invoker invoker, Path homeDirectory, Socket socket, BufferedReader in, PrintWriter out) {
+    public Put(Invoker invoker, Path homeDirectory, ConnectionHandler connection) {
         this.invoker = invoker;
         this.homeDirectory = homeDirectory;
-        this.socket = socket;
-        this.in = in;
-        this.out = out;
+        this.connection = connection;
+//        this.socket = socket;
+//        this.in = in;
+//        this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
@@ -163,7 +165,6 @@ public class Put implements ICommand {
         }
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

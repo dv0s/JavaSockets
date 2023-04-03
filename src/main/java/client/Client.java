@@ -8,10 +8,7 @@ import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
 import protocol.utils.Tools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.sql.Array;
 
@@ -27,29 +24,28 @@ public class Client {
         System.out.println("File sync client started. " + Constants.Strings.VERSION);
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.Strings.BASE_DIR + File.separator + "client");
 
-        // Set up the communication line
-        ConnectionHandler serverCommunicationConnection = attemptConnection(args, homeDirectory);
-
-        // Set up the data transfer line
-        args[1] = Constants.Integers.DATA_PORT.toString();
-        ConnectionHandler serverDataTransferConnection = attemptConnection(args, homeDirectory);
+        // Set up the connection with 2 sockets.
+        ConnectionHandler serverConnection = attemptConnections(args, homeDirectory);
 
         Protocol protocol = new Protocol(homeDirectory);
 
         // Send the sync command upon connection
 //        protocol.processInput(Invoker.CLIENT, Command.SYNC.toString(), serverConnection.socket, serverConnection.in, serverConnection.out);
 
+        // These will be instantiated within the commands.
+        BufferedReader in = new BufferedReader(new InputStreamReader(serverConnection.commSocket.getInputStream()));
+
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
 
-        while ((fromServer = serverCommunicationConnection.in.readLine()) != null) {
+        while ((fromServer = in.readLine()) != null) {
             if (!fromServer.contains(Constants.Strings.END_OF_TEXT.toString()) && !fromServer.contains(Constants.Strings.END_OF_TRANSMISSION.toString())) {
                 System.out.println("Server: " + fromServer);
             }
 
             // Close the connection. Check this one first in case of connection with other party throwing both the control characters.
             if (fromServer.contains(Constants.Strings.END_OF_TRANSMISSION.toString())) {
-                serverCommunicationConnection.close();
+                serverConnection.close();
                 break;
             }
 
@@ -58,7 +54,7 @@ public class Client {
                 if (fromServer.equals(Constants.Strings.END_OF_TEXT.toString())) {
 
                     fromUser = input(stdIn);
-                    protocol.processInput(Invoker.CLIENT, fromUser, serverCommunicationConnection.socket, serverCommunicationConnection.in, serverCommunicationConnection.out);
+                    protocol.processInput(Invoker.CLIENT, fromUser, serverConnection);
 
                 } else {
 
@@ -72,9 +68,9 @@ public class Client {
                         // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
                         // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
                         if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){ // TODO: FIX This is a cheat. Needs to be dynamic.
-                            protocol.processInput(Invoker.SERVER, fromServer, serverCommunicationConnection.socket, serverCommunicationConnection.in, serverCommunicationConnection.out);
+                            protocol.processInput(Invoker.SERVER, fromServer, serverConnection);
                         }else{
-                            protocol.processInput(Invoker.CLIENT, fromServer, serverCommunicationConnection.socket, serverCommunicationConnection.in, serverCommunicationConnection.out);
+                            protocol.processInput(Invoker.CLIENT, fromServer, serverConnection);
 
                         }
                     }
@@ -97,7 +93,7 @@ public class Client {
         return fromUser;
     }
 
-    public static ConnectionHandler attemptConnection(String[] args, Path homeDirectory){
+    public static ConnectionHandler attemptConnections(String[] args, Path homeDirectory){
         ConnectionHandler connection = null;
         int attempts = 0;
         boolean communicationOpen = false;
@@ -105,7 +101,7 @@ public class Client {
         while (!communicationOpen) {
             try {
                 // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
-                connection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
+                connection = new ConnectionHandler(homeDirectory).establish(args);
                 communicationOpen = true;
 
             } catch (IOException ex) {

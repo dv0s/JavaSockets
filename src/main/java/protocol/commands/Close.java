@@ -21,7 +21,7 @@ public class Close implements ICommand {
         this.out = out;
     }
 
-    @Override
+    // TODO: FIX Rewrite needed.
     public void handle(ArrayList<String> args) {
         if (invoker == Invoker.SERVER) {
             out.println("Disconnecting from server...");
@@ -38,7 +38,6 @@ public class Close implements ICommand {
         }
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TRANSMISSION.toString();
     }

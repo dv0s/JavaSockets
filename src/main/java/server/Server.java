@@ -26,7 +26,7 @@ public class Server {
         ArrayList<String> fileList = FileHandler.directoryList(homeDirectory);
         fileList.forEach(System.out::println);
 
-        new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);
+        new ConnectionHandler(homeDirectory).listen();
 
 
     }

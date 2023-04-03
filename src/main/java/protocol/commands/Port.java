@@ -19,12 +19,10 @@ public class Port implements ICommand {
     }
 
 
-    @Override
     public void handle(ArrayList<String> args) {
         clientOut.println(output());
     }
-
-    @Override
+    
     public String output() {
         String output = "Command 'PORT' called";
         return output + Constants.Strings.END_OF_TEXT;
