@@ -31,6 +31,7 @@ public class ConnectionHandler {
     }
 
     // TODO: FIX Connection handler moet verantwoordelijk worden voor de OPEN commando
+    //  Optie bij maken dat data socket ook constant open staat en waar verschillende nieuwe threads voor bestanden bij worden aangemaakt
     public ConnectionHandler establish(String[] args) throws IOException {
 
         if (invoker == Invoker.CLIENT) {

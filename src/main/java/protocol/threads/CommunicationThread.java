@@ -1,6 +1,7 @@
 package protocol.threads;
 
 import protocol.Protocol;
+import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 
@@ -34,7 +35,7 @@ public class CommunicationThread extends Thread {
             Protocol protocol = new Protocol(homeDirectory);
 
 //            clientOut.println("Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
-            protocol.processInput(Invoker.SERVER, "SYNC", socket, clientIn, clientOut); // TODO: FIX Client needs to make this call
+            protocol.processInput(Invoker.SERVER, Command.SYNC.toString(), socket, clientIn, clientOut); // TODO: FIX Client needs to make this call
 
             String inputLine;
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
