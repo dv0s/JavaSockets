@@ -20,8 +20,8 @@ public class Server {
             System.exit(1);
         }
 
-        System.out.println("File sync server started. " + Constants.VERSION);
-        Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "server");
+        System.out.println("File sync server started. " + Constants.Strings.VERSION);
+        Path homeDirectory = Tools.initializeHomeDirectory(Constants.Strings.BASE_DIR + File.separator + "server");
 
         ArrayList<String> fileList = FileHandler.directoryList(homeDirectory);
         fileList.forEach(System.out::println);

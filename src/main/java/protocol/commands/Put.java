@@ -38,7 +38,7 @@ public class Put implements ICommand {
     public void handle(ArrayList<String> args) {
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
-            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: PUT <filename>" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: PUT <filename>" + Constants.Strings.END_OF_TEXT);
             return;
         }
 
@@ -64,7 +64,7 @@ public class Put implements ICommand {
     public void handleClient(ArrayList<String> args) throws IOException {
         // Stel een file header op voor het te verzenden bestand.
         FileHeader fileHeader = FileHandler.constructFileHeader(args.get(0), homeDirectory);
-        out.println("PUT " + fileHeader + Constants.END_OF_TEXT + "\n");
+        out.println("PUT " + fileHeader + Constants.Strings.END_OF_TEXT + "\n");
 
         // Geef het commando door aan de server met de header erbij.
 
@@ -75,8 +75,8 @@ public class Put implements ICommand {
                 // If server contains 'Header received'
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
-                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.DATA_PORT.toString()))) {
-                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.DATA_PORT);
+                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.Integers.DATA_PORT.toString()))) {
+                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
@@ -85,7 +85,7 @@ public class Put implements ICommand {
                 }
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
-                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.END_OF_TEXT);
+                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.Strings.END_OF_TEXT);
                     break;
                 }
 
@@ -104,7 +104,7 @@ public class Put implements ICommand {
 
     public void handleServer(ArrayList<String> args) throws IOException {
         if (!args.get(0).contains("FileHeader")) {
-            out.println(ResponseCode.FAILURE + " First line is no file header. Exiting" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.FAILURE + " First line is no file header. Exiting" + Constants.Strings.END_OF_TEXT);
             out.println(output());
             return;
         }
@@ -115,7 +115,7 @@ public class Put implements ICommand {
         FileHeader fileHeader = new FileHeader();
 
 
-        headerLines = args.get(0).split(Constants.UNIT_SEPARATOR.toString());
+        headerLines = args.get(0).split(Constants.Strings.UNIT_SEPARATOR.toString());
         if(headerLines.length != 6){
             out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
             out.println(output());
@@ -135,7 +135,7 @@ public class Put implements ICommand {
         while ((nextLine = in.readLine()) != null) {
             System.out.println("Client: " + nextLine);
 
-            if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
+            if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
                 out.println(output());
                 break;
             }
@@ -165,6 +165,6 @@ public class Put implements ICommand {
 
     @Override
     public String output() {
-        return Constants.END_OF_TEXT.toString();
+        return Constants.Strings.END_OF_TEXT.toString();
     }
 }

@@ -64,9 +64,9 @@ public class Sync implements ICommand {
         ArrayList<String> localDirectory = FileHandler.directoryList(homeDirectory);
 
         while ((nextLine = in.readLine()) != null) {
-            remoteDirectory.add(nextLine.replace(Constants.END_OF_TEXT.toString(), ""));
+            remoteDirectory.add(nextLine.replace(Constants.Strings.END_OF_TEXT.toString(), ""));
 
-            if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
+            if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
                 break;
             }
         }
@@ -164,7 +164,7 @@ public class Sync implements ICommand {
                 System.out.println("Putting: " + putItem);
 
                 // voer put commando uit
-                String[] itemProperties = putItem.split(Constants.UNIT_SEPARATOR.toString());
+                String[] itemProperties = putItem.split(Constants.Strings.UNIT_SEPARATOR.toString());
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
@@ -175,7 +175,7 @@ public class Sync implements ICommand {
                     getList) {
                 System.out.println("Getting: " + getItem);
                 // voer get commando uit
-                String[] itemProperties = getItem.split(Constants.UNIT_SEPARATOR.toString());
+                String[] itemProperties = getItem.split(Constants.Strings.UNIT_SEPARATOR.toString());
                 ArrayList<String> params = new ArrayList<>();
                 params.add(itemProperties[0]);
 
@@ -188,6 +188,6 @@ public class Sync implements ICommand {
 
     @Override
     public String output() {
-        return Constants.END_OF_TEXT.toString();
+        return Constants.Strings.END_OF_TEXT.toString();
     }
 }

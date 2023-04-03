@@ -27,6 +27,6 @@ public class Delete implements ICommand {
     public String output() {
         String output = "Command 'DELETE' called";
 
-        return output + Constants.END_OF_TEXT;
+        return output + Constants.Strings.END_OF_TEXT;
     }
 }

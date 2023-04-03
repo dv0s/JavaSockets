@@ -58,9 +58,9 @@ public class List implements ICommand {
         ArrayList<String> localDirectory = FileHandler.directoryList(homeDirectory);
 
         while ((nextLine = in.readLine()) != null) {
-            remoteDirectory.add(nextLine.replace(Constants.END_OF_TEXT.toString(), ""));
+            remoteDirectory.add(nextLine.replace(Constants.Strings.END_OF_TEXT.toString(), ""));
 
-            if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
+            if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
                 break;
             }
         }
@@ -157,6 +157,6 @@ public class List implements ICommand {
 
     @Override
     public String output() {
-        return Constants.END_OF_TEXT.toString();
+        return Constants.Strings.END_OF_TEXT.toString();
     }
 }
