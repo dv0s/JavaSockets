@@ -56,14 +56,14 @@ public class ConnectionHandler {
     public static ServerConnection setupServer(){
         System.out.println("Setting up sockets...");
 
-        ServerSocket serverCommSocket = null;
+        ServerSocket serverCommSocket;
         try {
             serverCommSocket = new ServerSocket(Constants.Integers.COMM_PORT.getValue());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        ServerSocket serverDataSocket = null;
+        ServerSocket serverDataSocket;
         try {
             serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue());
         } catch (IOException e) {

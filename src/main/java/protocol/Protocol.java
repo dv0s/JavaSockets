@@ -38,11 +38,11 @@ public class Protocol {
             case GET -> new Get(invoker, homeDirectory, connectionSockets).handle(params);
             case PUT -> new Put(invoker, homeDirectory, connectionSockets).handle(params);
 //            case DELETE -> new Delete().handle(params); // TODO: Command moet nog worden gemaakt.
-//            case SIZE -> new Size().handle(params); // TODO: Command moet nog worden gemaakt.
-//            case PORT -> new Port().handle(params); // TODO: Command moet nog worden gemaakt.
+//            case SIZE -> new Size().handle(params);
+//            case PORT -> new Port().handle(params);
             case SYNC -> new Sync(invoker, homeDirectory, connectionSockets).handle(params);
-//            case CLOSE -> new Close(invoker, in, out).handle(params);
-//            default -> out.println(UNKNOWN);
+            case CLOSE -> new Close(invoker, connectionSockets).handle(params);
+            default -> new Unknown(invoker, connectionSockets).handle();
         }
     }
 

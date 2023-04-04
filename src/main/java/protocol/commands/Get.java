@@ -113,7 +113,7 @@ public class Get {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
+                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile(connectionSockets);
 
                         // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
