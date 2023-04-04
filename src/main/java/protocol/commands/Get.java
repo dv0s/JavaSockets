@@ -113,7 +113,9 @@ public class Get {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile(connectionSockets);
+                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
+
+//                        connectionSockets.reInitiateDataSocket();
 
                         // Bestand headers controleren of het bestand succesvol is overgebracht.
                         FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);
@@ -162,6 +164,8 @@ public class Get {
 
                     // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                     new FileTransferThread(fileHeader, homeDirectory, connectionSockets.dataSocket).start();
+
+//                    connectionSockets.reInitiateDataSocket();
                 }
 
                 if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {

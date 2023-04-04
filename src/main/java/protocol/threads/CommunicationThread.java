@@ -31,7 +31,7 @@ public class CommunicationThread extends Thread {
 
         this.commSocket = connection.commSocket.accept();
         this.dataSocket = connection.dataSocket.accept();
-        this.connectionSockets = new ConnectionSockets(commSocket, dataSocket);
+        this.connectionSockets = new ConnectionSockets(Invoker.SERVER, commSocket, dataSocket);
     }
 
     public void run() {

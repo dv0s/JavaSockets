@@ -146,7 +146,7 @@ public class Put implements ICommand {
                 String[] command = nextLine.split(" ");
 
                 // Bestand ontvangen via FileHandler.
-                new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile(connectionSockets);
+                new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
 
                 // Bestand headers controleren of het bestand succesvol is overgebracht.
                 FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);

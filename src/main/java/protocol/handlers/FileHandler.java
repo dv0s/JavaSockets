@@ -3,7 +3,6 @@ package protocol.handlers;
 import protocol.data.FileHeader;
 import protocol.data.FileMetaData;
 import protocol.enums.Constants;
-import protocol.utils.ConnectionSockets;
 import protocol.utils.Tools;
 
 import java.io.*;
@@ -82,7 +81,7 @@ public class FileHandler {
 
     //region Methods
 
-    public void sendFile(ConnectionSockets connectionSockets) throws IOException {
+    public void sendFile() throws IOException {
         Path file = FileSystems.getDefault().getPath(homeDirectory.toString(), fileHeader.fileName);
 
         int count;
@@ -96,11 +95,11 @@ public class FileHandler {
         }
 
         socketOut.close();
-        socketIn.close();
+//        socketIn.close();
         fileIn.close();
     }
 
-    public void receiveFile(ConnectionSockets connectionSockets) throws IOException {
+    public void receiveFile() throws IOException {
 
         Path file = FileSystems.getDefault().getPath(homeDirectory.toString(), fileHeader.getFileName());
 
@@ -115,8 +114,8 @@ public class FileHandler {
         }
 
         fileOut.close();
-        socketOut.close();
-        socketIn.close();
+//        socketOut.close();
+//        socketIn.close();
 
         LocalDateTime lastModifiedDateTime = LocalDateTime.parse(fileHeader.lastModified);
         Instant instant = lastModifiedDateTime.toInstant(ZoneOffset.UTC);

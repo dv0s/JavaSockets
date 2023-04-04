@@ -32,7 +32,7 @@ public class Client {
         connection.commSocket.connect(connection.commAddress);
         connection.dataSocket.connect(connection.dataAddress);
 
-        ConnectionSockets connectionSockets = new ConnectionSockets(connection.commSocket, connection.dataSocket);
+        ConnectionSockets connectionSockets = new ConnectionSockets(Invoker.CLIENT, connection.commSocket, connection.dataSocket);
         Protocol protocol = new Protocol(homeDirectory);
 
         // Send the sync command upon connection
