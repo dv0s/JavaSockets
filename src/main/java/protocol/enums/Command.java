@@ -7,13 +7,14 @@ public enum Command {
     GET,
     PUT,
     DELETE,
+    SYNC,
     SIZE,
     PORT,
     CLOSE,
     UNKNOWN {
         @Override
         public String toString() {
-            return "UNKNOWN\u0003";
+            return "Unknown command." + Constants.END_OF_TEXT;
         }
     };
 
@@ -25,9 +26,10 @@ public enum Command {
             case 3 -> GET;
             case 4 -> PUT;
             case 5 -> DELETE;
-            case 6 -> SIZE;
-            case 7 -> PORT;
-            case 8 -> CLOSE;
+            case 6 -> SYNC;
+            case 7 -> SIZE;
+            case 8 -> PORT;
+            case 9 -> CLOSE;
             default -> UNKNOWN;
         };
     }
@@ -42,6 +44,7 @@ public enum Command {
             case "GET" -> GET;
             case "PUT" -> PUT;
             case "DELETE" -> DELETE;
+            case "SYNC" -> SYNC;
             case "SIZE" -> SIZE;
             case "PORT" -> PORT;
             case "CLOSE" -> CLOSE;

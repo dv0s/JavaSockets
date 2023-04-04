@@ -37,24 +37,6 @@ public class FileTransferThread extends Thread {
         // Close the thread after transfer.
         Thread.currentThread().interrupt();
 
-        // Check if the request is a GET or PUT
-        // Prepare to receive a stream.
-        // Check the directory where the file needs to go
-        // Read the file header
-        // If header is complete
-        // Send OK Sign
-        // If not
-        // Send Incomplete message
-
-        // Prepare to send a stream.
-        // Check the directory where the file resides
-        // Prepare the file header
-        // Send over the header to the other side
-        // When we get an OK sign for receiving the header, start sending the file
-        // Then we listen for another OK sign that everything is has been received correctly
-
-        // If it has been successful, send end of transmission
-        // If not, restart te process
     }
 
 }
