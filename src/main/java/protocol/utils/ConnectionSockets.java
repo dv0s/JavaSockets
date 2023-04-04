@@ -15,10 +15,9 @@ public class ConnectionSockets {
     public final Socket commSocket;
     public Socket dataSocket;
 
-    public ConnectionSockets(Invoker invoker, Socket commSocket, Socket dataSocket){
+    public ConnectionSockets(Invoker invoker, Socket commSocket){
         this.invoker = invoker;
         this.commSocket = commSocket;
-        this.dataSocket = dataSocket;
     }
 
     public void reInitiateDataSocket() throws IOException {
@@ -26,7 +25,8 @@ public class ConnectionSockets {
             if(this.dataSocket.isClosed()) {
                 System.out.println("Rebuilding data line");
 
-                SocketAddress dataAddress = new InetSocketAddress(this.commSocket.getInetAddress(), Constants.Integers.DATA_PORT.getValue());
+                SocketAddress dataAddress = new InetSocketAddress(this.commSocket.getInetAddress().getHostName(), Constants.Integers.DATA_PORT.getValue());
+                this.dataSocket = new Socket();
                 this.dataSocket.connect(dataAddress);
             }
         }else{

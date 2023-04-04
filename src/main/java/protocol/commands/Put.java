@@ -80,10 +80,17 @@ public class Put implements ICommand {
                 // If server contains 'Header received'
                 if (fromServer.equals("200 HEADER RECEIVED")) {
 
-                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
+                    out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
+                    try(ServerSocket dataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue())){
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, connectionSockets.dataSocket).start();
+                    }catch (IOException e){
+                        System.out.println(e.getMessage());
+                    }
+
+//                    connectionSockets.reInitiateDataSocket();
+
                 }
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
@@ -118,7 +125,7 @@ public class Put implements ICommand {
 
 
         headerLines = args.get(0).split(Constants.Strings.UNIT_SEPARATOR.toString());
-        if(headerLines.length != 6){
+        if (headerLines.length != 6) {
             out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
             out.println(output());
             return;
@@ -145,8 +152,15 @@ public class Put implements ICommand {
             if (nextLine.contains("OPEN")) {
                 String[] command = nextLine.split(" ");
 
+                SocketAddress dataSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Integer.parseInt(command[2]));
+                Socket dataSocket = new Socket();
+
+                dataSocket.connect(dataSocketAddress);
                 // Bestand ontvangen via FileHandler.
-                new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
+                new FileHandler(dataSocket, fileHeader, homeDirectory).receiveFile();
+
+//                connectionSockets.reInitiateDataSocket();
+
 
                 // Bestand headers controleren of het bestand succesvol is overgebracht.
                 FileHeader fileHeaderLocal = FileHandler.constructFileHeader(fileHeader.getFileName(), homeDirectory);

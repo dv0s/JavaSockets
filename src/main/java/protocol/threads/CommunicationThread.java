@@ -18,7 +18,6 @@ public class CommunicationThread extends Thread {
 
     private final ServerConnection connection;
     private final Socket commSocket;
-    private final Socket dataSocket;
     private final Path homeDirectory;
 
     public final ConnectionSockets connectionSockets;
@@ -30,8 +29,7 @@ public class CommunicationThread extends Thread {
         this.connection = connection;
 
         this.commSocket = connection.commSocket.accept();
-        this.dataSocket = connection.dataSocket.accept();
-        this.connectionSockets = new ConnectionSockets(Invoker.SERVER, commSocket, dataSocket);
+        this.connectionSockets = new ConnectionSockets(Invoker.SERVER, commSocket);
     }
 
     public void run() {

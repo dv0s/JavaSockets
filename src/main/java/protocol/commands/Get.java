@@ -113,7 +113,11 @@ public class Get {
                     if (nextLine.contains("OPEN")) {
                         String[] command = nextLine.split(" ");
 
-                        new FileHandler(connectionSockets.dataSocket, fileHeader, homeDirectory).receiveFile();
+                        SocketAddress dataSocketAddress = new InetSocketAddress(socket.getInetAddress().getHostName(), Constants.Integers.DATA_PORT.getValue());
+                        Socket dataSocket = new Socket();
+
+                        dataSocket.connect(dataSocketAddress);
+                        new FileHandler(dataSocket, fileHeader, homeDirectory).receiveFile();
 
 //                        connectionSockets.reInitiateDataSocket();
 
@@ -162,8 +166,14 @@ public class Get {
 
                     out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
-                    // Hier moet een transferThread worden geopend die naar de client toe stuurt.
-                    new FileTransferThread(fileHeader, homeDirectory, connectionSockets.dataSocket).start();
+                    try(ServerSocket dataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue())){
+
+                        // Hier moet een transferThread worden geopend die naar de client toe stuurt.
+                        new FileTransferThread(fileHeader, homeDirectory, dataSocket.accept()).start();
+
+                    } catch (IOException e){
+                        System.out.println(e.getMessage());
+                    }
 
 //                    connectionSockets.reInitiateDataSocket();
                 }

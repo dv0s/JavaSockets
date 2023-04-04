@@ -30,9 +30,9 @@ public class Client {
 //        ConnectionHandler serverConnection = attemptConnections(args, homeDirectory);
         ClientConnection connection = ConnectionHandler.setupClient(args[0]);
         connection.commSocket.connect(connection.commAddress);
-        connection.dataSocket.connect(connection.dataAddress);
+//        connection.dataSocket.connect(connection.dataAddress); TODO: Remove when things work.
 
-        ConnectionSockets connectionSockets = new ConnectionSockets(Invoker.CLIENT, connection.commSocket, connection.dataSocket);
+        ConnectionSockets connectionSockets = new ConnectionSockets(Invoker.CLIENT, connection.commSocket);
         Protocol protocol = new Protocol(homeDirectory);
 
         // Send the sync command upon connection

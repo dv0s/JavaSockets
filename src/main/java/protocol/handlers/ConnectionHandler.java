@@ -63,14 +63,7 @@ public class ConnectionHandler {
             throw new RuntimeException(e);
         }
 
-        ServerSocket serverDataSocket;
-        try {
-            serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return new ServerConnection(serverCommSocket, serverDataSocket);
+        return new ServerConnection(serverCommSocket);
     }
 
     public static ClientConnection setupClient(String hostName){
@@ -83,34 +76,6 @@ public class ConnectionHandler {
         Socket dataSocket = new Socket();
 
         return new ClientConnection(commSocket, commAddress, dataSocket, dataAddress);
-    }
-
-//    public ConnectionHandler listen() throws IOException {
-//        System.out.println("Open for connections...");
-//        while (true) {
-//
-//            try (ServerSocket serverCommSocket = new ServerSocket(Constants.Integers.COMM_PORT.getValue())) {
-//                new CommunicationThread(homeDirectory, serverCommSocket.accept()).start();
-//            } catch (IOException e) {
-//                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.COMM_PORT + ".");
-//                System.out.println(e.getMessage());
-//            }
-//
-//            try (ServerSocket serverDataSocket = new ServerSocket(Constants.Integers.DATA_PORT.getValue())) {
-//                new FileTransferThread(homeDirectory, serverDataSocket.accept()).start();
-//            } catch (IOException e) {
-//                System.err.println("Exception caught when trying to listen on port " + Constants.Integers.DATA_PORT + ".");
-//                System.out.println(e.getMessage());
-//            }
-//        }
-//    }
-
-    public static void startCommThread(CommunicationThread thread){
-        thread.start();
-    }
-
-    public static void startDataThread(FileTransferThread thread){
-        thread.start();
     }
 
     public void close() throws IOException {
