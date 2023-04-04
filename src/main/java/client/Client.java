@@ -1,5 +1,6 @@
 package client;
 
+import client.handlers.FileWatcherHandler;
 import protocol.Protocol;
 import protocol.enums.Command;
 import protocol.enums.Constants;
@@ -32,13 +33,10 @@ public class Client {
         boolean connected = false;
 
         while (!connected) {
-
-
             try {
                 // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
                 serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
                 connected = true;
-
             } catch (IOException ex) {
                 try {
                     if (attempts < 10) {
@@ -77,10 +75,8 @@ public class Client {
             // Als de server het signaal geeft dat het klaar is met praten
             if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
                 if (fromServer.equals(Constants.END_OF_TEXT.toString())) {
-
                     fromUser = input(stdIn);
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);
-
                 } else {
 
                     if (fromServer.startsWith(String.valueOf(ResponseCode.FAILURE.getCode()))) {
@@ -92,9 +88,9 @@ public class Client {
                     } else {
                         // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
                         // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
-                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){ // TODO: FIX This is a cheat. Needs to be dynamic.
+                        if (fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())) { // TODO: FIX This is a cheat. Needs to be dynamic.
                             protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-                        }else{
+                        } else {
                             protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
 
                         }
@@ -104,6 +100,8 @@ public class Client {
             }
         }
 
+        // After finishing sync, go into monitor state
+        new FileWatcherHandler(args);
     }
 
     private static String input(BufferedReader stdIn) throws IOException {

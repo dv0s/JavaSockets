@@ -1,5 +1,6 @@
 package client.handlers;
 
+import protocol.commands.Close;
 import protocol.commands.Delete;
 import protocol.commands.Put;
 import protocol.enums.Constants;
@@ -91,6 +92,7 @@ public class FileWatcherHandler implements Runnable {
 
     private static void handleWatchEvent(WatchEvent<?> event, Path path) throws NoSuchAlgorithmException, IOException {
         File file = path.resolve((Path) event.context()).toFile();
+        System.out.println(event.kind() + " - " + file.getName());
 
         if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
             // Remove from deletedFiles array
@@ -113,7 +115,7 @@ public class FileWatcherHandler implements Runnable {
         // We are creating one object in memory
         ArrayList<String> args = new ArrayList<>();
 
-        for (File file : changedFiles) {
+        changedFiles.forEach((File file) -> {
             // Add file to the arraylist
             args.add(file.getName());
 
@@ -121,15 +123,15 @@ public class FileWatcherHandler implements Runnable {
             new Put(Invoker.CLIENT, clientDir, connection.socket, connection.in, connection.out).handle(args);
 
             // Remove file from the arraylist
-            args.remove(0);
-        }
+            args.remove(file.getName());
+        });
     }
 
     private static void deleteOnServer() {
         // We are creating one object in memory
         ArrayList<String> args = new ArrayList<>();
 
-        for (File file : deletedFiles) {
+        deletedFiles.forEach((File file) -> {
             // Add file to the arraylist
             args.add(file.getName());
 
@@ -137,8 +139,8 @@ public class FileWatcherHandler implements Runnable {
             //new Delete(Invoker.CLIENT, clientDir, connection.socket, connection.in, connection.out).handle(args);
 
             // Remove file from the arraylist
-            args.remove(0);
-        }
+            args.remove(file.getName());
+        });
     }
 
     private static void startFileWatcher() {
