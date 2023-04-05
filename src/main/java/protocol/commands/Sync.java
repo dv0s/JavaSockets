@@ -1,13 +1,10 @@
 package protocol.commands;
 
-import protocol.Protocol;
-import protocol.data.FileHeader;
 import protocol.data.FileMetaData;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +13,7 @@ import java.net.Socket;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class Sync implements ICommand {
+public class Sync{
 
     public final Invoker invoker;
     public final Path homeDirectory;
@@ -32,7 +29,6 @@ public class Sync implements ICommand {
         this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         if (invoker == Invoker.CLIENT) {
             try {
@@ -186,7 +182,6 @@ public class Sync implements ICommand {
         out.println(output());
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

@@ -5,7 +5,6 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
 import java.io.BufferedReader;
@@ -18,7 +17,7 @@ import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class Put implements ICommand {
+public class Put{
 
     public final Invoker invoker;
     public final Path homeDirectory;
@@ -34,7 +33,6 @@ public class Put implements ICommand {
         this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
@@ -163,7 +161,6 @@ public class Put implements ICommand {
         }
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

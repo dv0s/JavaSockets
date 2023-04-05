@@ -6,7 +6,6 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
 import java.io.BufferedReader;
@@ -22,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Get implements ICommand {
+public class Get {
     public final Invoker invoker;
     public final Path homeDirectory;
     public final Socket socket;
@@ -37,7 +36,6 @@ public class Get implements ICommand {
         this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
         if (args.isEmpty()) {
@@ -192,7 +190,6 @@ public class Get implements ICommand {
         out.println(output());
     }
 
-    @Override
     public String output() {
         return Constants.Strings.END_OF_TEXT.toString();
     }

@@ -1,13 +1,12 @@
 package protocol.commands;
 
 import protocol.enums.Constants;
-import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class Size implements ICommand {
+public class Size{
     public final BufferedReader clientIn;
     public final PrintWriter clientOut;
     public final ArrayList<String> params;
@@ -18,13 +17,10 @@ public class Size implements ICommand {
         this.params = params;
     }
 
-
-    @Override
-    public void handle(ArrayList<String> args) {
+    public void handle() {
         clientOut.println(output());
     }
 
-    @Override
     public String output() {
         String output = "Command 'SIZE' called";
         return output + Constants.Strings.END_OF_TEXT;
