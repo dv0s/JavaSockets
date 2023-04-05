@@ -171,7 +171,7 @@ public class FileHandler {
             return String.join("\n", fileList);
         }
 
-        return "ERROR";
+        return "EMPTY";
     }
 
     public static ArrayList<String> directoryList(Path homeDirectory) {
