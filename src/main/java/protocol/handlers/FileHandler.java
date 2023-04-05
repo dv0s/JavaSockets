@@ -3,6 +3,7 @@ package protocol.handlers;
 import protocol.data.FileHeader;
 import protocol.data.FileMetaData;
 import protocol.enums.Constants;
+import protocol.enums.ResponseCode;
 import protocol.utils.Tools;
 
 import java.io.*;
@@ -171,7 +172,7 @@ public class FileHandler {
             return String.join("\n", fileList);
         }
 
-        return "ERROR";
+        return ResponseCode.FAILURE + " DIRECTORY EMPTY" + Constants.Strings.END_OF_TEXT;
     }
 
     public static ArrayList<String> directoryList(Path homeDirectory) {
@@ -220,7 +221,9 @@ public class FileHandler {
         list.forEach((file) -> {
             String sanitized = file.replace(Constants.Strings.FILE_SEPARATOR.toString(), "");
             String[] lines = sanitized.split(Constants.Strings.UNIT_SEPARATOR.toString());
-
+            if(lines.length != 2){
+                throw new RuntimeException("Couldn't convert to meta list: missing attributes");
+            }
             FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1]);
             result.add(fileMetaData);
         });

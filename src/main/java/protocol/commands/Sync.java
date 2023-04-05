@@ -6,6 +6,7 @@ import protocol.data.FileMetaData;
 import protocol.enums.Command;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
+import protocol.enums.ResponseCode;
 import protocol.handlers.ConnectionHandler;
 import protocol.handlers.FileHandler;
 import protocol.interfaces.ICommand;
@@ -72,6 +73,10 @@ public class Sync implements ICommand {
 
             if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
                 break;
+            }
+
+            if(nextLine.contains(ResponseCode.FAILURE.toString())){
+                throw new IOException("REMOTE DIRECTORY IS EMPTY");
             }
         }
 
