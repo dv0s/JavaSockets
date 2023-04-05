@@ -23,8 +23,8 @@ public class Client {
             System.exit(1);
         }
 
-        System.out.println("File sync client started. " + Constants.VERSION);
-        Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
+        System.out.println("File sync client started. " + Constants.Strings.VERSION);
+        Path homeDirectory = Tools.initializeHomeDirectory(Constants.Strings.BASE_DIR + File.separator + "client");
 
         ConnectionHandler serverConnection = null;
 
@@ -64,19 +64,19 @@ public class Client {
         String fromServer, fromUser;
 
         while ((fromServer = serverConnection.in.readLine()) != null) {
-            if (!fromServer.contains(Constants.END_OF_TEXT.toString()) && !fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+            if (!fromServer.contains(Constants.Strings.END_OF_TEXT.toString()) && !fromServer.contains(Constants.Strings.END_OF_TRANSMISSION.toString())) {
                 System.out.println("Server: " + fromServer);
             }
 
             // Close the connection. Check this one first in case of connection with other party throwing both the control characters.
-            if (fromServer.contains(Constants.END_OF_TRANSMISSION.toString())) {
+            if (fromServer.contains(Constants.Strings.END_OF_TRANSMISSION.toString())) {
                 serverConnection.close();
                 break;
             }
 
             // Als de server het signaal geeft dat het klaar is met praten
-            if (fromServer.contains(Constants.END_OF_TEXT.toString())) {
-                if (fromServer.equals(Constants.END_OF_TEXT.toString())) {
+            if (fromServer.contains(Constants.Strings.END_OF_TEXT.toString())) {
+                if (fromServer.equals(Constants.Strings.END_OF_TEXT.toString())) {
 
                     fromUser = input(stdIn);
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);

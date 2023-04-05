@@ -40,6 +40,6 @@ public class Close implements ICommand {
 
     @Override
     public String output() {
-        return Constants.END_OF_TRANSMISSION.toString();
+        return Constants.Strings.END_OF_TRANSMISSION.toString();
     }
 }

@@ -14,7 +14,7 @@ public enum Command {
     UNKNOWN {
         @Override
         public String toString() {
-            return "Unknown command." + Constants.END_OF_TEXT;
+            return "Unknown command." + Constants.Strings.END_OF_TEXT;
         }
     };
 

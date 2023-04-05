@@ -39,7 +39,7 @@ public class Protocol {
             case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
             case SYNC -> new Sync(invoker, homeDirectory, socket, in, out).handle(params);
             case CLOSE -> new Close(invoker, in, out).handle(params);
-            default -> out.println(UNKNOWN);
+            default -> new Unknown(invoker, in, out).handle();
         }
     }
 

@@ -93,11 +93,11 @@ public class FileHeader{
 
     @Override
     public String toString() {
-        return "FileHeader" + Constants.UNIT_SEPARATOR +
-                fileName + Constants.UNIT_SEPARATOR +
-                lastModified + Constants.UNIT_SEPARATOR +
-                fileSize + Constants.UNIT_SEPARATOR +
-                hashAlgo + Constants.UNIT_SEPARATOR +
+        return "FileHeader" + Constants.Strings.UNIT_SEPARATOR +
+                fileName + Constants.Strings.UNIT_SEPARATOR +
+                lastModified + Constants.Strings.UNIT_SEPARATOR +
+                fileSize + Constants.Strings.UNIT_SEPARATOR +
+                hashAlgo + Constants.Strings.UNIT_SEPARATOR +
                 checkSum;
     }
 

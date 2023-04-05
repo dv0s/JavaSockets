@@ -27,6 +27,6 @@ public class Size implements ICommand {
     @Override
     public String output() {
         String output = "Command 'SIZE' called";
-        return output + Constants.END_OF_TEXT;
+        return output + Constants.Strings.END_OF_TEXT;
     }
 }

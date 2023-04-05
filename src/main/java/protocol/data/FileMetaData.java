@@ -49,6 +49,6 @@ public class FileMetaData {
 
     @Override
     public String toString() {
-        return fileName + Constants.UNIT_SEPARATOR + lastModified + Constants.FILE_SEPARATOR;
+        return fileName + Constants.Strings.UNIT_SEPARATOR + lastModified + Constants.Strings.FILE_SEPARATOR;
     }
 }

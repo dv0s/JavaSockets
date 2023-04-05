@@ -94,7 +94,7 @@ public class Tools {
     }
 
     public static ArrayList<String> directoryArrayListFromString(String directoryString){
-        String[] directoryArray = directoryString.split(Constants.FILE_SEPARATOR.toString());
+        String[] directoryArray = directoryString.split(Constants.Strings.FILE_SEPARATOR.toString());
 
         return new ArrayList<>(Arrays.asList(directoryArray));
     }
