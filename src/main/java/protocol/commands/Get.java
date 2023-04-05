@@ -163,7 +163,6 @@ public class Get {
             while ((input = in.readLine()) != null) {
                 if (input.equals(ResponseCode.SUCCESS + " FILEHEADER RECEIVED")) {
 
-                    // TODO: FIX OPEN commando moet in connectionHandler plaatsvinden.
                     try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.Integers.DATA_PORT.toString()))) {
                         out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 

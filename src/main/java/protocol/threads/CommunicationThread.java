@@ -34,9 +34,6 @@ public class CommunicationThread extends Thread {
 
             Protocol protocol = new Protocol(homeDirectory);
 
-//            clientOut.println("Connection established. Welcome client #" + clientId + Constants.END_OF_TEXT);
-            protocol.processInput(Invoker.SERVER, Command.SYNC.toString(), socket, clientIn, clientOut); // TODO: FIX Client needs to make this call
-
             String inputLine;
             // While lus die kijkt naar wat de client naar ons stuurt zolang de connectie bestaat.
             while ((inputLine = clientIn.readLine()) != null) {

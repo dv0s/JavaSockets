@@ -32,8 +32,6 @@ public class Client {
         boolean connected = false;
 
         while (!connected) {
-
-
             try {
                 // Gooi de argumenten door naar connection handler, en laat die het maar verder afhandelen.
                 serverConnection = new ConnectionHandler(Invoker.CLIENT, homeDirectory).establish(args);
@@ -58,7 +56,7 @@ public class Client {
         Protocol protocol = new Protocol(homeDirectory);
 
         // Send the sync command upon connection
-//        protocol.processInput(Invoker.CLIENT, Command.SYNC.toString(), serverConnection.socket, serverConnection.in, serverConnection.out);
+        protocol.processInput(Invoker.CLIENT, Command.SYNC.toString(), serverConnection.socket, serverConnection.in, serverConnection.out);
 
         BufferedReader stdIn = new BufferedReader((new InputStreamReader(System.in)));
         String fromServer, fromUser;
@@ -90,11 +88,12 @@ public class Client {
                         protocol.processErrorHandling();
                         // Error afhandeling;
                     } else {
-                        // We gaan er eigenlijk altijd wel van uit dat het response om een succesvolle gaat.
-                        // TODO: FIX Als de server iets wilt uitvoeren als client, dan moet client het aanpakken als server.
-                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){ // TODO: FIX This is a cheat. Needs to be dynamic.
+
+                        // Als de server een commando geeft, moeten wij als client dit oppakken als server.
+                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){
                             protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
                         }else{
+                            // Anders voeren we het uit als client.
                             protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
 
                         }

@@ -36,10 +36,7 @@ public class Sync{
             } catch (IOException e){
                 System.err.println(e.getMessage());
             }
-
         } else {
-            out.println(Command.LS + output());
-
             try {
                 handleServer(args);
             } catch (IOException e) {
@@ -49,6 +46,9 @@ public class Sync{
     }
 
     public void handleClient(ArrayList<String> args) throws IOException {
+        out.println(Command.SYNC);
+
+        new List(invoker, homeDirectory, socket, in, out).handle(args);
 
     }
 
