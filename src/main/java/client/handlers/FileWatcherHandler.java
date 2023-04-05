@@ -16,25 +16,35 @@ import java.util.Scanner;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileWatcherHandler implements Runnable {
-    private static Scanner scanner;
-    private static Path clientDir;
     private final String[] args;
-    private static ConnectionHandler connection;
-    private static WatchService watchService;
-    private static final ArrayList<File> changedFiles = new ArrayList<>();
-    private static final ArrayList<File> deletedFiles = new ArrayList<>();
+    private final Scanner scanner;
+    private final Path clientDir;
+    private ConnectionHandler connection;
+    private WatchService watchService;
+    private final ArrayList<File> changedFiles;
+    private final ArrayList<File> deletedFiles;
+    private String event;
+
+    public Path getClientDir() {
+        return clientDir;
+    }
+
+    public ArrayList<File> getChangedFiles() {
+        return changedFiles;
+    }
 
     public FileWatcherHandler(String[] args) {
         this.args = args;
         scanner = new Scanner(System.in);
         clientDir = Paths.get(Constants.BASE_DIR + File.separator + "client");
-        run();
+        changedFiles = new ArrayList<>();
+        deletedFiles = new ArrayList<>();
+
+        startFileWatcher();
     }
 
     @Override
     public void run() {
-        startFileWatcher();
-
         Thread monitor = new Thread(() -> {
             System.out.println(clientDir + " is in monitoring state...");
             monitorChanges();
@@ -66,7 +76,7 @@ public class FileWatcherHandler implements Runnable {
         }
     }
 
-    private static void monitorChanges() {
+    public void monitorChanges() {
         try {
             boolean poll = true;
 
@@ -90,9 +100,9 @@ public class FileWatcherHandler implements Runnable {
         }
     }
 
-    private static void handleWatchEvent(WatchEvent<?> event, Path path) throws NoSuchAlgorithmException, IOException {
+    private void handleWatchEvent(WatchEvent<?> event, Path path) throws NoSuchAlgorithmException, IOException {
         File file = path.resolve((Path) event.context()).toFile();
-        System.out.println(event.kind() + " - " + file.getName());
+        System.out.println(event.kind() + " - " + file.getName());;
 
         if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
             // Remove from deletedFiles array
@@ -111,7 +121,7 @@ public class FileWatcherHandler implements Runnable {
         }
     }
 
-    private static void putToServer() {
+    private void putToServer() {
         // We are creating one object in memory
         ArrayList<String> args = new ArrayList<>();
 
@@ -127,7 +137,7 @@ public class FileWatcherHandler implements Runnable {
         });
     }
 
-    private static void deleteOnServer() {
+    private void deleteOnServer() {
         // We are creating one object in memory
         ArrayList<String> args = new ArrayList<>();
 
@@ -143,7 +153,7 @@ public class FileWatcherHandler implements Runnable {
         });
     }
 
-    private static void startFileWatcher() {
+    private void startFileWatcher() {
         try {
             watchService = FileSystems.getDefault().newWatchService();
             clientDir.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
@@ -152,7 +162,7 @@ public class FileWatcherHandler implements Runnable {
         }
     }
 
-    private static void closeFileWatcher() {
+    public void closeFileWatcher() {
         try {
             if (watchService != null) {
                 watchService.close();

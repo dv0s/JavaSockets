@@ -27,7 +27,11 @@ public class Client {
         System.out.println("File sync client started. " + Constants.VERSION);
         Path homeDirectory = Tools.initializeHomeDirectory(Constants.BASE_DIR + File.separator + "client");
 
-        ConnectionHandler serverConnection = null;
+        // After finishing sync, go into monitor state
+        FileWatcherHandler fileWatcherHandler = new FileWatcherHandler(args);
+        fileWatcherHandler.run();
+
+        /*ConnectionHandler serverConnection = null;
 
         int attempts = 0;
         boolean connected = false;
@@ -98,10 +102,7 @@ public class Client {
 
                 }
             }
-        }
-
-        // After finishing sync, go into monitor state
-        new FileWatcherHandler(args);
+        }*/
     }
 
     private static String input(BufferedReader stdIn) throws IOException {
