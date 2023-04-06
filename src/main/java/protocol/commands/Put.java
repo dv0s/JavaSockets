@@ -14,7 +14,9 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Put{
@@ -156,6 +158,8 @@ public class Put{
                     out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
                 } else {
                     out.println(ResponseCode.FAILURE.getCode() + "FILE CORRUPTED");
+                    Path file = Paths.get(homeDirectory.toString(), fileHeader.getFileName());
+                    Files.deleteIfExists(file);
                     // TODO: FIX Hier moet de loop opnieuw beginnen zodra het bestand corrupted is.
                 }
             }

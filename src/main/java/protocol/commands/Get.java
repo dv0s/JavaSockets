@@ -127,6 +127,8 @@ public class Get {
                             out.flush();
                         } else {
                             out.println(ResponseCode.FAILURE.getCode() + " FILE CORRUPTED");
+                            Path file = Paths.get(homeDirectory.toString(), fileHeader.getFileName());
+                            Files.deleteIfExists(file);
                             // TODO: FIX Hier moet de loop opnieuw beginnen zodra het bestand corrupted is.
                         }
                     }
