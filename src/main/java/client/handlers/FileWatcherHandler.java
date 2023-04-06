@@ -1,9 +1,6 @@
 package client.handlers;
 
-import protocol.commands.Close;
-import protocol.commands.Delete;
 import protocol.commands.Put;
-import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.handlers.ConnectionHandler;
 
@@ -14,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static protocol.enums.Constants.Strings.BASE_DIR;
 
 public class FileWatcherHandler implements Runnable {
     private final String[] args;
@@ -23,7 +21,6 @@ public class FileWatcherHandler implements Runnable {
     private WatchService watchService;
     private final ArrayList<File> changedFiles;
     private final ArrayList<File> deletedFiles;
-    private String event;
 
     public Path getClientDir() {
         return clientDir;
@@ -36,7 +33,7 @@ public class FileWatcherHandler implements Runnable {
     public FileWatcherHandler(String[] args) {
         this.args = args;
         scanner = new Scanner(System.in);
-        clientDir = Paths.get(Constants.BASE_DIR + File.separator + "client");
+        clientDir = Paths.get(BASE_DIR + File.separator + "client");
         changedFiles = new ArrayList<>();
         deletedFiles = new ArrayList<>();
 
@@ -102,7 +99,7 @@ public class FileWatcherHandler implements Runnable {
 
     private void handleWatchEvent(WatchEvent<?> event, Path path) throws NoSuchAlgorithmException, IOException {
         File file = path.resolve((Path) event.context()).toFile();
-        System.out.println(event.kind() + " - " + file.getName());;
+        System.out.println(event.kind() + " - " + file.getName());
 
         if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY) {
             // Remove from deletedFiles array
