@@ -75,7 +75,7 @@ public class Client {
 
             // Als de server het signaal geeft dat het klaar is met praten
             if (fromServer.contains(Constants.Strings.END_OF_TEXT.toString())) {
-                if (fromServer.equals(Constants.Strings.END_OF_TEXT.toString())) {
+                if (fromServer.equals(Constants.Strings.END_OF_TEXT.toString()) || fromServer.equals("COMMAND UNKNOWN" + Constants.Strings.END_OF_TEXT)) {
 
                     fromUser = input(stdIn);
                     protocol.processInput(Invoker.CLIENT, fromUser, serverConnection.socket, serverConnection.in, serverConnection.out);

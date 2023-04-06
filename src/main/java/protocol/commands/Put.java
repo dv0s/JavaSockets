@@ -83,7 +83,7 @@ public class Put{
                 }
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
-                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete.");
+                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.Strings.END_OF_TEXT);
                     break;
                 }
 

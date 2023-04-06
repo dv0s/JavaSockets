@@ -19,7 +19,7 @@ public class Unknown {
     }
 
     public void handle() {
-        out.println(output());
+        out.println("COMMAND UNKNOWN" + output());
 
     }
 

@@ -71,7 +71,7 @@ public class Get {
         String fromServer;
 
         // Should output "GET <filename>"
-        out.println(Command.GET + " " + args.get(0) + Constants.Strings.END_OF_TEXT);
+        out.println(Command.GET + " " + args.get(0) + Constants.Strings.END_OF_TEXT + "\n");
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if ((fromServer = in.readLine()) != null) {
@@ -172,7 +172,7 @@ public class Get {
                 }
 
                 if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {
-                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete.");
+                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.Strings.END_OF_TEXT);
                     break;
                 }
 
@@ -186,7 +186,6 @@ public class Get {
             System.err.println(e.getMessage());
         }
 
-        out.println(output());
     }
 
     public String output() {
