@@ -124,6 +124,7 @@ public class Get {
                         if (fileHeaderLocal.compareCheckSum(fileHeader)) {
                             fileTransferSocket.close();
                             out.println(ResponseCode.SUCCESS.getCode() + " FILE RECEIVED SUCCESSFUL");
+                            out.flush();
                         } else {
                             out.println(ResponseCode.FAILURE.getCode() + " FILE CORRUPTED");
                             // TODO: FIX Hier moet de loop opnieuw beginnen zodra het bestand corrupted is.
@@ -173,6 +174,7 @@ public class Get {
 
                 if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.Strings.END_OF_TEXT);
+                    out.flush();
                     break;
                 }
 

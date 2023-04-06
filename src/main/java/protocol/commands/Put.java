@@ -84,6 +84,7 @@ public class Put{
 
                 if (fromServer.equals("200 FILE RECEIVED SUCCESSFUL")) {
                     out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + Constants.Strings.END_OF_TEXT);
+                    out.flush();
                     break;
                 }
 
@@ -134,7 +135,7 @@ public class Put{
             System.out.println("Client: " + nextLine);
 
             if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
-                out.println(output());
+//                out.println(output());
                 break;
             }
 
