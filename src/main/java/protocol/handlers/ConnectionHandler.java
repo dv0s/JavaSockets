@@ -46,6 +46,7 @@ public class ConnectionHandler {
             SocketAddress socketAddress = new InetSocketAddress(hostName, portNumber);
 
             socket = new Socket();
+            socket.setReuseAddress(true);
             socket.connect(socketAddress);
 
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -61,7 +62,6 @@ public class ConnectionHandler {
             boolean listening = true;
 
             try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
-
                 System.out.println("Waiting for connections...");
 
                 while (listening) {

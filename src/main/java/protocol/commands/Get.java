@@ -172,7 +172,7 @@ public class Get {
                 }
 
                 if (input.equals(ResponseCode.SUCCESS + " FILE RECEIVED SUCCESSFUL")) {
-                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete." + output());
+                    out.println(ResponseCode.SUCCESS.getCode() + " File transfer complete.");
                     break;
                 }
 

@@ -1,5 +1,6 @@
 package client;
 
+import client.handlers.FileWatcherHandler;
 import protocol.Protocol;
 import protocol.enums.Command;
 import protocol.enums.Constants;
@@ -90,9 +91,9 @@ public class Client {
                     } else {
 
                         // Als de server een commando geeft, moeten wij als client dit oppakken als server.
-                        if(fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())){
+                        if (fromServer.startsWith(Command.PUT.toString()) || fromServer.startsWith(Command.GET.toString())) {
                             protocol.processInput(Invoker.SERVER, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
-                        }else{
+                        } else {
                             // Anders voeren we het uit als client.
                             protocol.processInput(Invoker.CLIENT, fromServer, serverConnection.socket, serverConnection.in, serverConnection.out);
 
@@ -103,6 +104,8 @@ public class Client {
             }
         }
 
+        FileWatcherHandler fileWatcherHandler = new FileWatcherHandler(args);
+        fileWatcherHandler.run();
     }
 
     private static String input(BufferedReader stdIn) throws IOException {

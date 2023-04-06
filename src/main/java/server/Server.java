@@ -27,7 +27,5 @@ public class Server {
         fileList.forEach(System.out::println);
 
         new ConnectionHandler(Invoker.SERVER, homeDirectory).establish(args);
-
-
     }
 }
