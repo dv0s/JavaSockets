@@ -138,7 +138,7 @@ public class FileHandler {
         FileHeader fileHeader = new FileHeader();
         try {
             file = new File(path.toString());
-            md5Digest = MessageDigest.getInstance(Constants.HASHING_ALGORITHM.toString());
+            md5Digest = MessageDigest.getInstance(Constants.Strings.HASHING_ALGORITHM.toString());
             checkSum = Tools.getFileChecksum(md5Digest, file);
 
             sendFile = Paths.get(homeDirectory.toString(), file.getName());
@@ -151,7 +151,7 @@ public class FileHandler {
             fileHeader.setFileName(sendFile.getFileName().toString());
             fileHeader.setLastModified(lastModifiedDateTime);
             fileHeader.setFileSize(Files.size(sendFile));
-            fileHeader.setHashAlgo(Constants.HASHING_ALGORITHM.toString());
+            fileHeader.setHashAlgo(Constants.Strings.HASHING_ALGORITHM.toString());
             fileHeader.setCheckSum(checkSum);
 
         } catch (NullPointerException e) {
@@ -171,7 +171,7 @@ public class FileHandler {
             return String.join("\n", fileList);
         }
 
-        return "ERROR";
+        return "EMPTY";
     }
 
     public static ArrayList<String> directoryList(Path homeDirectory) {
@@ -202,8 +202,8 @@ public class FileHandler {
         ArrayList<String> remoteList = new ArrayList<>();
 
         local.forEach((rule) -> {
-            String[] attr = rule.split(Constants.UNIT_SEPARATOR.toString());
-            localList.add(attr[0] + Constants.UNIT_SEPARATOR + attr[2]);
+            String[] attr = rule.split(Constants.Strings.UNIT_SEPARATOR.toString());
+            localList.add(attr[0] + Constants.Strings.UNIT_SEPARATOR + attr[2]);
         });
 
         // TODO: 22/03/2023 FIX Deze functie wordt waarschijnlijk niet afgemaakt, but just in case.
@@ -218,8 +218,8 @@ public class FileHandler {
     public static ArrayList<FileMetaData> convertToFileMetaDataList(ArrayList<String> list){
         ArrayList<FileMetaData> result = new ArrayList<>();
         list.forEach((file) -> {
-            String sanitized = file.replace(Constants.FILE_SEPARATOR.toString(), "");
-            String[] lines = sanitized.split(Constants.UNIT_SEPARATOR.toString());
+            String sanitized = file.replace(Constants.Strings.FILE_SEPARATOR.toString(), "");
+            String[] lines = sanitized.split(Constants.Strings.UNIT_SEPARATOR.toString());
 
             FileMetaData fileMetaData = new FileMetaData(lines[0], lines[1]);
             result.add(fileMetaData);

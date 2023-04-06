@@ -6,7 +6,6 @@ import protocol.enums.Constants;
 import protocol.enums.Invoker;
 import protocol.enums.ResponseCode;
 import protocol.handlers.FileHandler;
-import protocol.interfaces.ICommand;
 import protocol.threads.FileTransferThread;
 
 import java.io.BufferedReader;
@@ -22,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Get implements ICommand {
+public class Get {
     public final Invoker invoker;
     public final Path homeDirectory;
     public final Socket socket;
@@ -37,18 +36,17 @@ public class Get implements ICommand {
         this.out = out;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         // Eerst wat checks
         if (args.isEmpty()) {
             System.out.println("No arguments found.");
-            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " No arguments found. correct usage: GET <filename>" + Constants.Strings.END_OF_TEXT);
             return;
         }
 
         if (args.size() > 1) {
             System.out.println("Too many arguments found.");
-            out.println(ResponseCode.ERROR.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.END_OF_TEXT);
+            out.println(ResponseCode.ERROR.getCode() + " Too many arguments found. Expected one argument. correct usage: GET <filename>" + Constants.Strings.END_OF_TEXT);
             return;
         }
 
@@ -73,7 +71,7 @@ public class Get implements ICommand {
         String fromServer;
 
         // Should output "GET <filename>"
-        out.println(Command.GET + " " + args.get(0) + Constants.END_OF_TEXT);
+        out.println(Command.GET + " " + args.get(0) + Constants.Strings.END_OF_TEXT);
 
         // Zodra we een FileHeader antwoord hebben ontvangen
         if ((fromServer = in.readLine()) != null) {
@@ -87,7 +85,7 @@ public class Get implements ICommand {
                 String[] headerLines;
                 FileHeader fileHeader = new FileHeader();
 
-                headerLines = fromServer.split(Constants.UNIT_SEPARATOR.toString());
+                headerLines = fromServer.split(Constants.Strings.UNIT_SEPARATOR.toString());
                 if(headerLines.length != 6){
                     out.println(ResponseCode.FAILURE + " Missing header line(s). 6 expected, received: " + headerLines.length);
                     return;
@@ -107,7 +105,7 @@ public class Get implements ICommand {
                 while ((nextLine = in.readLine()) != null) {
                     System.out.println("Server: " + nextLine);
 
-                    if (nextLine.contains(Constants.END_OF_TEXT.toString())) {
+                    if (nextLine.contains(Constants.Strings.END_OF_TEXT.toString())) {
                         break;
                     }
 
@@ -143,7 +141,7 @@ public class Get implements ICommand {
             return;
         }
 
-        String fileName = args.get(0).replace(Constants.END_OF_TEXT.toString(), "");
+        String fileName = args.get(0).replace(Constants.Strings.END_OF_TEXT.toString(), "");
 
         // Server sends the file to client.
         Path path = Paths.get(homeDirectory + File.separator + fileName);
@@ -158,16 +156,15 @@ public class Get implements ICommand {
         FileHeader fileHeader = FileHandler.constructFileHeader(fileName, homeDirectory);
 
         // Nadat er wat werk klaar is gezet, geef dan responseCode
-        out.println(ResponseCode.SUCCESS.getCode() + " " + fileHeader + Constants.END_OF_TEXT + "\n");
+        out.println(ResponseCode.SUCCESS.getCode() + " " + fileHeader + Constants.Strings.END_OF_TEXT + "\n");
 
         String input;
         try {
             while ((input = in.readLine()) != null) {
                 if (input.equals(ResponseCode.SUCCESS + " FILEHEADER RECEIVED")) {
 
-                    // TODO: FIX OPEN commando moet in connectionHandler plaatsvinden.
-                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.DATA_PORT.toString()))) {
-                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.DATA_PORT);
+                    try (ServerSocket fileTransferSocket = new ServerSocket(Integer.parseInt(Constants.Integers.DATA_PORT.toString()))) {
+                        out.println(ResponseCode.SUCCESS + " OPEN " + Constants.Integers.DATA_PORT);
 
                         // Hier moet een transferThread worden geopend die naar de client toe stuurt.
                         new FileTransferThread(fileHeader, homeDirectory, fileTransferSocket.accept()).start();
@@ -192,8 +189,7 @@ public class Get implements ICommand {
         out.println(output());
     }
 
-    @Override
     public String output() {
-        return Constants.END_OF_TEXT.toString();
+        return Constants.Strings.END_OF_TEXT.toString();
     }
 }

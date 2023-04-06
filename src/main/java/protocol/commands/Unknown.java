@@ -3,25 +3,27 @@ package protocol.commands;
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
 
-import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.net.Socket;
 
 public class Unknown {
+
     public final Invoker invoker;
-    public final Socket socket;
+    public final BufferedReader in;
+    public final PrintWriter out;
 
-    public Unknown(Invoker invoker, Socket socket) {
+    public Unknown(Invoker invoker, BufferedReader in, PrintWriter out){
         this.invoker = invoker;
-        this.socket = socket;
+        this.in = in;
+        this.out = out;
     }
 
-    public void handle() throws IOException {
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+    public void handle() {
         out.println(output());
+
     }
 
-    public String output() {
-        return Constants.END_OF_TEXT.toString();
+    public String output(){
+        return Constants.Strings.END_OF_TEXT.toString();
     }
 }

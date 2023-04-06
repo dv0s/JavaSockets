@@ -2,7 +2,6 @@ package protocol.commands;
 
 import protocol.enums.Constants;
 import protocol.enums.Invoker;
-import protocol.interfaces.ICommand;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -10,7 +9,7 @@ import java.net.Socket;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-public class Open implements ICommand {
+public class Open{
     public final Invoker invoker;
     public final Path homeDirectory;
     public final Socket socket;
@@ -25,14 +24,12 @@ public class Open implements ICommand {
         this.out = clientOut;
     }
 
-    @Override
     public void handle(ArrayList<String> args) {
         out.println(output());
     }
 
-    @Override
     public String output() {
         String output = "Command 'OPEN' called";
-        return output + Constants.END_OF_TEXT;
+        return output + Constants.Strings.END_OF_TEXT;
     }
 }

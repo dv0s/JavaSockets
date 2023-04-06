@@ -5,7 +5,6 @@ import protocol.enums.Command;
 import protocol.enums.Invoker;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Path;
@@ -22,7 +21,7 @@ public class Protocol {
         this.homeDirectory = homeDirectory;
     }
 
-    public void processInput(Invoker invoker, String input, Socket socket, BufferedReader in, PrintWriter out) throws IOException {
+    public void processInput(Invoker invoker, String input, Socket socket, BufferedReader in, PrintWriter out) {
         ArrayList<String> params = getParameters(input);
 
         // Get command enum, then remove command from the ArrayList
@@ -31,18 +30,16 @@ public class Protocol {
 
         // Handle the commands
         switch (command) {
-            case OPEN ->
-                    new Open(invoker, homeDirectory, socket, in, out).handle(params); // TODO: Command moet nog worden gemaakt.
-            case LS ->
-                    new List(invoker, homeDirectory, socket, in, out).handle(params); // TODO: FIX Commando doet nu ook lijsten scheiden voor sync.
+//            case OPEN -> new Open(invoker, homeDirectory, socket, in, out).handle(params);
+            case LS -> new List(invoker, homeDirectory, socket, in, out).handle(params);
             case GET -> new Get(invoker, homeDirectory, socket, in, out).handle(params);
             case PUT -> new Put(invoker, homeDirectory, socket, in, out).handle(params);
             case DELETE -> new Delete(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
-            case SIZE -> new Size(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
-            case PORT -> new Port(in, out, params).handle(params); // TODO: Command moet nog worden gemaakt.
+//            case SIZE -> new Size(in, out, params).handle();
+//            case PORT -> new Port(in, out, params).handle(params);
             case SYNC -> new Sync(invoker, homeDirectory, socket, in, out).handle(params);
             case CLOSE -> new Close(invoker, in, out).handle(params);
-            default -> new Unknown(invoker, socket).handle();
+            default -> new Unknown(invoker, in, out).handle();
         }
     }
 
@@ -57,8 +54,5 @@ public class Protocol {
     public ArrayList<String> getParameters(String input) {
         String[] params = input.split(" ");
         return new ArrayList<>(Arrays.asList(params));
-    }
-
-    private void Stop() {
     }
 }
